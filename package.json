@@ -5,8 +5,8 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "format": "prettier --write \"app/**/*.{ts,tsx,css}\"",
-    "format:check": "prettier --check \"app/**/*.{ts,tsx,css}\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint",
     "start": "next start",
     "test": "vitest run"
