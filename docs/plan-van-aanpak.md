@@ -15,21 +15,19 @@ Doel: aantonen dat ik client- en servertechnologie, authenticatie/autorisatie en
   - Beveiligde beheeromgeving
 - Realtime updates via Server-Sent Events
 
-##3. Aanpak en werkwijze
+## 3. Aanpak en werkwijze
 
-## 3. Werkwijze
-
-Elke feature is een compleet (backend, frontend, tests, documentatie) in één pull request, en is na merge zelfstandig demonstreerbaar.
-Zodat elke stappen makkelijk te scheiden zijn.
+Elke feature is compleet (backend, frontend, tests, documentatie) in één pull request, en is na merge zelfstandig demonstreerbaar.
+Zodat elke feature makkelijk te scheiden is en onafhankelijk demonstreerbaar is.
 
 De logische volgorde van de features wordt:
 
 - project setup
-- portfolio
-- contact
-- gastenboek
-- auth/admin
-- realtime
+- portfolio pagina
+- contact pagina
+- auth/admin systeem
+- gastenboek pagina
+- realtime updates
 
 Per feature bouwen we het volgens de volgende werkwijze:
 
