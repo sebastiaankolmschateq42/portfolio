@@ -84,7 +84,10 @@ const rawPortfolio = {
       date: new Date("2024-05-3"),
       summary:
         "Voyage Spiritual is a mockumentary created for the Film festival in Alba La Romaine in France. It is a story about a young professional travelling to the Ardeche to find himself with the help of lady sunshine. He was responsible for part of the production, filming, editing and acting in the film.",
-      description: ["Voyage Spiritual the movie was amazing!!!! It was a great experience to be part of the film and to work with the team.", "A bit more temporary test stuff."],
+      description: [
+        "Voyage Spiritual the movie was amazing!!!! It was a great experience to be part of the film and to work with the team.",
+        "A bit more temporary test stuff.",
+      ],
       images: [{ src: "https://via.placeholder.com/150", alt: "Voyage Spiritual the movie image" }],
     },
     {

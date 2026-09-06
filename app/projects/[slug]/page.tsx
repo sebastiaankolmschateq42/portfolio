@@ -18,21 +18,20 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         <p>{project?.summary}</p>
       </section>
       <section>
-          {project?.images.map((image) => (
-            <Image key={image.src}
-              src={"/placeholder.jpg"}
-              alt={image.alt}
-              width={100}
-              height={100}
-            />
-          ))}
+        {project?.images.map((image) => (
+          <Image
+            key={image.src}
+            src={"/placeholder.jpg"}
+            alt={image.alt}
+            width={100}
+            height={100}
+          />
+        ))}
       </section>
       <section className="flex flex-col gap-2">
-        {
-          project?.description.map((description) => (
-            <p key={description}>{description}</p>
-          ))
-        }
+        {project?.description.map((description) => (
+          <p key={description}>{description}</p>
+        ))}
       </section>
     </div>
   );
