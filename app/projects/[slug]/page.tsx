@@ -2,6 +2,10 @@ import { portfolio } from "@/lib/content";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 
+export function generateStaticParams() {
+  return portfolio.projects.map((project) => ({ slug: project.slug }));
+}
+
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const paramsData = await params;
   const { slug } = paramsData;
