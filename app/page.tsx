@@ -15,7 +15,7 @@ export default function Home() {
           {projecten.map((project) => (
             <div key={project.slug}>
               <Link href={`/projects/${project.slug}`}>
-                <h3 className="font-semibold">{project.title}</h3>
+                <h2 className="font-semibold underline">{project.title}</h2>
                 <p>{project.summary}</p>
               </Link>
             </div>

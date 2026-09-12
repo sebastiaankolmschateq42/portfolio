@@ -19,7 +19,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     <div className="flex flex-col gap-4">
       <section>
         <div className="flex flex-col">
-          <h1 className="text-2xl font-bold">{project.title}</h1>
+          <h1 className="font-bold">{project.title}</h1>
           <p>{project?.summary}</p>
         </div>
         <div className="flex flex-row gap-4">
