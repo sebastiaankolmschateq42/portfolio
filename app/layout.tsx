@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import { Averia_Serif_Libre } from "next/font/google";
+import { EB_Garamond } from "next/font/google";
 import "./globals.css";
 import Navigation from "./components/Navigation";
 
-const averiaSerifLibre = Averia_Serif_Libre({
-  variable: "--font-averia-serif-libre",
+const garamond = EB_Garamond({
   subsets: ["latin"],
-  style: ["normal", "italic"],
-  weight: ["400", "700"],
+  display: "swap",
 });
+
 
 export const metadata: Metadata = {
   title: "Sebastiaan Henri Kolmschate",
@@ -24,7 +23,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${averiaSerifLibre.variable} h-full antialiased text-lg font-italic`}
+      className={`${garamond.className} h-full antialiased text-lg font-italic`}
     >
       <body className="min-h-full flex flex-col max-w-2xl mx-auto px-4 gap-4">
         <header>

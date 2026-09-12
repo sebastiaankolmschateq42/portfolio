@@ -11,13 +11,13 @@ export default function Home() {
         <p>{portfolio.bio}</p>
       </section>
       <section>
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-4">
           {projecten.map((project) => (
             <div key={project.slug}>
               <Link href={`/projects/${project.slug}`}>
                 <h3 className="font-semibold">{project.title}</h3>
+                <p>{project.summary}</p>
               </Link>
-              <p>{project.summary}</p>
             </div>
           ))}
         </ul>
