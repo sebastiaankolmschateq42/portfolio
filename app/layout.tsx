@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${garamond.className} h-full antialiased text-lg font-italic`}
+      className={`${garamond.className} h-full antialiased text-lg`}
     >
       <body className="min-h-full flex flex-col max-w-2xl mx-auto px-4 gap-4">
         <header>
