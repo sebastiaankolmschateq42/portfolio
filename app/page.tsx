@@ -5,7 +5,7 @@ export default function Home() {
   const projecten = [...portfolio.projects].sort((a, b) => b.date.getTime() - a.date.getTime());
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 mb-4">
       {/* Bio */}
       <section>
         <p>{portfolio.bio}</p>
