@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+const LinkSchema = z.object({
+  url: z.string().min(1),
+  label: z.string().min(1),
+});
+
 const ProjectSchema = z.object({
   slug: z.string().regex(/^[a-z0-9-]+$/),
   title: z.string().min(1),
@@ -13,8 +18,7 @@ const ProjectSchema = z.object({
       link: z.string().min(1).optional(),
     }),
   ),
-  website: z.string().min(1).optional(),
-  link: z.string().min(1).optional(),
+  links: z.array(LinkSchema).optional(),
 });
 
 const PortfolioSchema = z.object({
@@ -79,11 +83,8 @@ const rawPortfolio = {
       description: [
         "Mainpanel is a collective I've started in 2024 with a few friends. We've organized 10+ events in the local techno scene with a highlight of hosting a small stage at Into The Woods festival in Amersfoort in 2025.",
       ],
-      images: [
-        { src: "/img/main-panel.jpeg", alt: "Mainpanel event" },
-        { src: "/img/itw.jpeg", alt: "Mainpanel stage at Into The Woods festival" },
-      ],
-      website: "https://mainpanel.nl",
+      images: [{ src: "/img/main-panel-fluor.jpg", alt: "Mainpanel event" }],
+      links: [{ url: "https://mainpanel.nl", label: "Website" }],
     },
     {
       slug: "clubpaap",
@@ -95,7 +96,7 @@ const rawPortfolio = {
         "A mission to enlarge club culture in Amersfoort. By not operating on an island, but by uniting multiple smaller groups who have the same mission: create a space where people can be safe and enjoy electronic music. Which is disappearing in the current nightlife. I have arranged a temporary venue where these groups and those target groups can come together. Which has grown to our largest event with 700+ visitors. With along the way setting up and managing the organisation's structure, strategy, marketing, finances, artists, logistics and volunteers. All done with a small group of friends who have a shared passion for the scene.",
       ],
       images: [{ src: "/img/club-paap.jpeg", alt: "Club Paap event with visitors" }],
-      website: "https://clubpaap.nl",
+      links: [{ url: "https://clubpaap.nl", label: "Website" }],
     },
     {
       slug: "voyage-spiritual",
@@ -107,6 +108,7 @@ const rawPortfolio = {
         "Voyage Spiritual is a mockumentary created for the Film festival in Alba La Romaine in France. It is a story about a young professional travelling to the Ardeche to find himself with the help of lady sunshine. I was responsible for part of the production, filming, editing and acting in the film.",
       ],
       images: [{ src: "/img/voyage-spiritual.png", alt: "Still from Voyage Spiritual" }],
+      links: [{ url: "https://www.youtube.com/watch?v=_J0ITBwaze8", label: "Watch on YouTube" }],
     },
     {
       slug: "rijksmuseum-visual-search",
@@ -122,9 +124,13 @@ const rawPortfolio = {
           alt: "Rijksmuseum Visual Search interface",
         },
       ],
-      website:
-        "https://www.rijksmuseum.nl/nl/collectie/visueel/zoeken?objectNodeId=42dd0e658c2979aec8e144d2357c55c0",
-      link: "https://engineering.q42.nl/visual-search/",
+      links: [
+        {
+          url: "https://www.rijksmuseum.nl/nl/collectie/visueel/zoeken?objectNodeId=42dd0e658c2979aec8e144d2357c55c0",
+          label: "Website Rijksmuseum",
+        },
+        { url: "https://engineering.q42.nl/visual-search/", label: "Blog" },
+      ],
     },
     {
       slug: "kohese",
@@ -134,8 +140,8 @@ const rawPortfolio = {
       description: [
         "Kohese is my musical discovery. With the things I do for the clubbing and nightlife I also really fell in love with electronic music. I started to DJ in 2023 and since then I have been playing at multiple small clubs and festivals in the Netherlands.",
       ],
-      images: [],
-      website: "https://soundcloud.com/kohese",
+      images: [{ src: "/img/itw.jpeg", alt: "Kohese at Into The Woods festival" }],
+      links: [{ url: "https://soundcloud.com/kohese", label: "SoundCloud" }],
     },
   ],
 };

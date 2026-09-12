@@ -14,17 +14,27 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   return (
     <div className="flex flex-col gap-4">
       <section>
-        <h1 className="text-2xl font-bold">{project.title}</h1>
-        <p>{project?.summary}</p>
+        <div className="flex flex-col">
+          <h1 className="text-2xl font-bold">{project.title}</h1>
+          <p>{project?.summary}</p>
+        </div>
+        <div className="flex flex-row gap-4">
+          {project?.links?.map((link) => (
+            <a key={link.url} href={link.url} target="_blank" rel="noopener noreferrer">
+              <p className="underline">{link.label}</p>
+            </a>
+          ))}
+        </div>
       </section>
       <section>
         {project?.images.map((image) => (
           <Image
             key={image.src}
-            src={"/placeholder.jpg"}
+            src={image.src}
             alt={image.alt}
-            width={100}
-            height={100}
+            width={1000}
+            height={1000}
+            className="w-full h-auto"
           />
         ))}
       </section>
