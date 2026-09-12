@@ -15,6 +15,9 @@ lint:
 prettier:
 	bun run format
 
+fix:
+	make prettier && make lint
+
 prettier-check:
 	bun run format:check
 

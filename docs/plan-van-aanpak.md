@@ -43,7 +43,7 @@ Git "niveau's":
 2. `develop` = integratie.
 3. Feature-branches per ticket.
 
-Planning: iteratief zonder vaste data, wel met een harde deadline van 31 augustus voor het begin van schooljaar 2026-2026. Volgorde en Definition of Done bewaken de voortgang; elke afgeronde feature is inleverbaar tussenresultaat.
+Planning: iteratief zonder vaste data, wel met een harde deadline van 1 oktober voor het begin van schooljaar 2026-2026. Volgorde en Definition of Done bewaken de voortgang; elke afgeronde feature is inleverbaar tussenresultaat.
 
 ## 4. Tooling
 
