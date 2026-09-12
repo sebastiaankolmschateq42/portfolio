@@ -5,10 +5,12 @@
 
 ## 1. Inleiding
 
-> TODO (eigen woorden): aanleiding, concept (Engelstalig portfolio met projecten +
-> realtime gastenboek met moderatie), taalkeuze (site Engels voor internationale
-> zichtbaarheid, documentatie Nederlands), esthetiek (minimalistisch, papier-look,
-> EB Garamond via next/font — selfhosted, geen extern request).
+Mijn portfolio website wordt een simpel portfolio website met een gastenboek waar bezoekers
+mijn projecten kunnen bekijken, contact met mij kunnen opnemen en in mijn gastenboek kunnen
+schrijven om te delen hoe ik ben. Met ik, die als beheerder die gastenboek kan beheren, zodat er geen schadelijk materiaal de wereld in geslingerd kan worden.
+
+Ik hou van less is more, dus de website zal minimalistisch zijn en in klassieke stijl. De site wordt
+in het Engels geschreven voor internationale zichtbaarheid.
 
 ## 2. Rollen en requirements
 
