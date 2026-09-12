@@ -27,7 +27,7 @@
 - **FR-PORT-02**: Elk project heeft een detailpagina met titel, externe links, afbeeldingen en beschrijving.
 - **FR-PORT-03**: Statische content staat in een TypeScript-bestand en wordt bij import gevalideerd met een Zod-schema.
 - **FR-PORT-04**: De gebruiker kan navigeren tussen pagina's via een navigatiebalk die zich
-bovenaan de pagina bevindt.
+  bovenaan de pagina bevindt.
 
 ### 2.3 Niet-functionele requirements
 
