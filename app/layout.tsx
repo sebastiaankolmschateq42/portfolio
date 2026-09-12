@@ -8,7 +8,6 @@ const garamond = EB_Garamond({
   display: "swap",
 });
 
-
 export const metadata: Metadata = {
   title: "Sebastiaan Henri Kolmschate",
   description:
@@ -21,10 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${garamond.className} h-full antialiased text-lg`}
-    >
+    <html lang="en" className={`${garamond.className} h-full antialiased text-lg`}>
       <body className="min-h-full flex flex-col max-w-2xl mx-auto px-4 gap-4">
         <header>
           <Navigation />
