@@ -1,31 +1,4 @@
-import { z } from "zod";
-
-const LinkSchema = z.object({
-  url: z.string().min(1),
-  label: z.string().min(1),
-});
-
-const ProjectSchema = z.object({
-  slug: z.string().regex(/^[a-z0-9-]+$/),
-  title: z.string().min(1),
-  date: z.coerce.date(),
-  summary: z.string().min(1),
-  description: z.array(z.string().min(1)),
-  images: z.array(
-    z.object({
-      src: z.string().min(1),
-      alt: z.string().min(1),
-      link: z.string().min(1).optional(),
-    }),
-  ),
-  links: z.array(LinkSchema).optional(),
-});
-
-const PortfolioSchema = z.object({
-  bio: z.string().min(1),
-  skills: z.array(z.string().min(1)).min(1),
-  projects: z.array(ProjectSchema).min(1),
-});
+import { PortfolioSchema } from "@/lib/schemas/portfolio";
 
 const rawPortfolio = {
   bio: "Sebastiaan Henri Kolmschate (Bsc) is an artist from Amersfoort, The Netherlands. With a background of organising, digital and physical products he pursues projects driven by passion and purpose.",
@@ -147,4 +120,4 @@ const rawPortfolio = {
 };
 
 export const portfolio = PortfolioSchema.parse(rawPortfolio);
-export type Project = z.infer<typeof ProjectSchema>;
+export type { Project } from "@/lib/schemas/portfolio";
