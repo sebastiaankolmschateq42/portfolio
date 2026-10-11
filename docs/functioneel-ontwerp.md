@@ -31,6 +31,7 @@ in het Engels geschreven voor internationale zichtbaarheid.
   bovenaan de pagina bevindt.
 
 #### FR-CON: Contactpagina (F2)
+
 - **FR-CON-01**: De contactpagina toont een een formulier met velden voor email, onderwerp en bericht en een knop om het formulier te versturen.
 - **FR-CON-02**: De pagina toont een bericht dat het bericht probeert te worden verstuurd.
 - **FR-CON-03**: De pagina toont een foutmelding als de gebruiker het formulier niet correct invult.
@@ -76,7 +77,6 @@ in het Engels geschreven voor internationale zichtbaarheid.
 
 - 3a. Bezoeker opent een URL met een onbekende slug: systeem toont de 404-pagina.
 
-
 ### UC3 — Contactpagina gebruiken (F2)
 
 - **Actor**: Bezoeker (anoniem)
@@ -101,5 +101,6 @@ in het Engels geschreven voor internationale zichtbaarheid.
 - ga verder met scenario 4
 
 **Acceptatiecriteria:**
+
 - Het formulier wordt gevalideerd.
 - Het bericht wordt verstuurd naar de mailbox van de beheerder van de website.

@@ -1,4 +1,7 @@
-.PHONY: install dev build lint prettier prettier-check test
+.PHONY: setup install dev build lint prettier fix prettier-check test
+
+setup: install
+	@test -f .env.local || (cp .env.example .env.local && echo "Created .env.local from .env.example")
 
 install:
 	bun install
