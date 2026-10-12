@@ -1,14 +1,4 @@
-import { z } from "zod";
-
-const NavItemSchema = z.object({
-  label: z.string().min(1),
-  href: z.string().min(1),
-});
-
-const SiteSchema = z.object({
-  title: z.string().min(1),
-  nav: z.array(NavItemSchema).min(1),
-});
+import { SiteSchema } from "@/lib/schemas/navigation";
 
 const rawSite = {
   title: "Sebastiaan Henri Kolmschate",
@@ -19,5 +9,4 @@ const rawSite = {
 };
 
 export const site = SiteSchema.parse(rawSite);
-export type Site = z.infer<typeof SiteSchema>;
-export type NavItem = z.infer<typeof NavItemSchema>;
+export type { Site, NavItem } from "@/lib/schemas/navigation";

@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio
 
-## Getting Started
+Personal portfolio website of Sebastiaan Kolmschate, built for the Web Development semester (HBO-ICT, Windesheim). It shows projects and has a contact form that delivers messages by email.
 
-First, run the development server:
+Design and security documentation (in Dutch) lives in [`docs/`](docs/).
+
+## Requirements
+
+- [Bun](https://bun.sh)
+- Node.js 20 or higher
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+make setup
+make dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`make setup` installs dependencies and creates `.env.local` from `.env.example` (an existing `.env.local` is left alone). Fill in the values there; without SMTP values the site still works and logs emails to the console.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The site runs at [http://localhost:3000](http://localhost:3000).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Commands
 
-## Learn More
+| Command               | What it does                                 |
+| --------------------- | -------------------------------------------- |
+| `make setup`          | Install dependencies and create `.env.local` |
+| `make install`        | Install dependencies only                    |
+| `make dev`            | Start the development server                 |
+| `make build`          | Production build                             |
+| `make test`           | Run the tests (Vitest)                       |
+| `make lint`           | Run ESLint                                   |
+| `make prettier`       | Format all files                             |
+| `make prettier-check` | Check formatting                             |
+| `make fix`            | Format and lint in one go                    |
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+CI runs `make lint`, `make prettier-check` and `make test` on every push and pull request.
