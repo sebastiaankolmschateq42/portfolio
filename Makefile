@@ -1,7 +1,34 @@
-.PHONY: setup install dev build lint prettier fix prettier-check test
+.PHONY: setup install dev build lint prettier fix prettier-check test db-up db-down db-migrate db-deploy db-reset db-test-prepare
 
 setup: install
 	@test -f .env.local || (cp .env.example .env.local && echo "Created .env.local from .env.example")
+	make db-up
+	make db-deploy
+
+db-up:
+	docker compose up -d --wait
+
+db-down:
+	docker compose down
+
+# Create a new migration from schema changes (development only)
+db-migrate:
+	bunx prisma migrate dev
+
+# Apply existing migrations without creating new ones (setup, CI, production)
+db-deploy:
+	bunx prisma migrate deploy
+
+# Drop all data and re-apply every migration
+db-reset:
+	bunx prisma migrate reset --force
+
+# Separate database for tests, so tests never touch development data
+TEST_DATABASE_URL = postgresql://portfolio:portfolio@localhost:5433/portfolio_test
+
+db-test-prepare:
+	-@docker compose exec -T db createdb -U portfolio portfolio_test 2>/dev/null
+	DATABASE_URL=$(TEST_DATABASE_URL) bunx prisma migrate deploy
 
 install:
 	bun install
@@ -24,5 +51,5 @@ fix:
 prettier-check:
 	bun run format:check
 
-test:
+test: db-test-prepare
 	bun run test
