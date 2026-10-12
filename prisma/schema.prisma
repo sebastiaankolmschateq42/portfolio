@@ -17,3 +17,41 @@ model GuestbookMessage {
   @@index([isApproved, createdAt])
   @@map("guestbook_messages")
 }
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum AuthCodePurpose {
+  VERIFY
+  LOGIN
+}
+
+model User {
+  id              String     @id @default(uuid()) @db.Uuid
+  email           String     @unique @db.VarChar(254)
+  displayName     String     @map("display_name") @db.VarChar(50)
+  passwordHash    String     @map("password_hash")
+  role            Role       @default(USER)
+  emailVerifiedAt DateTime?  @map("email_verified_at") @db.Timestamptz
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  authCodes       AuthCode[]
+
+  @@map("users")
+}
+
+model AuthCode {
+  id        String          @id @default(uuid()) @db.Uuid
+  userId    String          @map("user_id") @db.Uuid
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String          @map("code_hash")
+  purpose   AuthCodePurpose
+  expiresAt DateTime        @map("expires_at") @db.Timestamptz
+  usedAt    DateTime?       @map("used_at") @db.Timestamptz
+  attempts  Int             @default(0)
+  createdAt DateTime        @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([userId, purpose])
+  @@map("auth_codes")
+}
