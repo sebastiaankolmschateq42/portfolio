@@ -224,7 +224,8 @@ flowchart LR
 
 ### 6.5 Ontwerpkeuzes
 
-- **API-route in plaats van server action.** Een route is adresseerbaar en zonder client te testen (bijvoorbeeld met curl). Dat maakt de servervalidatie aantoonbaar en houdt één patroon aan voor alle endpoints die nog volgen.
+- **API-routes in plaats van server actions.** Server actions zijn overwogen. Het patroon dat Next.js daarvoor aanbeveelt (`<form action>` met `useActionState`) botst met React Hook Form, dat de validatie per veld in de browser regelt; bibliotheken die wél op dat patroon zijn gebouwd (zoals Conform) leveren vooral progressive enhancement op, wat voor deze site geen eis is. De realtime-stream in een latere feature moet bovendien een route zijn, omdat de browser die alleen via een GET-verbinding kan openen. Daarom lopen alle server-endpoints via routes: één patroon, met een vast contract van methode, pad en statuscode dat los van de frontend te testen is.
+- **Eén Next.js-applicatie in plaats van een losse frontend en backend.** Een aparte API-service is overwogen. Voor één ontwikkelaar en deze schaal zou dat CORS, sessies over twee origins en twee deployments opleveren, zonder functionele winst. De route handlers geven dezelfde scheiding tussen pagina's en server-logica, met één deploy.
 - **Validatie in twee lagen met één schema.** De browser valideert voor directe feedback; de server valideert opnieuw omdat de browser te omzeilen is. Omdat beide hetzelfde schema gebruiken, zijn de regels en meldingen identiek.
 - **Geen request-timeout op het formulier.** Bij een hangende SMTP-verbinding kan de bezoeker langer op "Sending…" blijven staan. Voor deze schaal een geaccepteerd risico; benoemd zodat het bewust is.
 
