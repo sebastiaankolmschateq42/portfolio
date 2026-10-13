@@ -10,7 +10,9 @@
     "lint": "eslint",
     "start": "next start",
     "test": "vitest run",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "bun prisma/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -22,6 +24,7 @@
     "next": "16.2.11",
     "nodemailer": "^10.0.10",
     "pg": "^8.23.1",
+    "prisma": "^7.10.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.89.0",
@@ -39,7 +42,6 @@
     "eslint-config-next": "16.2.11",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.9.6",
-    "prisma": "^7.10.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.10"
