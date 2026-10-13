@@ -4,7 +4,7 @@ const rawSite = {
   title: "Sebastiaan Henri Kolmschate",
   nav: [
     { label: "Contact", href: "/contact" },
-    { label: "Guestbook", href: "/guestbook" },
+    { label: "Ask me anything", href: "/ask" },
   ],
 };
 

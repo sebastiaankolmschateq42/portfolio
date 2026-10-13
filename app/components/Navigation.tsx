@@ -1,6 +1,7 @@
 import { site } from "@/lib/navigation";
 import Link from "next/link";
 import type { NavItem } from "@/lib/navigation";
+import AuthStatus from "./AuthStatus";
 
 export default function Navigation() {
   return (
@@ -15,6 +16,7 @@ export default function Navigation() {
           </Link>
         ))}
       </div>
+      <AuthStatus />
     </nav>
   );
 }
