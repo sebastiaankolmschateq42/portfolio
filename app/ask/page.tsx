@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import QuestionForm from "@/app/components/QuestionForm";
 import QuestionItem from "@/app/components/QuestionItem";
+import LiveQuestions from "@/app/components/LiveQuestions";
 import { listQuestions } from "@/lib/questions";
 import { getSession } from "@/lib/session";
 
@@ -40,6 +41,7 @@ export default async function AskPage() {
 
       <section className="flex flex-col gap-4">
         <h2>Questions</h2>
+        <LiveQuestions />
         {questions.length === 0 ? (
           <p>No questions yet. Be the first to ask one.</p>
         ) : (
