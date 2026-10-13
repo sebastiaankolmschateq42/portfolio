@@ -28,5 +28,14 @@ export const verifySchema = z.object({
     .regex(/^\d{6}$/, { message: "Enter the 6-digit code from the email" }),
 });
 
+export const loginSchema = z.object({
+  email,
+  password: z
+    .string()
+    .min(1, { message: "Password is required" })
+    .max(128, { message: "Password must be less than 128 characters" }),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
 export type VerifyInput = z.infer<typeof verifySchema>;
