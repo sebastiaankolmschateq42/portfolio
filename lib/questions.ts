@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import { publishQuestionEvent } from "@/lib/events";
 import type { Session } from "@/lib/session";
 import type { AnswerInput, QuestionInput } from "@/lib/schemas/questions";
 
@@ -48,10 +49,12 @@ export async function listQuestions(viewer: Session | null): Promise<QuestionVie
 }
 
 export async function createQuestion(session: Session, input: QuestionInput) {
-  return prisma.question.create({
+  const question = await prisma.question.create({
     data: { authorId: session.userId, body: input.body },
     select: { id: true },
   });
+  publishQuestionEvent({ type: "created", id: question.id });
+  return question;
 }
 
 export async function updateQuestion(
@@ -65,6 +68,7 @@ export async function updateQuestion(
   if (question.answer !== null) return { ok: false, reason: "already_answered" };
 
   await prisma.question.update({ where: { id }, data: { body: input.body } });
+  publishQuestionEvent({ type: "updated", id });
   return { ok: true };
 }
 
@@ -76,6 +80,7 @@ export async function deleteQuestion(session: Session, id: string): Promise<Muta
   }
 
   await prisma.question.delete({ where: { id } });
+  publishQuestionEvent({ type: "deleted", id });
   return { ok: true };
 }
 
@@ -93,5 +98,6 @@ export async function answerQuestion(
     where: { id },
     data: { answer: input.answer, answeredAt: new Date() },
   });
+  publishQuestionEvent({ type: "answered", id });
   return { ok: true };
 }
