@@ -7,12 +7,65 @@ type EmailInput = {
   replyTo?: string;
 };
 
+const FROM = { email: "noreply@kohese.nl", name: "Sebastiaan Henri Kolmschate" };
+
+// A failed mail should surface as an error quickly instead of keeping the visitor waiting.
+const TIMEOUT_MS = 10_000;
+
+/**
+ * Sends through the first configured transport:
+ * 1. Mailtrap sandbox HTTPS API (MAILTRAP_API_TOKEN) — used on Railway, where SMTP is blocked
+ * 2. SMTP (SMTP_HOST) — handy for local development
+ * 3. Console — when nothing is configured
+ */
 export async function sendEmail(input: EmailInput): Promise<boolean> {
-  if (!process.env.SMTP_HOST) {
-    console.log("=== MAIL (no SMTP configured) ===");
-    console.log(`To: ${input.to}\nSubject: ${input.subject}\n${input.text}`);
+  try {
+    if (process.env.MAILTRAP_API_TOKEN) {
+      await sendViaMailtrapApi(input);
+    } else if (process.env.SMTP_HOST) {
+      await sendViaSmtp(input);
+    } else {
+      console.log("=== MAIL (no transport configured) ===");
+      console.log(`To: ${input.to}\nSubject: ${input.subject}\n${input.text}`);
+    }
     return true;
+  } catch (error) {
+    console.error("Failed to send email:", error);
+    return false;
   }
+}
+
+async function sendViaMailtrapApi(input: EmailInput): Promise<void> {
+  const inboxId = process.env.MAILTRAP_INBOX_ID;
+  if (!inboxId) {
+    throw new Error("MAILTRAP_INBOX_ID is not set");
+  }
+
+  const response = await fetch(
+    `https://sandbox.api.mailtrap.io/api/send/${encodeURIComponent(inboxId)}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.MAILTRAP_API_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: FROM,
+        to: [{ email: input.to }],
+        subject: input.subject,
+        text: input.text,
+        ...(input.replyTo ? { reply_to: { email: input.replyTo } } : {}),
+      }),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Mailtrap API responded with ${response.status}`);
+  }
+}
+
+async function sendViaSmtp(input: EmailInput): Promise<void> {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT),
@@ -20,16 +73,10 @@ export async function sendEmail(input: EmailInput): Promise<boolean> {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    connectionTimeout: TIMEOUT_MS,
+    greetingTimeout: TIMEOUT_MS,
+    socketTimeout: TIMEOUT_MS,
   });
 
-  try {
-    await transporter.sendMail({
-      from: '"Sebastiaan Henri Kolmschate" <noreply@kohese.nl>',
-      ...input,
-    });
-    return true;
-  } catch (error) {
-    console.error("Failed to send email:", error);
-    return false;
-  }
+  await transporter.sendMail({ from: `"${FROM.name}" <${FROM.email}>`, ...input });
 }
