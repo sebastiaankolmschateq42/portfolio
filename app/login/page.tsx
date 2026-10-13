@@ -4,7 +4,7 @@ import LoginForm from "@/app/components/LoginForm";
 
 export const metadata: Metadata = {
   title: "Log in",
-  description: "Log in to write in the guestbook",
+  description: "Log in to ask me a question",
 };
 
 export default function LoginPage() {

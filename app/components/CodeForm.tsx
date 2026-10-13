@@ -35,7 +35,7 @@ export default function CodeForm({ email, endpoint, onStartOver }: CodeFormProps
       });
       if (res.ok) {
         // Full reload so the navigation picks up the new session.
-        window.location.assign("/guestbook");
+        window.location.assign("/ask");
         return;
       }
       setError("This code is invalid or has expired.");
