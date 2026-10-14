@@ -2,7 +2,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000000;
 }
 
 @theme inline {
@@ -22,5 +22,24 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  input,
+  textarea {
+    @apply w-full border border-black bg-white px-2 py-0.5;
+  }
+
+  button {
+    @apply cursor-pointer border border-black px-2 py-1;
+  }
+
+  :focus-visible {
+    outline: 2px solid #838383;
+    outline-offset: 0px;
+  }
+
+  h1 {
+    @apply text-2xl font-bold mb-4;
+  }
 }
