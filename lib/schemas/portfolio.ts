@@ -21,11 +21,31 @@ export const ProjectSchema = z.object({
   links: z.array(LinkSchema).optional(),
 });
 
+export const EducationSchema = z
+  .object({
+    institution: z.string().min(1),
+    degree: z.string().min(1),
+    city: z.string().min(1),
+    startYear: z.number().int().min(1900),
+    endYear: z.number().int().max(new Date().getFullYear()),
+  })
+  .refine((educationData) => educationData.startYear <= educationData.endYear, {
+    message: "End year must not be before start year",
+    path: ["endYear"],
+  });
+
 export const PortfolioSchema = z.object({
   bio: z.string().min(1),
+  name: z.string().min(1),
+  photo: z.object({
+    src: z.string().min(1),
+    alt: z.string().min(1),
+  }),
   skills: z.array(z.string().min(1)).min(1),
+  education: z.array(EducationSchema).min(1),
   projects: z.array(ProjectSchema).min(1),
 });
 
 export type Project = z.infer<typeof ProjectSchema>;
+export type Education = z.infer<typeof EducationSchema>;
 export type Portfolio = z.infer<typeof PortfolioSchema>;
