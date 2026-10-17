@@ -1,6 +1,12 @@
 import { PortfolioSchema } from "@/lib/schemas/portfolio";
+import { z } from "zod";
 
 const rawPortfolio = {
+  name: "Sebastiaan Henri Kolmschate",
+  photo: {
+    src: "/img/sebastiaan-henri-kolmschate.jpeg",
+    alt: "Portrait of Sebastiaan Henri Kolmschate",
+  },
   bio: "Sebastiaan Henri Kolmschate (Bsc) is an artist from Amersfoort, The Netherlands. With a background of organising, digital and physical products he pursues projects driven by passion and purpose.",
   skills: [
     "Entrepreneurship",
@@ -24,6 +30,22 @@ const rawPortfolio = {
     "Adobe Photoshop",
     "Adobe Illustrator",
     "Adobe Premiere Pro",
+  ],
+  education: [
+    {
+      institution: "Corderius College",
+      degree: "HAVO",
+      city: "Amersfoort",
+      startYear: 2012,
+      endYear: 2017,
+    },
+    {
+      institution: "Windesheim University of Applied Sciences",
+      degree: "Bachelor of Science HBO-ICT",
+      city: "Zwolle",
+      startYear: 2019,
+      endYear: 2026,
+    },
   ],
   projects: [
     {
@@ -117,7 +139,7 @@ const rawPortfolio = {
       links: [{ url: "https://soundcloud.com/kohese", label: "SoundCloud" }],
     },
   ],
-};
+} satisfies z.input<typeof PortfolioSchema>;
 
 export const portfolio = PortfolioSchema.parse(rawPortfolio);
-export type { Project } from "@/lib/schemas/portfolio";
+export type { Education, Project } from "@/lib/schemas/portfolio";
