@@ -5,7 +5,7 @@ export default defineConfig({
     include: ["tests/**/*.test.ts"],
     // Tests run against a separate database so they never touch development data.
     env: {
-      DATABASE_URL: "postgresql://portfolio:portfolio@localhost:5433/portfolio_test",
+      DATABASE_URL: "postgresql://portfolio:portfolio@localhost:5433/portfolio_ref_test",
       AUTH_CODE_SECRET: "test-only-auth-code-secret",
       JWT_SECRET: "test-only-jwt-secret-at-least-32-chars",
     },
