@@ -4,7 +4,7 @@ import { z } from "zod";
 const rawPortfolio = {
   name: "Sebastiaan Henri Kolmschate",
   photo: {
-    src: "/img/sebastiaan-henri-kolmschate.jpeg",
+    src: "/img/sebastiaan-henri-kolmschate.jpg",
     alt: "Portrait of Sebastiaan Henri Kolmschate",
   },
   bio: "Sebastiaan Henri Kolmschate (Bsc) is an artist from Amersfoort, The Netherlands. With a background of organising, digital and physical products he pursues projects driven by passion and purpose.",
