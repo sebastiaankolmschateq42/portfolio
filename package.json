@@ -10,6 +10,9 @@
     "lint": "eslint",
     "start": "next start",
     "test": "vitest run",
+    "cy:open": "cypress open",
+    "cy:e2e": "cypress run --e2e",
+    "cy:component": "cypress run --component",
     "postinstall": "prisma generate",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "bun prisma/seed.ts"
@@ -38,12 +41,15 @@
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.2.0",
+    "cypress": "^15.21.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.11",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.9.6",
     "tailwindcss": "^4",
     "typescript": "^5",
+    "vite": "^7.3.7",
     "vitest": "^4.1.10"
   },
   "ignoreScripts": [
@@ -52,6 +58,8 @@
   ],
   "trustedDependencies": [
     "@prisma/engines",
+    "cypress",
+    "esbuild",
     "prisma",
     "sharp",
     "unrs-resolver"

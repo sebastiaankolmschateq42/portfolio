@@ -1,8 +1,9 @@
 # Reference copy: share the dev Postgres container, use its own databases and port 3002
 export COMPOSE_PROJECT_NAME = portfolio
 export PORT = 3002
+export CYPRESS_baseUrl = http://localhost:3002
 
-.PHONY: setup install dev build lint prettier fix prettier-check test db-up db-down db-migrate db-deploy db-reset db-seed db-test-prepare
+.PHONY: setup install dev build lint prettier fix prettier-check test db-up db-down db-migrate db-deploy db-reset db-seed db-test-prepare e2e component
 
 setup: install
 	@test -f .env.local || (cp .env.example .env.local && echo "Created .env.local from .env.example")
@@ -62,3 +63,11 @@ prettier-check:
 
 test: db-test-prepare
 	bun run test
+
+# Cypress end-to-end tests; needs the app running (make dev, or make build + bun run start)
+e2e:
+	bun run cy:e2e
+
+# Cypress component tests; starts its own Vite server
+component:
+	bun run cy:component
