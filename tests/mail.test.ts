@@ -114,4 +114,15 @@ describe("email service", () => {
     expect(fetchMock).not.toHaveBeenCalled();
     expect(sendMailMock).not.toHaveBeenCalled();
   });
+
+  it("fails in production when nothing is configured", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    expect(await sendEmail(message)).toBe(false);
+  });
+
+  it("allows console logging in production only when asked for (CI)", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("MAIL_CONSOLE", "1");
+    expect(await sendEmail(message)).toBe(true);
+  });
 });
