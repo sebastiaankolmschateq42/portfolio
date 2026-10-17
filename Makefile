@@ -41,7 +41,8 @@ db-test-prepare:
 install:
 	bun install
 
-dev:
+# Starts the database and applies pending migrations first, so one command is enough
+dev: db-up db-deploy
 	bun run dev
 
 build:
