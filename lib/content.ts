@@ -1,6 +1,8 @@
 import { PortfolioSchema } from "@/lib/schemas/portfolio";
 
 const rawPortfolio = {
+  name: "Sebastiaan Henri Kolmschate",
+  photo: { src: "/img/profile.jpeg", alt: "Portrait of Sebastiaan Henri Kolmschate" },
   bio: "Sebastiaan Henri Kolmschate (Bsc) is an artist from Amersfoort, The Netherlands. With a background of organising, digital and physical products he pursues projects driven by passion and purpose.",
   skills: [
     "Entrepreneurship",
@@ -24,6 +26,22 @@ const rawPortfolio = {
     "Adobe Photoshop",
     "Adobe Illustrator",
     "Adobe Premiere Pro",
+  ],
+  education: [
+    {
+      degree: "Bachelor of ICT (HBO-ICT)",
+      institution: "Windesheim University of Applied Sciences",
+      city: "Zwolle",
+      startYear: 2019,
+      endYear: 2026,
+    },
+    {
+      degree: "HAVO",
+      institution: "Corderius College",
+      city: "Amersfoort",
+      startYear: 2012,
+      endYear: 2017,
+    },
   ],
   projects: [
     {
@@ -120,4 +138,4 @@ const rawPortfolio = {
 };
 
 export const portfolio = PortfolioSchema.parse(rawPortfolio);
-export type { Project } from "@/lib/schemas/portfolio";
+export type { Education, Project } from "@/lib/schemas/portfolio";
