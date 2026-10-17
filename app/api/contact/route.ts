@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { contactSchema } from "@/lib/schemas/contact";
+import { contactRequestSchema } from "@/lib/schemas/contact";
+import { verifyCaptcha } from "@/lib/captcha";
 import { sendEmail } from "@/lib/email";
 import { z } from "zod";
 
@@ -13,17 +14,32 @@ export async function POST(request: Request) {
   }
 
   // validate body with zod
-  const result = contactSchema.safeParse(body);
+  const result = contactRequestSchema.safeParse(body);
   if (!result.success) {
     return NextResponse.json({ errors: z.flattenError(result.error).fieldErrors }, { status: 400 });
   }
+  const contact = result.data;
 
-  // send email
+  // check the captcha before anything is sent
+  const captcha = verifyCaptcha(contact.captchaToken, contact.captchaAnswer);
+  if (captcha !== "ok") {
+    const message =
+      captcha === "expired" ? "This sum has expired, try the new one" : "Wrong answer, try again";
+    return NextResponse.json({ errors: { captchaAnswer: [message] } }, { status: 400 });
+  }
+
+  // send email; nothing is stored (NFR5)
   const sent = await sendEmail({
     to: process.env.CONTACT_INBOX || "portfolio@kohese.nl",
-    subject: `Contact form: ${result.data.subject}`,
-    text: `From: ${result.data.email}\n\n${result.data.message}`,
-    replyTo: result.data.email,
+    subject: `Contact form: ${contact.subject}`,
+    text: [
+      `From: ${contact.firstName} ${contact.lastName}`,
+      `Email: ${contact.email}`,
+      `Phone: ${contact.phone}`,
+      "",
+      contact.message,
+    ].join("\n"),
+    replyTo: contact.email,
   });
 
   if (!sent) {

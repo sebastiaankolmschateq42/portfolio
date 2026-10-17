@@ -2,69 +2,120 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { contactSchema, type Contact } from "@/lib/schemas/contact";
-import { useState } from "react";
+import { contactFormSchema, type ContactForm as ContactFormValues } from "@/lib/schemas/contact";
+import { useCallback, useEffect, useState } from "react";
 import Field from "./Field";
 
+type Captcha = { question: string; token: string };
+type Status = "idle" | "sent" | "error";
+
+const FLASH_MS = 6000;
+
+const fields = [
+  { name: "firstName", label: "First name", type: "text", autoComplete: "given-name" },
+  { name: "lastName", label: "Last name", type: "text", autoComplete: "family-name" },
+  { name: "email", label: "Email", type: "email", autoComplete: "email" },
+  { name: "phone", label: "Phone number", type: "tel", autoComplete: "tel" },
+  { name: "subject", label: "Subject", type: "text", autoComplete: "off" },
+] as const;
+
 export default function ContactForm() {
-  const [status, setStatus] = useState<"idle" | "sent" | "error">("idle");
+  const [status, setStatus] = useState<Status>("idle");
+  const [captcha, setCaptcha] = useState<Captcha | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
-  } = useForm<Contact>({ resolver: zodResolver(contactSchema) });
+    resetField,
+    setError,
+    formState: { errors, isSubmitting, isValid },
+  } = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
+    // Validate while typing, so the send button unlocks as soon as everything is valid (AC6).
+    mode: "onChange",
+  });
 
-  const onSubmit = async (data: Contact) => {
+  const loadCaptcha = useCallback(async () => {
+    try {
+      const res = await fetch("/api/contact/captcha", { cache: "no-store" });
+      setCaptcha(await res.json());
+    } catch {
+      setCaptcha(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Fetching on mount is the point of this effect: the sum comes from the server.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadCaptcha();
+  }, [loadCaptcha]);
+
+  // The status message is a flash message: it disappears after a few seconds (AC8).
+  useEffect(() => {
+    if (status === "idle") return;
+    const timer = setTimeout(() => setStatus("idle"), FLASH_MS);
+    return () => clearTimeout(timer);
+  }, [status]);
+
+  const onSubmit = async (data: ContactFormValues) => {
+    if (!captcha) return;
     setStatus("idle");
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, captchaToken: captcha.token }),
       });
       if (res.status === 201) {
         setStatus("sent");
-        reset();
+        reset(); // only clear the form after a successful send (NFR4)
       } else {
+        const body = await res.json().catch(() => ({}));
+        showServerErrors(body.errors);
         setStatus("error");
       }
     } catch {
       setStatus("error");
     }
+    // Every token can be used once, so always ask for a new sum.
+    resetField("captchaAnswer");
+    await loadCaptcha();
   };
+
+  function showServerErrors(serverErrors: Record<string, string[]> | undefined) {
+    if (!serverErrors) return;
+    for (const [name, messages] of Object.entries(serverErrors)) {
+      if (name in contactFormSchema.shape) {
+        setError(name as keyof ContactFormValues, { message: messages[0] });
+      }
+    }
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2" noValidate>
-      <Field label="Email" htmlFor="email" error={errors.email?.message}>
-        <input
-          id="email"
-          type="email"
-          placeholder="Email"
-          {...register("email")}
-          aria-invalid={!!errors.email}
-          aria-describedby={errors.email ? "email-error" : undefined}
-          autoComplete="email"
-        />
-      </Field>
-
-      <Field label="Subject" htmlFor="subject" error={errors.subject?.message}>
-        <input
-          id="subject"
-          type="text"
-          placeholder="Subject"
-          {...register("subject")}
-          aria-invalid={!!errors.subject}
-          aria-describedby={errors.subject ? "subject-error" : undefined}
-          autoComplete="off"
-        />
-      </Field>
+      {fields.map((field) => (
+        <Field
+          key={field.name}
+          label={field.label}
+          htmlFor={field.name}
+          error={errors[field.name]?.message}
+        >
+          <input
+            id={field.name}
+            type={field.type}
+            {...register(field.name)}
+            aria-invalid={!!errors[field.name]}
+            aria-describedby={errors[field.name] ? `${field.name}-error` : undefined}
+            autoComplete={field.autoComplete}
+          />
+        </Field>
+      ))}
 
       <Field label="Message" htmlFor="message" error={errors.message?.message}>
         <textarea
           id="message"
-          placeholder="Message"
+          rows={6}
           {...register("message")}
           aria-invalid={!!errors.message}
           aria-describedby={errors.message ? "message-error" : undefined}
@@ -72,12 +123,39 @@ export default function ContactForm() {
         />
       </Field>
 
-      <button type="submit" disabled={isSubmitting} className="sm:self-end">
+      <Field
+        label={captcha ? `What is ${captcha.question}?` : "Loading question…"}
+        htmlFor="captchaAnswer"
+        error={errors.captchaAnswer?.message}
+      >
+        <input
+          id="captchaAnswer"
+          type="text"
+          inputMode="numeric"
+          {...register("captchaAnswer")}
+          aria-invalid={!!errors.captchaAnswer}
+          aria-describedby={errors.captchaAnswer ? "captchaAnswer-error" : undefined}
+          autoComplete="off"
+          disabled={!captcha}
+        />
+      </Field>
+
+      <button
+        type="submit"
+        disabled={!isValid || !captcha || isSubmitting}
+        className="flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-50 sm:self-end"
+      >
+        {isSubmitting && (
+          <span
+            aria-hidden="true"
+            className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+          />
+        )}
         {isSubmitting ? "Sending..." : "Send"}
       </button>
 
       {status === "sent" && <p role="status">Thanks! Your message has been sent.</p>}
-      {status === "error" && <p role="alert">Something went wrong. Please try again.</p>}
+      {status === "error" && <p role="alert">Your message was not sent. Please try again.</p>}
     </form>
   );
 }
