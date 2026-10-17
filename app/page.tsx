@@ -5,6 +5,7 @@ import Link from "next/link";
 export default function Home() {
   const projecten = [...portfolio.projects].sort((a, b) => b.date.getTime() - a.date.getTime());
   const education = [...portfolio.education].sort((a, b) => b.startYear - a.startYear);
+  const { personalia } = portfolio;
 
   return (
     <div className="flex flex-col gap-8 mb-8">
@@ -69,6 +70,39 @@ export default function Home() {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section aria-labelledby="personalia-heading" className="flex flex-col gap-4">
+        <h2 id="personalia-heading" className="font-semibold border-b">
+          Personal details
+        </h2>
+        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+          <dt>Email</dt>
+          <dd>
+            <a className="underline" href={`mailto:${personalia.email}`}>
+              {personalia.email}
+            </a>
+          </dd>
+          <dt>Phone</dt>
+          <dd>
+            <a className="underline" href={`tel:${personalia.phone.replaceAll(" ", "")}`}>
+              {personalia.phone}
+            </a>
+          </dd>
+          <dt>City</dt>
+          <dd>{personalia.city}</dd>
+          <dt>LinkedIn</dt>
+          <dd>
+            <a
+              className="underline"
+              href={personalia.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {personalia.linkedin.replace(/^https:\/\/(www\.)?/, "")}
+            </a>
+          </dd>
+        </dl>
       </section>
     </div>
   );

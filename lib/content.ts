@@ -3,6 +3,13 @@ import { PortfolioSchema } from "@/lib/schemas/portfolio";
 const rawPortfolio = {
   name: "Sebastiaan Henri Kolmschate",
   photo: { src: "/img/profile.jpeg", alt: "Portrait of Sebastiaan Henri Kolmschate" },
+  // TODO: replace with your own details before going live
+  personalia: {
+    email: "you@example.com",
+    phone: "+31 6 12345678",
+    city: "Amersfoort",
+    linkedin: "https://www.linkedin.com/in/your-profile",
+  },
   bio: "Sebastiaan Henri Kolmschate (Bsc) is an artist from Amersfoort, The Netherlands. With a background of organising, digital and physical products he pursues projects driven by passion and purpose.",
   skills: [
     "Entrepreneurship",
