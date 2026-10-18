@@ -27,4 +27,4 @@ prettier-check:
 test:
 	bun run test
 
-check: lint prettier prettier-check
+check: lint prettier-check test
