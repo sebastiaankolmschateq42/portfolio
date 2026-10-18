@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { EB_Garamond } from "next/font/google";
 import "./globals.css";
 import Navigation from "./components/Navigation";
+import ConsentBanner from "./components/ConsentBanner";
 
 const garamond = EB_Garamond({
   subsets: ["latin"],
@@ -26,6 +27,7 @@ export default function RootLayout({
           <Navigation />
         </header>
         <main>{children}</main>
+        <ConsentBanner />
       </body>
     </html>
   );
