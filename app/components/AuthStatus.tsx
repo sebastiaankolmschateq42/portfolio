@@ -30,9 +30,6 @@ export default function AuthStatus() {
         <Link className="underline" href="/login">
           Log in
         </Link>
-        <Link className="underline" href="/register">
-          Register
-        </Link>
       </div>
     );
   }
