@@ -80,7 +80,11 @@ export default function RegisterForm() {
         {isSubmitting ? "Creating account..." : "Create account"}
       </button>
 
-      {error && <p role="alert">{error}</p>}
+      {error && (
+        <p role="alert" className="text-red-700 dark:text-red-400">
+          {error}
+        </p>
+      )}
     </form>
   );
 }

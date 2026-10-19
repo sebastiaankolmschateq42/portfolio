@@ -13,7 +13,7 @@ export default function Field({ label, htmlFor, error, children }: FieldProps) {
       </label>
       {children}
       {error && (
-        <p id={`${htmlFor}-error`} className="text-red-500">
+        <p id={`${htmlFor}-error`} className="text-red-700 dark:text-red-400">
           {error}
         </p>
       )}

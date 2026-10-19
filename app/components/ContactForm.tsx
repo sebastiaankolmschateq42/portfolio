@@ -147,7 +147,11 @@ export default function ContactForm({ initialCaptcha }: { initialCaptcha: Captch
       </button>
 
       {status === "sent" && <p role="status">Thanks! Your message has been sent.</p>}
-      {status === "error" && <p role="alert">Your message was not sent. Please try again.</p>}
+      {status === "error" && (
+        <p role="alert" className="text-red-700 dark:text-red-400">
+          Your message was not sent. Please try again.
+        </p>
+      )}
     </form>
   );
 }

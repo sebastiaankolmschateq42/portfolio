@@ -77,7 +77,11 @@ export default function LoginForm() {
         {isSubmitting ? "Checking..." : "Log in"}
       </button>
 
-      {error && <p role="alert">{error}</p>}
+      {error && (
+        <p role="alert" className="text-red-700 dark:text-red-400">
+          {error}
+        </p>
+      )}
     </form>
   );
 }

@@ -64,9 +64,17 @@ export default function CodeForm({ email, endpoint, onStartOver }: CodeFormProps
         {isSubmitting ? "Checking..." : "Continue"}
       </button>
 
-      {error && <p role="alert">{error}</p>}
+      {error && (
+        <p role="alert" className="text-red-700 dark:text-red-400">
+          {error}
+        </p>
+      )}
 
-      <button type="button" className="underline self-start" onClick={onStartOver}>
+      <button
+        type="button"
+        className="cursor-pointer self-start border-0 p-0 underline"
+        onClick={onStartOver}
+      >
         Start over
       </button>
     </form>
