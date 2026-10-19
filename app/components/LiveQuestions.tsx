@@ -17,9 +17,5 @@ export default function LiveQuestions() {
     return () => source.close();
   }, [router]);
 
-  return (
-    <p className="sr-only" role="status">
-      {connected ? "Live updates on" : "Connecting to live updates"}
-    </p>
-  );
+  return <span hidden data-live={connected ? "on" : "connecting"} />;
 }

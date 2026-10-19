@@ -23,24 +23,7 @@ vragen en antwoorden.
 
 Het productdoel valt uiteen in drie subdoelen, elk gerealiseerd door één of meer use cases.
 
-```mermaid
-flowchart TD
-  doel["Verbinden van een geïnteresseerde en de student-webdeveloper"]
-  cv["CV bekijken"]
-  contact["Contact opnemen"]
-  vragen["Vragen stellen en beantwoorden"]
-  doel --> cv
-  doel --> contact
-  doel --> vragen
-  cv --> uc1["UC1 Bekijken CV"]
-  contact --> uc2["UC2 Contact opnemen"]
-  vragen --> uc3["UC3 Account registreren"]
-  vragen --> uc4["UC4 Inloggen en uitloggen"]
-  vragen --> uc5["UC5 Vraag stellen"]
-  vragen --> uc6["UC6 Eigen vraag bewerken of verwijderen"]
-  vragen --> uc7["UC7 Vraag beantwoorden of verwijderen"]
-  vragen --> uc8["UC8 Vragen en antwoorden live volgen"]
-```
+![Decompositie van het productdoel](img/fo-productdoel.svg)
 
 _Figuur 1: Decompositie van het productdoel in subdoelen_
 
@@ -77,28 +60,7 @@ zichtbaarheid.
 
 ### 3.3 Domeinmodel
 
-```mermaid
-classDiagram
-  class Geinteresseerde
-  class Developer
-  class Vaardigheid
-  class Opleiding
-  class Project
-  class Contactverzoek
-  class Account
-  class Vraag
-  class Antwoord
-  Geinteresseerde --> Developer : bekijkt CV van
-  Developer "1" --> "*" Vaardigheid : heeft
-  Developer "1" --> "*" Opleiding : volgde
-  Developer "1" --> "*" Project : maakte
-  Geinteresseerde "1" --> "*" Contactverzoek : verstuurt
-  Contactverzoek "*" --> "1" Developer : gericht aan
-  Geinteresseerde "1" --> "0..1" Account : heeft
-  Account "1" --> "*" Vraag : stelt
-  Vraag "1" --> "0..1" Antwoord : krijgt
-  Developer "1" --> "*" Antwoord : geeft
-```
+![Domeinmodel](img/fo-domeinmodel.svg)
 
 _Figuur 2: Domeinmodel van de gewenste situatie_
 
@@ -113,33 +75,7 @@ _Figuur 2: Domeinmodel van de gewenste situatie_
 
 ### 3.4 Use case diagram
 
-```mermaid
-flowchart LR
-  bezoeker["Bezoeker"]
-  gebruiker["Gebruiker"]
-  beheerder["Beheerder"]
-  subgraph systeem ["Portfolio website"]
-    uc1(["UC1 Bekijken CV"])
-    uc2(["UC2 Contact opnemen"])
-    uc3(["UC3 Account registreren"])
-    uc4(["UC4 Inloggen en uitloggen"])
-    uc5(["UC5 Vraag stellen"])
-    uc6(["UC6 Eigen vraag bewerken of verwijderen"])
-    uc7(["UC7 Vraag beantwoorden of verwijderen"])
-    uc8(["UC8 Vragen en antwoorden live volgen"])
-  end
-  gebruiker -.->|"kan alles van"| bezoeker
-  beheerder -.->|"kan alles van"| gebruiker
-  bezoeker --> uc1
-  bezoeker --> uc2
-  bezoeker --> uc3
-  bezoeker --> uc4
-  bezoeker --> uc8
-  gebruiker --> uc4
-  gebruiker --> uc5
-  gebruiker --> uc6
-  beheerder --> uc7
-```
+![Use case diagram](img/fo-usecasediagram.svg)
 
 _Figuur 3: Use case diagram van de gewenste situatie_
 

@@ -19,9 +19,9 @@ export default async function AskPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="flex flex-col gap-2">
-        <h1>Ask me anything</h1>
-        <p>Curious about a project, how I work or what I am up to? Ask away.</p>
+      <section className="flex flex-col">
+        <h1 className="mb-2">Ask me anything</h1>
+        <p className="mb-2">Curious about a project, how I work or what I am up to? Ask away.</p>
         {session ? (
           <QuestionForm />
         ) : (

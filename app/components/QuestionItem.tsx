@@ -55,8 +55,8 @@ export default function QuestionItem({ question }: { question: QuestionView }) {
   return (
     <li className="flex flex-col gap-2">
       <div>
-        <p className="whitespace-pre-line">{question.body}</p>
-        <p className="text-sm">
+        <p className="whitespace-pre-line break-words">{question.body}</p>
+        <p className="text-sm break-words">
           {question.authorName} ·{" "}
           <time dateTime={new Date(question.createdAt).toISOString()}>
             {formatDate(question.createdAt)}
@@ -66,7 +66,7 @@ export default function QuestionItem({ question }: { question: QuestionView }) {
 
       {question.answer && (
         <div className="border-l border-black pl-4">
-          <p className="whitespace-pre-line">{question.answer}</p>
+          <p className="whitespace-pre-line break-words">{question.answer}</p>
           {question.answeredAt && (
             <p className="text-sm">
               Answered on{" "}

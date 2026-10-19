@@ -36,11 +36,15 @@ export default function AuthStatus() {
 
   return (
     <div className="flex flex-row gap-2 items-baseline">
-      <span>
+      <span className="inline-block max-w-[16ch] truncate align-bottom" title={user.displayName}>
         {user.displayName}
-        {user.role === "ADMIN" && " (admin)"}
       </span>
-      <button type="button" className="underline" onClick={logout}>
+      {user.role === "ADMIN" && <span>(admin)</span>}
+      <button
+        type="button"
+        className="cursor-pointer border-0 p-0 whitespace-nowrap underline"
+        onClick={logout}
+      >
         Log out
       </button>
     </div>

@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactFormSchema, type ContactForm as ContactFormValues } from "@/lib/schemas/contact";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Field from "./Field";
 
 type Captcha = { question: string; token: string };
@@ -19,9 +19,9 @@ const fields = [
   { name: "subject", label: "Subject", type: "text", autoComplete: "off" },
 ] as const;
 
-export default function ContactForm() {
+export default function ContactForm({ initialCaptcha }: { initialCaptcha: Captcha }) {
   const [status, setStatus] = useState<Status>("idle");
-  const [captcha, setCaptcha] = useState<Captcha | null>(null);
+  const [captcha, setCaptcha] = useState<Captcha | null>(initialCaptcha);
 
   const {
     register,
@@ -35,19 +35,14 @@ export default function ContactForm() {
     mode: "onChange",
   });
 
-  const loadCaptcha = useCallback(async () => {
+  async function loadCaptcha() {
     try {
       const res = await fetch("/api/contact/captcha", { cache: "no-store" });
       setCaptcha(await res.json());
     } catch {
       setCaptcha(null);
     }
-  }, []);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadCaptcha();
-  }, [loadCaptcha]);
+  }
 
   useEffect(() => {
     if (status === "idle") return;

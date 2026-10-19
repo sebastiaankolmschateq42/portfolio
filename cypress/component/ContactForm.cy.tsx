@@ -3,11 +3,10 @@ import ContactForm from "@/app/components/ContactForm";
 describe("<ContactForm>", () => {
   beforeEach(() => {
     cy.intercept("GET", "/api/contact/captcha", { fixture: "captcha.json" }).as("captcha");
-    cy.mount(<ContactForm />);
-    cy.wait("@captcha");
+    cy.fixture("captcha").then((captcha) => cy.mount(<ContactForm initialCaptcha={captcha} />));
   });
 
-  it("asks the sum from the server", () => {
+  it("shows the sum it gets from the server", () => {
     cy.get('label[for="captchaAnswer"]').should("have.text", "What is 2 + 3?");
   });
 

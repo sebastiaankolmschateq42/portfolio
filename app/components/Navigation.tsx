@@ -9,7 +9,7 @@ export default function Navigation() {
       <Link href="/" className="text-xl font-semibold">
         Sebastiaan Henri Kolmschate
       </Link>
-      <div className="flex flex-row gap-2">
+      <div className="flex flex-row flex-wrap items-baseline justify-center gap-x-3 gap-y-1">
         {site.nav.map((item: NavItem) => (
           <Link className="underline" key={item.href} href={item.href}>
             {item.label}

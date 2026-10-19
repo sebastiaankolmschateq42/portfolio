@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 
 export default function RegisterPage() {
   return (
-    <div className="flex flex-col gap-4">
-      <h1>Register</h1>
-      <p>Create an account to ask me a question.</p>
+    <div className="flex flex-col">
+      <h1 className="mb-2">Register</h1>
+      <p className="mb-8">Create an account to ask me a question.</p>
       <RegisterForm />
       <p>
         Already have an account?{" "}

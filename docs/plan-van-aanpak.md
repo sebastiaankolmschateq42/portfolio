@@ -2,7 +2,7 @@
 
 ## 1. Aanleiding en doel
 
-Voor de modules Client- en Server Technology en Security for Web Applications bouw ik een geïntegreerde webapplicatie: een persoonlijk portfolio met een realtime gastenboek.
+Voor de modules Client- en Server Technology en Security for Web Applications bouw ik een geïntegreerde webapplicatie: een persoonlijk portfolio met een "Ask Me Anything"-pagina waar bezoekers met een account vragen stellen die ik live beantwoord.
 
 Doel: aantonen dat ik client- en servertechnologie, authenticatie/autorisatie en realtime communicatie kan combineren in één werkende, veilige applicatie.
 
@@ -10,10 +10,12 @@ Doel: aantonen dat ik client- en servertechnologie, authenticatie/autorisatie en
 
 - Portfolio over mezelf
 - Contactformulier dat valideert en mailt
-- Een interactief gedeelte (gastenboek)
-- Meerdere rollen (beheerder, gebruiker)
-  - Beveiligde beheeromgeving
+- Een interactief gedeelte (Ask Me Anything)
+- Accounts met tweestapsverificatie (wachtwoord en een code per mail)
+- Meerdere rollen (gebruiker, beheerder)
+  - Alleen de beheerder beantwoordt vragen
 - Realtime updates via Server-Sent Events
+- Front-end getest met Cypress
 
 ## 3. Aanpak en werkwijze
 
@@ -25,9 +27,10 @@ De logische volgorde van de features wordt:
 - project setup
 - portfolio pagina
 - contact pagina
-- auth/admin systeem
-- gastenboek pagina
+- gastenboek pagina (later vervangen door Ask Me Anything)
+- accounts met 2FA en Ask Me Anything
 - realtime updates
+- Cypress-tests en deployment
 
 Per feature bouwen we het volgens de volgende werkwijze:
 
@@ -43,16 +46,19 @@ Git "niveau's":
 2. `develop` = integratie.
 3. Feature-branches per ticket.
 
-Planning: iteratief zonder vaste data, wel met een harde deadline van 1 oktober voor het begin van schooljaar 2026-2026. Volgorde en Definition of Done bewaken de voortgang; elke afgeronde feature is inleverbaar tussenresultaat.
+Planning: iteratief zonder vaste data, met het aftekenmoment op 20 oktober 2026 als harde deadline. Volgorde en Definition of Done bewaken de voortgang; elke afgeronde feature is inleverbaar tussenresultaat.
 
 ## 4. Tooling
 
 | Keuze                              | Reden                                           |
 | ---------------------------------- | ----------------------------------------------- |
 | Next.js + TypeScript               | front- en backend                               |
-| Vitest                             | unit testing                                    |
+| PostgreSQL + Prisma                | accounts en vragen opslaan                      |
+| Vitest                             | backend testing                                 |
+| Cypress                            | frontend testing                                |
 | Prettier + ESLint + GitHub Actions | basis kwaliteit afgedwongen bij elke push en PR |
-| Vercel                             | deployment                                      |
+| Mailtrap                           | mail versturen zonder echte inboxen             |
+| Railway                            | deployment (staging en productie)               |
 
 ## 5. Definition of Done
 

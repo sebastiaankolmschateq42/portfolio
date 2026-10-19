@@ -36,7 +36,7 @@ describe("contact form (stubbed network)", () => {
   beforeEach(() => {
     cy.intercept("GET", "/api/contact/captcha", { fixture: "captcha.json" }).as("captcha");
     cy.visitWithConsent("/contact");
-    cy.wait("@captcha");
+    cy.get('label[for="captchaAnswer"]').should("contain.text", "What is");
   });
 
   it("keeps the send button locked until every field is valid", () => {
@@ -71,8 +71,8 @@ describe("contact form (stubbed network)", () => {
     cy.wait("@send").its("request.body").should("deep.include", {
       firstName: "Ada",
       captchaAnswer: "5",
-      captchaToken: "fixture-token",
     });
+    cy.get("@send").its("request.body.captchaToken").should("be.a", "string").and("not.be.empty");
     cy.get('[role="status"]').should("contain.text", "has been sent");
 
     cy.get('[role="status"]', { timeout: 8000 }).should("not.exist");
@@ -88,7 +88,7 @@ describe("contact form (stubbed network)", () => {
 
     cy.get('[role="alert"]').should("contain.text", "not sent");
     cy.get("#firstName").should("have.value", "Ada");
-    cy.get("@captcha.all").should("have.length", 2);
+    cy.get("@captcha.all").should("have.length", 1);
   });
 
   it("shows the server's message when the sum was wrong", () => {
