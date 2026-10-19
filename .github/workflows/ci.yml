@@ -31,3 +31,49 @@ jobs:
       - run: make lint
       - run: make prettier-check
       - run: make test
+
+  # Cypress: end-to-end tests against a production build, plus component tests
+  cypress:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: portfolio
+          POSTGRES_PASSWORD: portfolio
+          POSTGRES_DB: portfolio_e2e
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U portfolio -d portfolio_e2e"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 15
+    # CI-only values: this database and these secrets exist only inside this job
+    env:
+      DATABASE_URL: postgresql://portfolio:portfolio@localhost:5433/portfolio_e2e
+      JWT_SECRET: ci-only-jwt-secret-at-least-32-characters
+      AUTH_CODE_SECRET: ci-only-auth-code-secret
+      CAPTCHA_SECRET: ci-only-captcha-secret
+      # No real mail in CI: log it instead
+      MAIL_CONSOLE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bunx prisma migrate deploy
+      - uses: cypress-io/github-action@v6
+        with:
+          install: false
+          build: bun run build
+          start: bun run start
+          wait-on: "http://localhost:3000"
+      - uses: cypress-io/github-action@v6
+        with:
+          install: false
+          component: true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots

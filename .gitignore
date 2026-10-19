@@ -44,3 +44,8 @@ next-env.d.ts
 /notes
 # prisma generated client
 /generated
+
+# cypress
+/cypress/screenshots
+/cypress/videos
+/cypress/downloads

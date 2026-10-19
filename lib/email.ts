@@ -16,7 +16,7 @@ const TIMEOUT_MS = 10_000;
  * Sends through the first configured transport:
  * 1. Mailtrap sandbox HTTPS API (MAILTRAP_API_TOKEN) — used on Railway, where SMTP is blocked
  * 2. SMTP (SMTP_HOST) — handy for local development
- * 3. Console — when nothing is configured
+ * 3. Console — when nothing is configured, outside production (or with MAIL_CONSOLE=1, for CI)
  */
 export async function sendEmail(input: EmailInput): Promise<boolean> {
   try {
@@ -24,6 +24,9 @@ export async function sendEmail(input: EmailInput): Promise<boolean> {
       await sendViaMailtrapApi(input);
     } else if (process.env.SMTP_HOST) {
       await sendViaSmtp(input);
+    } else if (process.env.NODE_ENV === "production" && process.env.MAIL_CONSOLE !== "1") {
+      // A missing mail setting in production would silently swallow login codes.
+      throw new Error("No mail transport configured");
     } else {
       console.log("=== MAIL (no transport configured) ===");
       console.log(`To: ${input.to}\nSubject: ${input.subject}\n${input.text}`);
