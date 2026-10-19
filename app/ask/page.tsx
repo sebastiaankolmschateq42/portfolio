@@ -40,7 +40,7 @@ export default async function AskPage() {
       </section>
 
       <section className="flex flex-col gap-4">
-        <h2>Questions</h2>
+        <h2 className="font-semibold border-b">Questions</h2>
         <LiveQuestions />
         {questions.length === 0 ? (
           <p>No questions yet. Be the first to ask one.</p>

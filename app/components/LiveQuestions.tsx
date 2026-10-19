@@ -15,7 +15,7 @@ export default function LiveQuestions() {
     const source = new EventSource("/api/questions/stream");
 
     source.onopen = () => setConnected(true);
-    // EventSource reconnects by itself; this only updates the indicator.
+    // EventSource reconnects by itself; this only updates the status text.
     source.onerror = () => setConnected(false);
     source.addEventListener("question", () => router.refresh());
 
@@ -23,8 +23,9 @@ export default function LiveQuestions() {
   }, [router]);
 
   return (
-    <p className="text-sm" role="status">
-      {connected ? "● Live — new questions and answers appear automatically" : "○ Connecting..."}
+    // Not shown on screen; screen readers still hear when live updates are on.
+    <p className="sr-only" role="status">
+      {connected ? "Live updates on" : "Connecting to live updates"}
     </p>
   );
 }
