@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ user: null });
   }
 
-  // Reads the account so a deleted user no longer shows up as signed in.
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
     select: { displayName: true, role: true },

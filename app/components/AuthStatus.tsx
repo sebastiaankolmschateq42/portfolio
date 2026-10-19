@@ -17,7 +17,6 @@ export default function AuthStatus() {
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    // Full reload so every part of the page forgets the session.
     window.location.assign("/");
   }
 
@@ -30,9 +29,6 @@ export default function AuthStatus() {
       <div className="flex flex-row gap-2">
         <Link className="underline" href="/login">
           Log in
-        </Link>
-        <Link className="underline" href="/register">
-          Register
         </Link>
       </div>
     );

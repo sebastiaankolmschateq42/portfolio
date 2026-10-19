@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-// Limits follow the UC2 design (SM1): first/last name 60, email 80, phone 20,
-// subject 200, message 600.
 export const contactFormSchema = z.object({
   firstName: z
     .string()
@@ -30,7 +28,6 @@ export const contactFormSchema = z.object({
     .trim()
     .min(1, { message: "Subject is required" })
     .max(200, { message: "Subject must be at most 200 characters" }),
-  // Plain text only: stricter than the design, which allows a small set of HTML elements.
   message: z
     .string()
     .trim()
@@ -46,7 +43,6 @@ export const contactFormSchema = z.object({
     .regex(/^\d{1,2}$/, { message: "Enter the answer as a number" }),
 });
 
-// What the server receives: the form fields plus the signed captcha token.
 export const contactRequestSchema = contactFormSchema.extend({
   captchaToken: z.string().min(1).max(200),
 });

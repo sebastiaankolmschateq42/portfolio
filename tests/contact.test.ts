@@ -15,7 +15,6 @@ function jsonRequest(body: unknown) {
   });
 }
 
-// Asks the captcha route for a sum and returns the fields needed to pass it.
 async function solvedCaptcha() {
   const { question, token } = await getCaptcha().json();
   const [a, b] = question.split(" + ").map(Number);

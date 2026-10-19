@@ -1,5 +1,3 @@
-// UC1: the profile page, against the real app.
-
 describe("profile page", () => {
   it("shows the developer's photo, name, skills and education", () => {
     cy.visitWithConsent("/");
@@ -22,7 +20,6 @@ describe("profile page", () => {
     cy.get("main h1").should("have.text", "Rijksmuseum Visual Search");
   });
 
-  // Mobile first and responsive: the same content on a phone, without sideways scrolling.
   it("fits a phone screen", () => {
     cy.viewport("iphone-x");
     cy.visit("/");

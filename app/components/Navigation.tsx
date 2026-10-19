@@ -15,8 +15,8 @@ export default function Navigation() {
             {item.label}
           </Link>
         ))}
+        <AuthStatus />
       </div>
-      <AuthStatus />
     </nav>
   );
 }

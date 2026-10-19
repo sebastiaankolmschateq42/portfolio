@@ -1,16 +1,11 @@
 import "server-only";
 import { createHmac, randomInt, randomUUID, timingSafeEqual } from "node:crypto";
 
-// A simple sum the visitor has to solve before the contact form is sent.
-// The answer is never sent to the browser: the token only carries an HMAC of it,
-// so the server can check the answer later without storing anything per visitor.
-
 const TTL_MS = 10 * 60 * 1000;
 
 export type Captcha = { question: string; token: string };
 export type CaptchaResult = "ok" | "wrong" | "expired";
 
-// Tokens that were already checked, so each one can be tried only once (nonce -> expiresAt).
 const usedNonces = new Map<string, number>();
 
 function sign(answer: number, expiresAt: number, nonce: string) {
@@ -36,7 +31,6 @@ export function verifyCaptcha(token: string, answer: string, now = Date.now()): 
   if (!nonce || !signature || !Number.isSafeInteger(expiresAt)) return "wrong";
   if (expiresAt < now || usedNonces.has(nonce)) return "expired";
 
-  // Burn the token before comparing: guessing all possible sums with one token is impossible.
   usedNonces.set(nonce, expiresAt);
   forgetExpired(now);
 

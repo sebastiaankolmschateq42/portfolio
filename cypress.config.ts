@@ -4,10 +4,8 @@ import { SignJWT } from "jose";
 import { Client } from "pg";
 import react from "@vitejs/plugin-react";
 
-// Tasks run in Node, next to the dev server, with the same database and JWT secret.
 loadEnv({ path: ".env.local", quiet: true });
 
-// Only accounts with this domain are created and removed by the tests; other data is left alone.
 const TEST_DOMAIN = "cypress.test";
 
 type Role = "USER" | "ADMIN";
@@ -27,7 +25,6 @@ export default defineConfig({
     baseUrl: "http://localhost:3000",
     setupNodeEvents(on) {
       on("task", {
-        // Removes every test account; their questions go with them (ON DELETE CASCADE).
         resetTestData() {
           return withDb(async (db) => {
             await db.query("DELETE FROM users WHERE email LIKE $1", [`%@${TEST_DOMAIN}`]);
@@ -35,8 +32,6 @@ export default defineConfig({
           });
         },
 
-        // Creates a verified account and returns a signed session token for it,
-        // so tests can skip the emailed login code.
         async createSession({ name, role }: { name: string; role: Role }) {
           const userId = await withDb(async (db) => {
             const { rows } = await db.query(
