@@ -9,8 +9,9 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="flex flex-col gap-4">
-      <h1>Log in</h1>
+    <div className="flex flex-col">
+      <h1 className="mb-2">Log in</h1>
+      <p className="mb-8">Log in to ask me a question.</p>
       <LoginForm />
       <p>
         No account yet?{" "}
