@@ -74,7 +74,7 @@ describe("ask me anything", () => {
     cy.clearCookies();
 
     cy.visit("/ask");
-    cy.contains("Live updates on").should("exist");
+    cy.get('[data-live="on"]').should("exist");
     cy.contains("li", "What are you working on?").should("not.contain.text", "Answered on");
 
     cy.task<string>("createSession", { name: "Admin", role: "ADMIN" }).then((adminToken) => {
