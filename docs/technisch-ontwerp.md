@@ -18,7 +18,7 @@ Dit technisch ontwerp beschrijft hoe de applicatie is opgebouwd. Het volgt het C
 
 De use cases (UC), functionele requirements (FR), niet-functionele requirements (NFR) en security-maatregelen (SM) hebben dezelfde nummers als in de requirementsanalyse en het functioneel ontwerp. Paragraaf 6.6 laat per requirement zien in welk component het gerealiseerd is.
 
-De diagrammen zijn getekend als Mermaid-flowchart in C4-stijl. Ze renderen daardoor in elke Markdown-viewer.
+De diagrammen volgen het C4-model: personen, systemen en containers als blokken, met een gestippelde grens rond wat bij het systeem hoort. Ze staan als SVG in docs/img.
 
 ## 1. Setup
 
@@ -107,25 +107,7 @@ Een feature is af wanneer:
 
 Dit hoofdstuk beschrijft het systeem op het hoogste niveau: welke personen en externe systemen zijn erbij betrokken, en hoe verhouden die zich tot elkaar.
 
-```mermaid
-flowchart TB
-    bezoeker(["Bezoeker<br/>Persoon, niet ingelogd<br/>Bekijkt profiel en projecten, stuurt een contactbericht, leest vragen"])
-    gebruiker(["Gebruiker<br/>Persoon, rol USER<br/>Stelt vragen en bewerkt of verwijdert eigen vragen"])
-    beheerder(["Beheerder<br/>Persoon, rol ADMIN<br/>Beantwoordt en verwijdert vragen, leest contactmail"])
-    systeem["Portfolio-systeem<br/>Softwaresysteem<br/>Profiel, contactformulier en Ask Me Anything met live updates"]
-    mailtrap["Mailtrap<br/>Extern systeem<br/>Sandbox-inbox die alle verstuurde mail opvangt"]
-    bezoeker -- "Bekijkt pagina's, verstuurt formulieren via HTTPS" --> systeem
-    gebruiker -- "Logt in met wachtwoord en mailcode, stelt vragen via HTTPS" --> systeem
-    beheerder -- "Beantwoordt en verwijdert vragen via HTTPS" --> systeem
-    systeem -- "Verstuurt contactmail en codes via HTTPS API" --> mailtrap
-    beheerder -- "Leest mail in de sandbox-inbox" --> mailtrap
-    classDef person fill:#08427b,stroke:#052e56,color:#fff
-    classDef system fill:#1168bd,stroke:#0b4884,color:#fff
-    classDef external fill:#999999,stroke:#6b6b6b,color:#fff
-    class bezoeker,gebruiker,beheerder person
-    class systeem system
-    class mailtrap external
-```
+![C4 level 1: systeemcontext](img/to-c4-context.svg)
 
 | Van               | Naar              | Interactie                                                                                | Use cases          |
 | ----------------- | ----------------- | ----------------------------------------------------------------------------------------- | ------------------ |
@@ -151,26 +133,7 @@ Binnen het systeem zijn er drie containers:
 - **Next.js-server**: één Node.js-proces op Railway. Rendert pagina's, verwerkt API-verzoeken in route handlers, controleert sessies en rechten, en praat met de database en Mailtrap.
 - **PostgreSQL**: beheerde database op Railway. Bewaart accounts, eenmalige codes en vragen. Contactberichten worden niet opgeslagen (NFR6).
 
-```mermaid
-flowchart TB
-    bezoeker(["Bezoeker, Gebruiker, Beheerder<br/>Personen"])
-    subgraph portfolio["Portfolio-systeem"]
-        browser["Browser-client<br/>Container: React 19, client components<br/>Formulieren met directe validatie, live updates, privacymelding"]
-        server["Next.js-server<br/>Container: Next.js 16 op Node.js, Railway<br/>Rendert pagina's, route handlers, sessies, autorisatie"]
-        db[("PostgreSQL<br/>Container: database, Railway<br/>users, auth_codes, questions")]
-    end
-    mailtrap["Mailtrap<br/>Extern systeem<br/>Sandbox HTTPS API"]
-    bezoeker -- "Gebruikt" --> browser
-    browser -- "Pagina's en JSON via HTTPS, SSE-stream" --> server
-    server -- "SQL met parameters via Prisma" --> db
-    server -- "JSON via HTTPS API" --> mailtrap
-    classDef person fill:#08427b,stroke:#052e56,color:#fff
-    classDef container fill:#438dd5,stroke:#2e6295,color:#fff
-    classDef external fill:#999999,stroke:#6b6b6b,color:#fff
-    class bezoeker person
-    class browser,server,db container
-    class mailtrap external
-```
+![C4 level 2: containers](img/to-c4-containers.svg)
 
 | Verbinding                     | Protocol en formaat                                                                      |
 | ------------------------------ | ---------------------------------------------------------------------------------------- |
@@ -235,44 +198,7 @@ Per container worden hieronder de componenten beschreven. De Zod-schema's in `li
 
 ### 6.1 Browser-client
 
-```mermaid
-flowchart LR
-    persoon(["Bezoeker, Gebruiker, Beheerder<br/>Personen"])
-    subgraph browser["Browser-client"]
-        contact["ContactForm<br/>Client component<br/>Velden, som, spinner, flashmelding"]
-        auth["LoginForm, RegisterForm, CodeForm<br/>Client components<br/>Twee stappen: gegevens, dan mailcode"]
-        status["AuthStatus<br/>Client component<br/>Toont naam en rol, knop uitloggen"]
-        vraag["QuestionForm<br/>Client component<br/>Nieuwe vraag stellen"]
-        item["QuestionItem<br/>Client component<br/>Knoppen bewerken, beantwoorden, verwijderen"]
-        live["LiveQuestions<br/>Client component<br/>EventSource, ververst de pagina"]
-        consent["ConsentBanner<br/>Client component<br/>Privacymelding, keuze in localStorage"]
-        field["Field<br/>Component<br/>Label, invoerveld en foutmelding"]
-        schemas["Zod-schema's<br/>lib/schemas<br/>Zelfde regels als de server"]
-    end
-    server["Next.js-server<br/>Container"]
-    persoon -- "Gebruikt" --> contact
-    persoon -- "Gebruikt" --> auth
-    persoon -- "Gebruikt" --> vraag
-    persoon -- "Gebruikt" --> item
-    persoon -- "Maakt privacykeuze" --> consent
-    contact -- "Valideert met" --> schemas
-    auth -- "Valideert met" --> schemas
-    vraag -- "Valideert met" --> schemas
-    contact -- "Toont velden met" --> field
-    auth -- "Toont velden met" --> field
-    contact -- "GET captcha, POST contact" --> server
-    auth -- "POST naar /api/auth" --> server
-    status -- "GET me, POST logout" --> server
-    vraag -- "POST /api/questions" --> server
-    item -- "PATCH, DELETE, POST answer" --> server
-    live -- "SSE /api/questions/stream" --> server
-    classDef person fill:#08427b,stroke:#052e56,color:#fff
-    classDef container fill:#438dd5,stroke:#2e6295,color:#fff
-    classDef component fill:#85bbf0,stroke:#5d82a8,color:#000
-    class persoon person
-    class server container
-    class contact,auth,status,vraag,item,live,consent,field,schemas component
-```
+![C4 level 3: browser-client](img/to-c4-componenten-browser.svg)
 
 - **ContactForm** (`app/components/ContactForm.tsx`): React Hook Form beheert de status en Zod valideert tijdens het typen (`mode: "onChange"`). De verzendknop is pas actief als alle velden geldig zijn. Bij het laden haalt het formulier een som op bij de server. Tijdens verzenden toont de knop een spinner en de tekst "Sending...". Daarna verschijnt zes seconden een flashmelding. Bij status 201 wordt het formulier leeggemaakt (NFR5). Bij een fout blijft de invoer staan, behalve het antwoord op de som, en toont het formulier de veldfouten van de server. Na elke poging haalt het een nieuwe som op, omdat een token maar één keer bruikbaar is. De native browservalidatie staat uit (`noValidate`), zodat alle meldingen uit hetzelfde schema komen als op de server.
 - **LoginForm, RegisterForm en CodeForm**: stap één stuurt e-mail en wachtwoord (en bij registratie de weergavenaam). Bij status 202 toont het formulier CodeForm voor de zescijferige code. Bij succes laadt de pagina volledig opnieuw naar `/ask`, zodat de navigatie de nieuwe sessie ziet. Een fout wachtwoord en een onbekend adres geven dezelfde melding.
@@ -285,52 +211,7 @@ flowchart LR
 
 ### 6.2 Next.js-server
 
-```mermaid
-flowchart LR
-    browser["Browser-client<br/>Container"]
-    subgraph server["Next.js-server"]
-        pages["Pagina's<br/>Server components<br/>home, projecten, contact, ask, login, register"]
-        content["Content-laag<br/>lib/content.ts, lib/navigation.ts<br/>Profiel, projecten en menu"]
-        routes["Route handlers<br/>app/api<br/>auth, contact, questions, stream"]
-        schemas["Zod-schema's<br/>lib/schemas<br/>Invoerregels en limieten"]
-        session["Sessie<br/>lib/session.ts<br/>JWT ondertekenen en controleren"]
-        accounts["Accounts<br/>lib/accounts.ts<br/>Registreren, bevestigen, inloggen"]
-        codes["Eenmalige codes<br/>lib/auth-codes.ts<br/>Maken, hashen, controleren"]
-        questions["Datalaag vragen<br/>lib/questions.ts<br/>Queries plus autorisatie"]
-        captcha["Captcha<br/>lib/captcha.ts<br/>Som met HMAC-token"]
-        email["Mailservice<br/>lib/email.ts<br/>Mailtrap API, SMTP of console"]
-        events["Events<br/>lib/events.ts<br/>EventEmitter in het proces"]
-        prisma["Prisma-client<br/>lib/prisma.ts<br/>Databaseverbinding"]
-    end
-    db[("PostgreSQL<br/>Container")]
-    mailtrap["Mailtrap<br/>Extern systeem"]
-    browser -- "Vraagt pagina's op" --> pages
-    browser -- "JSON en SSE" --> routes
-    pages -- "Leest" --> content
-    pages -- "Leest sessie" --> session
-    pages -- "listQuestions" --> questions
-    routes -- "Valideert met" --> schemas
-    routes -- "Leest en zet cookie" --> session
-    routes -- "Registreren en inloggen" --> accounts
-    routes -- "Vragen wijzigen" --> questions
-    routes -- "Som maken en controleren" --> captcha
-    routes -- "Contactmail" --> email
-    routes -- "Abonneert op" --> events
-    accounts -- "Gebruikt" --> codes
-    codes -- "Mailt code" --> email
-    questions -- "Meldt wijziging" --> events
-    accounts -- "Queries" --> prisma
-    codes -- "Queries" --> prisma
-    questions -- "Queries" --> prisma
-    prisma -- "SQL" --> db
-    email -- "HTTPS API" --> mailtrap
-    classDef container fill:#438dd5,stroke:#2e6295,color:#fff
-    classDef component fill:#85bbf0,stroke:#5d82a8,color:#000
-    classDef external fill:#999999,stroke:#6b6b6b,color:#fff
-    class browser,db container
-    class pages,content,routes,schemas,session,accounts,codes,questions,captcha,email,events,prisma component
-    class mailtrap external
-```
+![C4 level 3: Next.js-server](img/to-c4-componenten-server.svg)
 
 - **Pagina's** (`app/`): server components. De homepagina en alle projectpagina's (`generateStaticParams`) worden bij de build statisch gegenereerd. Dat helpt bij de laadtijd (NFR2). De pagina `/ask` is `force-dynamic`: hij leest bij elk verzoek de sessie en haalt de vragen op met de rechten van de bezoeker. In Next.js 16 is `params` een Promise; de pagina's en route handlers doen daarom `await params`.
 - **Content-laag**: profiel, skills, opleidingen, projecten en menu staan in TypeScript-bestanden en worden bij import met Zod gecontroleerd. Er is geen beheerscherm voor deze gegevens (NFR1).
@@ -348,38 +229,7 @@ flowchart LR
 
 Het datamodel staat in `prisma/schema.prisma`. De migraties in `prisma/migrations/` maken de tabellen aan. De lengtes in de database zijn gelijk aan de Zod-limieten, zodat de database de laatste grens is (SM1).
 
-```mermaid
-erDiagram
-    users ||--o{ auth_codes : "heeft"
-    users ||--o{ questions : "stelt"
-    users {
-        uuid id PK
-        varchar email UK "max 254"
-        varchar display_name "max 50"
-        text password_hash "bcrypt"
-        Role role "USER of ADMIN"
-        timestamptz email_verified_at "leeg tot bevestigd"
-        timestamptz created_at
-    }
-    auth_codes {
-        uuid id PK
-        uuid user_id FK
-        text code_hash "HMAC-SHA256"
-        AuthCodePurpose purpose "VERIFY of LOGIN"
-        timestamptz expires_at "na 5 minuten"
-        timestamptz used_at "leeg tot gebruikt"
-        int attempts "max 5"
-        timestamptz created_at
-    }
-    questions {
-        uuid id PK
-        uuid author_id FK
-        varchar body "max 500"
-        varchar answer "max 2000, leeg tot beantwoord"
-        timestamptz answered_at
-        timestamptz created_at
-    }
-```
+![Datamodel](img/to-datamodel.svg)
 
 - Beide relaties hebben `ON DELETE CASCADE`. Wordt een account verwijderd, dan verdwijnen zijn codes en vragen mee. De tests maken hier gebruik van om op te ruimen.
 - Indexen: `users.email` is uniek; `auth_codes` heeft een index op `(user_id, purpose)`; `questions` op `created_at`, voor de sortering op de pagina.
@@ -417,120 +267,15 @@ Toelichting:
 
 #### Inloggen met 2FA (UC4)
 
-```mermaid
-sequenceDiagram
-    actor G as Gebruiker
-    participant B as Browser LoginForm en CodeForm
-    participant L as POST api auth login
-    participant A as accounts.ts
-    participant C as auth-codes.ts
-    participant DB as PostgreSQL
-    participant M as Mailtrap
-    participant V as POST api auth login verify
-    participant S as session.ts
-    G->>B: Vult e-mail en wachtwoord in
-    B->>B: Zod controleert de invoer
-    B->>L: JSON met email en password
-    L->>L: JSON lezen en loginSchema.safeParse
-    L->>A: startLogin
-    A->>DB: Zoek gebruiker op e-mailadres
-    A->>A: bcrypt.compare, met dummy-hash bij onbekend adres
-    alt Onbekend adres, fout wachtwoord of niet bevestigd
-        A-->>L: false
-        L-->>B: 401 Invalid email or password
-    else Wachtwoord klopt
-        A->>C: createAuthCode LOGIN
-        C->>DB: Oude codes ongeldig, nieuwe HMAC-hash, geldig 5 minuten
-        A->>M: Mail met de zescijferige code
-        L-->>B: 202
-        B->>G: Toont het codeveld
-        G->>B: Vult de code uit de mail in
-        B->>V: JSON met email en code
-        V->>A: completeLogin
-        A->>C: verifyAuthCode
-        C->>DB: Pogingen plus 1, HMAC vergelijken, used_at zetten
-        alt Code klopt
-            V->>S: signSession, HS256, 1 dag
-            V-->>B: 200 met cookie session, httpOnly en SameSite Strict
-            B->>B: Herlaadt naar /ask
-        else Code fout, verlopen of 5 pogingen op
-            V-->>B: 400 Invalid or expired code
-        end
-    end
-```
+![Sequentiediagram inloggen met 2FA](img/to-seq-login-2fa.svg)
 
 #### Antwoord verschijnt live (UC7 en UC8)
 
-```mermaid
-sequenceDiagram
-    participant BZ as Browser bezoeker LiveQuestions
-    participant ST as GET api questions stream
-    participant E as events.ts
-    participant BH as Browser beheerder QuestionItem
-    participant AR as POST api questions id answer
-    participant Q as questions.ts
-    participant DB as PostgreSQL
-    participant P as Pagina ask
-    BZ->>ST: EventSource opent de stream
-    ST->>E: subscribeToQuestionEvents
-    ST-->>BZ: retry 3000, verbinding blijft open
-    BH->>AR: JSON met answer en cookie session
-    AR->>AR: Sessie uit cookie, id en answer met Zod
-    AR->>Q: answerQuestion met sessie
-    Q->>Q: Is de rol ADMIN
-    Q->>DB: Update answer en answered_at
-    Q->>E: publishQuestionEvent answered en id
-    E->>ST: Listener van elke open stream
-    ST-->>BZ: event question met alleen type en id
-    AR-->>BH: 200
-    BZ->>P: router.refresh, met de eigen cookie
-    P->>Q: listQuestions met de sessie van de bezoeker
-    Q->>DB: Alle vragen met weergavenaam auteur
-    P-->>BZ: Nieuwe weergave, knoppen volgens eigen rechten
-```
+![Sequentiediagram antwoord live](img/to-seq-live.svg)
 
 #### Contactformulier met captcha (UC2)
 
-```mermaid
-sequenceDiagram
-    actor BZ as Bezoeker
-    participant F as Browser ContactForm
-    participant CC as GET api contact captcha
-    participant R as POST api contact
-    participant CA as captcha.ts
-    participant EM as email.ts
-    participant M as Mailtrap
-    F->>CC: Som ophalen bij laden
-    CC->>CA: createCaptcha
-    CA-->>CC: Som en token met vervaltijd, nonce en HMAC
-    CC-->>F: 200 met question en token, no-store
-    BZ->>F: Vult velden en antwoord in
-    F->>F: Zod tijdens typen, knop pas actief als alles geldig is
-    BZ->>F: Klikt Send
-    F->>F: Spinner en tekst Sending
-    F->>R: JSON met velden, captchaAnswer en captchaToken
-    R->>R: JSON lezen en contactRequestSchema.safeParse
-    alt Ongeldige invoer
-        R-->>F: 400 met veldfouten
-    else Invoer geldig
-        R->>CA: verifyCaptcha
-        CA->>CA: Verlopen of al gebruikt, nonce opbranden, HMAC vergelijken
-        alt Fout of verlopen
-            R-->>F: 400 met fout bij captchaAnswer
-        else Som klopt
-            R->>EM: sendEmail naar vaste inbox, reply-to bezoeker
-            EM->>M: POST sandbox API, time-out 10 seconden
-            alt Mail mislukt
-                R-->>F: 500
-            else Mail verstuurd
-                R-->>F: 201
-            end
-        end
-    end
-    F->>F: Antwoordveld leeg, bij 201 hele formulier leeg
-    F->>F: Flashmelding 6 seconden
-    F->>CC: Nieuwe som ophalen
-```
+![Sequentiediagram contact met captcha](img/to-seq-contact.svg)
 
 ### 6.6 Herleidbaarheid naar het functioneel ontwerp
 
@@ -706,18 +451,7 @@ De cookie krijgt `Secure` alleen als `NODE_ENV` gelijk is aan `production`. Loka
 | Acceptatie | Railway staging    | `develop`                 | Eigen Postgres op Railway | Automatische deploy na merge naar `develop`                    |
 | Productie  | Railway productie  | `main`                    | Eigen Postgres op Railway | Automatische deploy na de release-PR van `develop` naar `main` |
 
-```mermaid
-flowchart LR
-    dev["Ontwikkel<br/>Lokaal<br/>make dev, Postgres in Docker"]
-    ci["Test<br/>GitHub Actions<br/>lint, Vitest, Cypress, Postgres-service"]
-    staging["Acceptatie<br/>Railway staging<br/>branch develop, eigen database en geheimen"]
-    prod["Productie<br/>Railway productie<br/>branch main, eigen database en geheimen"]
-    dev -- "push en pull request" --> ci
-    ci -- "squash merge naar develop" --> staging
-    staging -- "release-PR naar main" --> prod
-    classDef container fill:#438dd5,stroke:#2e6295,color:#fff
-    class dev,ci,staging,prod container
-```
+![OTAP](img/to-otap.svg)
 
 Railway bouwt en start de app met de scripts uit `package.json` (`build` en `start`). Vóór elke deploy draait een pre-deploy-commando: `bun run db:deploy && bun run db:seed`. `db:deploy` past nieuwe migraties toe met `prisma migrate deploy`; dat maakt nooit zelf nieuwe migraties. `db:seed` maakt het beheerdersaccount aan of werkt het bij, met `ADMIN_EMAIL` en `ADMIN_PASSWORD` uit de omgeving. Mislukt de pre-deploy, bijvoorbeeld door een kapotte migratie of een ontbrekend beheerderswachtwoord, dan zet Railway de nieuwe versie niet live en blijft de oude draaien.
 

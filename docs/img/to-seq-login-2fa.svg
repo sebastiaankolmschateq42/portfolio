@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 882" width="900" height="882" role="img" aria-label="Sequentiediagram: inloggen met 2FA">
+  <title>Sequentiediagram: inloggen met 2FA</title>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333333"/></marker><marker id="hollow" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="#ffffff" stroke="#333333" stroke-width="1.2"/></marker></defs>
+  <rect width="900" height="882" fill="#ffffff"/>
+  <rect x="26.0" y="15.0" width="83.6" height="50.0" rx="4" fill="#f3f3f3" stroke="#333333" stroke-width="1.2"/>
+  <text x="67.8" y="44.0" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="bold" font-style="normal" fill="#1a1a1a" text-anchor="middle">Gebruiker</text>
+  <line x1="67.8" y1="65.0" x2="67.8" y2="867.0" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="5 4"/>
+  <rect x="121.6" y="15.0" width="83.6" height="50.0" rx="4" fill="#ffffff" stroke="#333333" stroke-width="1.2"/>
+  <text x="163.3" y="29.0" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="bold" font-style="normal" fill="#1a1a1a" text-anchor="middle">Browser</text>
+  <text x="163.3" y="46.0" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">LoginForm</text>
+  <text x="163.3" y="61.0" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">CodeForm</text>
+  <line x1="163.3" y1="65.0" x2="163.3" y2="867.0" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="5 4"/>
+  <rect x="217.1" y="15.0" width="83.6" height="50.0" rx="4" fill="#ffffff" stroke="#333333" stroke-width="1.2"/>
+  <text x="258.9" y="36.5" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="bold" font-style="normal" fill="#1a1a1a" text-anchor="middle">Route</text>
+  <text x="258.9" y="53.5" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">/api/auth/login</text>
+  <line x1="258.9" y1="65.0" x2="258.9" y2="867.0" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="5 4"/>
+  <rect x="312.7" y="15.0" width="83.6" height="50.0" rx="4" fill="#ffffff" stroke="#333333" stroke-width="1.2"/>
+  <text x="354.4" y="44.0" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="bold" font-style="normal" fill="#1a1a1a" text-anchor="middle">accounts.ts</text>
+  <line x1="354.4" y1="65.0" x2="354.4" y2="867.0" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="5 4"/>
+  <rect x="408.2" y="15.0" width="83.6" height="50.0" rx="4" fill="#ffffff" stroke="#333333" stroke-width="1.2"/>
+  <text x="450.0" y="44.0" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="bold" font-style="normal" fill="#1a1a1a" text-anchor="middle">auth-codes.ts</text>
+  <line x1="450.0" y1="65.0" x2="450.0" y2="867.0" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="5 4"/>
+  <rect x="503.8" y="15.0" width="83.6" height="50.0" rx="4" fill="#ffffff" stroke="#333333" stroke-width="1.2"/>
+  <text x="545.6" y="44.0" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="bold" font-style="normal" fill="#1a1a1a" text-anchor="middle">PostgreSQL</text>
+  <line x1="545.6" y1="65.0" x2="545.6" y2="867.0" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="5 4"/>
+  <rect x="599.3" y="15.0" width="83.6" height="50.0" rx="4" fill="#ffffff" stroke="#333333" stroke-width="1.2"/>
+  <text x="641.1" y="44.0" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="bold" font-style="normal" fill="#1a1a1a" text-anchor="middle">Mailtrap</text>
+  <line x1="641.1" y1="65.0" x2="641.1" y2="867.0" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="5 4"/>
+  <rect x="694.9" y="15.0" width="83.6" height="50.0" rx="4" fill="#ffffff" stroke="#333333" stroke-width="1.2"/>
+  <text x="736.7" y="36.5" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="bold" font-style="normal" fill="#1a1a1a" text-anchor="middle">Route</text>
+  <text x="736.7" y="53.5" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">/login/verify</text>
+  <line x1="736.7" y1="65.0" x2="736.7" y2="867.0" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="5 4"/>
+  <rect x="790.4" y="15.0" width="83.6" height="50.0" rx="4" fill="#ffffff" stroke="#333333" stroke-width="1.2"/>
+  <text x="832.2" y="44.0" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="bold" font-style="normal" fill="#1a1a1a" text-anchor="middle">session.ts</text>
+  <line x1="832.2" y1="65.0" x2="832.2" y2="867.0" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="5 4"/>
+  <rect x="24.0" y="300.0" width="852.0" height="530.0" rx="2" fill="none" stroke="#888888" stroke-width="1"/>
+  <text x="30.0" y="308.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="bold" font-style="normal" fill="#5a5a5a" text-anchor="start">alt  [fout of onbekend]</text>
+  <line x1="24.0" y1="352.0" x2="876.0" y2="352.0" stroke="#888888" stroke-width="1" stroke-dasharray="5 4"/>
+  <text x="30.0" y="368.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="bold" font-style="normal" fill="#5a5a5a" text-anchor="start">else  [wachtwoord klopt]</text>
+  <rect x="32.0" y="658.0" width="836.0" height="160.0" rx="2" fill="none" stroke="#888888" stroke-width="1"/>
+  <text x="38.0" y="666.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="bold" font-style="normal" fill="#5a5a5a" text-anchor="start">alt  [code klopt]</text>
+  <line x1="32.0" y1="744.0" x2="868.0" y2="744.0" stroke="#888888" stroke-width="1" stroke-dasharray="5 4"/>
+  <text x="38.0" y="760.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="bold" font-style="normal" fill="#5a5a5a" text-anchor="start">else  [fout, verlopen of 5 pogingen]</text>
+  <line x1="67.8" y1="90.0" x2="160.3" y2="90.0" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="57.0" y="74.5" width="117.2" height="15.5" fill="#ffffff"/>
+  <text x="115.6" y="85.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">e-mail en wachtwoord</text>
+  <path d="M163.33333333333334,124 L193.33333333333334,124 L193.33333333333334,140 L167.33333333333334,140" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="199.3" y="136.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="start">Zod controleert</text>
+  <line x1="163.3" y1="164.0" x2="255.9" y2="164.0" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="152.5" y="148.5" width="117.2" height="15.5" fill="#ffffff"/>
+  <text x="211.1" y="159.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">POST email, password</text>
+  <line x1="258.9" y1="198.0" x2="351.4" y2="198.0" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="275.4" y="182.5" width="62.6" height="15.5" fill="#ffffff"/>
+  <text x="306.7" y="193.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">startLogin</text>
+  <line x1="354.4" y1="232.0" x2="542.6" y2="232.0" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="407.8" y="216.5" width="84.4" height="15.5" fill="#ffffff"/>
+  <text x="450.0" y="227.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">zoek gebruiker</text>
+  <path d="M354.44444444444446,266 L384.44444444444446,266 L384.44444444444446,282 L358.44444444444446,282" fill="none" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <text x="390.4" y="278.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="start">bcrypt.compare (dummy-hash bij onbekend)</text>
+  <line x1="258.9" y1="332.0" x2="166.3" y2="332.0" stroke="#333333" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <rect x="127.9" y="316.5" width="166.3" height="15.5" fill="#ffffff"/>
+  <text x="211.1" y="327.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">401 Invalid email or password</text>
+  <line x1="354.4" y1="392.0" x2="447.0" y2="392.0" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="343.6" y="376.5" width="117.2" height="15.5" fill="#ffffff"/>
+  <text x="402.2" y="387.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">createAuthCode LOGIN</text>
+  <line x1="450.0" y1="426.0" x2="542.6" y2="426.0" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="441.9" y="410.5" width="111.7" height="15.5" fill="#ffffff"/>
+  <text x="497.8" y="421.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">HMAC opslaan, 5 min</text>
+  <line x1="354.4" y1="460.0" x2="638.1" y2="460.0" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="458.3" y="444.5" width="79.0" height="15.5" fill="#ffffff"/>
+  <text x="497.8" y="455.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">mail met code</text>
+  <line x1="258.9" y1="494.0" x2="166.3" y2="494.0" stroke="#333333" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <rect x="198.9" y="478.5" width="24.4" height="15.5" fill="#ffffff"/>
+  <text x="211.1" y="489.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">202</text>
+  <line x1="67.8" y1="528.0" x2="160.3" y2="528.0" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="67.9" y="512.5" width="95.4" height="15.5" fill="#ffffff"/>
+  <text x="115.6" y="523.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">code uit de mail</text>
+  <line x1="163.3" y1="562.0" x2="733.7" y2="562.0" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="402.3" y="546.5" width="95.4" height="15.5" fill="#ffffff"/>
+  <text x="450.0" y="557.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">POST email, code</text>
+  <line x1="736.7" y1="596.0" x2="453.0" y2="596.0" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="551.1" y="580.5" width="84.4" height="15.5" fill="#ffffff"/>
+  <text x="593.3" y="591.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">verifyAuthCode</text>
+  <line x1="450.0" y1="630.0" x2="542.6" y2="630.0" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="414.6" y="614.5" width="166.3" height="15.5" fill="#ffffff"/>
+  <text x="497.8" y="625.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">poging +1, vergelijk, used_at</text>
+  <line x1="736.7" y1="690.0" x2="829.2" y2="690.0" stroke="#333333" stroke-width="1.2" marker-end="url(#arrow)"/>
+  <rect x="714.9" y="674.5" width="139.0" height="15.5" fill="#ffffff"/>
+  <text x="784.4" y="685.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">signSession HS256, 1 dag</text>
+  <line x1="736.7" y1="724.0" x2="166.3" y2="724.0" stroke="#333333" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <rect x="339.5" y="708.5" width="220.9" height="15.5" fill="#ffffff"/>
+  <text x="450.0" y="719.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">200 + cookie session (httpOnly, Strict)</text>
+  <line x1="736.7" y1="784.0" x2="166.3" y2="784.0" stroke="#333333" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <rect x="372.3" y="768.5" width="155.4" height="15.5" fill="#ffffff"/>
+  <text x="450.0" y="779.0" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="normal" font-style="normal" fill="#5a5a5a" text-anchor="middle">400 Invalid or expired code</text>
+</svg>
