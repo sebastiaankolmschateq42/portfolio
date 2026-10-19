@@ -30,6 +30,21 @@ describe("ask me anything", () => {
     cy.contains("li", "How does the visual search work?").should("exist");
   });
 
+  it("checks an edited question in the browser before sending it", () => {
+    cy.loginAs("Grace");
+    cy.visitWithConsent("/ask");
+    cy.get("#body").type("Short question");
+    cy.contains("button", "Ask").click();
+
+    cy.intercept("PATCH", "/api/questions/*").as("edit");
+    cy.contains("li", "Short question").contains("button", "Edit").click();
+    cy.get("li textarea").clear();
+    cy.contains("li button", "Save").click();
+
+    cy.get('li [role="alert"]').should("have.text", "Question is required");
+    cy.get("@edit.all").should("have.length", 0); // nothing was sent
+  });
+
   it("does not show answer or delete buttons on someone else's question to a user", () => {
     cy.loginAs("Alan").then((alanToken) => {
       cy.request({

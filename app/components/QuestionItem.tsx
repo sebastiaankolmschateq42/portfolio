@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { QuestionView } from "@/lib/questions";
+import { answerSchema, questionSchema } from "@/lib/schemas/questions";
 
 type Mode = "view" | "edit" | "answer";
 
@@ -36,7 +37,9 @@ export default function QuestionItem({ question }: { question: QuestionView }) {
         return;
       }
       const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Something went wrong.");
+      // Show the server's field message (400) when there is one.
+      const fieldErrors = Object.values(data.errors ?? {}).flat() as string[];
+      setError(data.error ?? fieldErrors[0] ?? "Something went wrong.");
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -81,10 +84,19 @@ export default function QuestionItem({ question }: { question: QuestionView }) {
           className="flex flex-col gap-2"
           onSubmit={(event) => {
             event.preventDefault();
+            // Same schemas as the server, so limits and messages match (client and server side).
+            const check =
+              mode === "edit"
+                ? questionSchema.safeParse({ body: text })
+                : answerSchema.safeParse({ answer: text });
+            if (!check.success) {
+              setError(check.error.issues[0].message);
+              return;
+            }
             if (mode === "edit") {
-              send(`/api/questions/${question.id}`, "PATCH", { body: text });
+              send(`/api/questions/${question.id}`, "PATCH", check.data);
             } else {
-              send(`/api/questions/${question.id}/answer`, "POST", { answer: text });
+              send(`/api/questions/${question.id}/answer`, "POST", check.data);
             }
           }}
         >
@@ -94,6 +106,7 @@ export default function QuestionItem({ question }: { question: QuestionView }) {
           <textarea
             id={`text-${question.id}`}
             rows={3}
+            aria-invalid={!!error}
             value={text}
             onChange={(event) => setText(event.target.value)}
           />
