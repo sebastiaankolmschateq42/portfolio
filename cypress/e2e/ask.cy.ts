@@ -5,6 +5,11 @@ describe("ask me anything", () => {
     cy.task("resetTestData");
   });
 
+  // Leave no test accounts or questions behind in the development database.
+  after(() => {
+    cy.task("resetTestData");
+  });
+
   it("asks visitors to log in before they can ask", () => {
     cy.visit("/ask");
     cy.contains("a", "Log in").should("have.attr", "href", "/login");
