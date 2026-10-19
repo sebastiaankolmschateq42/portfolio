@@ -46,51 +46,33 @@ Welke instellingen nodig zijn, staat in een voorbeeldbestand in de repository. D
 
 ## 2. Technieken
 
-### 2.1 Tools
+### 2.1 De basis
 
-- Bun: package manager en scriptrunner.
-- Make: vaste commando's voor installeren, ontwikkelen, testen en controleren. Dezelfde commando's draaien in CI.
-- Docker Compose: lokale PostgreSQL-database.
-- ESLint en Prettier: codekwaliteit en consistente opmaak.
-- Vitest: back-endtests.
-- Cypress: front-endtests, end-to-end en per component.
-- GitHub: repository, issues als tickets, pull requests.
-- GitHub Actions: CI bij elke push en elke pull request.
-- Railway: hosting van de website en de database, met een staging- en een productieomgeving.
-- Mailtrap: sandbox-inbox die alle verstuurde mail opvangt.
+De website is één Next.js-applicatie, geschreven in TypeScript met React. Front-end en back-end zitten daardoor in één codebase en gaan in één keer live. TypeScript vangt fouten al bij het bouwen, in plaats van bij de bezoeker. De opmaak is gemaakt met Tailwind CSS, mobile first. Het lettertype, EB Garamond, wordt met de website meegeleverd, zodat er geen verzoek naar een externe server gaat.
 
-### 2.2 Programmeertalen
+De gegevens staan in een PostgreSQL-database. Accounts, codes en vragen moeten blijvend zijn en door meerdere bezoekers tegelijk te wijzigen. De website praat met de database via Prisma. Prisma geeft invoer altijd als losse waarde mee, nooit als deel van de query, en legt elke wijziging aan de database vast in een migratie die met de code meegaat.
 
-- TypeScript voor alle code, zowel in de browser als op de server.
-- CSS via Tailwind.
-- SQL alleen in de databasemigraties, die Prisma genereert.
-
-### 2.3 Frameworks en libraries
-
-| Keuze                   | Rol                          | Waarom                                                                |
-| ----------------------- | ---------------------------- | --------------------------------------------------------------------- |
-| Next.js 16 (App Router) | Pagina's, routing en de API  | Front- en back-end in één codebase en één deploy                      |
-| React 19                | Gebruikersinterface          | Componenten in de browser en op de server                             |
-| TypeScript              | Taal                         | Fouten bij het bouwen in plaats van bij de bezoeker                   |
-| Tailwind CSS 4          | Styling                      | Snel aan te passen; mobile first                                      |
-| Zod 4                   | Validatie                    | Eén set regels voor invoer, gebruikt in de browser én op de server    |
-| React Hook Form         | Formulieren                  | Formulierstatus en foutmeldingen per veld, gekoppeld aan Zod          |
-| PostgreSQL              | Database                     | Accounts, codes en vragen moeten blijvend en gedeeld zijn             |
-| Prisma 7                | Databasetoegang en migraties | Veilige queries en een databaseschema dat mee versioneert met de code |
-| bcryptjs                | Wachtwoorden opslaan         | Langzame, gezouten hash                                               |
-| jose                    | Sessietoken                  | Ondertekenen en controleren van het sessietoken                       |
-| Vitest                  | Back-endtests                | Snel, en externe diensten zijn makkelijk na te bootsen                |
-| Cypress 15              | Front-endtests               | Testen in een echte browser, met of zonder echte server               |
-| EB Garamond             | Typografie                   | Wordt met de website meegeleverd: geen extern verzoek                 |
+### 2.2 Content
 
 De teksten van de website, zoals het profiel, de skills, de opleidingen en de projecten, staan in de code. Ze worden bij het bouwen gecontroleerd. Een fout in de content laat daardoor de build falen in plaats van een kapotte pagina op te leveren.
 
-### 2.4 Standaarden
+### 2.3 Validatie en beveiliging
 
-- C4-model voor de architectuurbeschrijving in dit document.
-- OWASP ASVS 4.0 als kader voor de security-maatregelen. Hoofdstuk 8 noemt per maatregel het ASVS-hoofdstuk.
-- Conventional Commits voor commitberichten.
-- Toegankelijkheid: semantische HTML, labels gekoppeld aan invoervelden en foutmeldingen gekoppeld aan het juiste veld.
+Alle invoer wordt gecontroleerd met Zod. Dezelfde regels draaien in de browser en op de server. In de browser gebruikt React Hook Form ze om een fout direct bij het juiste veld te tonen. De server controleert elk verzoek daarna opnieuw, want de browser is te omzeilen. Omdat het dezelfde regels zijn, zijn de meldingen overal gelijk.
+
+Wachtwoorden worden opgeslagen met bcrypt: een bewust langzame hash met een eigen salt per wachtwoord. Het sessietoken wordt ondertekend met jose.
+
+### 2.4 Testen en kwaliteit
+
+Vitest test de back-end, Cypress test de front-end in een echte browser. ESLint en Prettier bewaken de codekwaliteit en een vaste opmaak. Alle commando's staan in een Makefile. Dezelfde commando's draaien in GitHub Actions bij elke push en elke pull request, dus wat lokaal faalt, faalt ook in CI.
+
+### 2.5 Hosting en diensten
+
+De code staat op GitHub; tickets zijn GitHub-issues. Railway host de website en de database, met een aparte staging- en productieomgeving. Lokaal draait de database in Docker. Mail gaat via de API van Mailtrap, een sandbox die alle mail opvangt. Bun is de package manager.
+
+### 2.6 Standaarden
+
+De architectuur in dit document volgt het C4-model. De security-maatregelen zijn gekoppeld aan OWASP ASVS 4.0. Commitberichten volgen Conventional Commits. Voor toegankelijkheid gebruikt de website semantische HTML, en elk invoerveld is gekoppeld aan zijn label en foutmelding.
 
 ## 3. Definition of Done
 
@@ -212,53 +194,43 @@ De database heeft drie tabellen: gebruikers, eenmalige codes en vragen. Een gebr
 
 ### 6.4 Herleidbaarheid naar het functioneel ontwerp
 
-| Requirement | Use case    | Gerealiseerd in                                                                                           |
-| ----------- | ----------- | --------------------------------------------------------------------------------------------------------- |
-| FR1         | UC1         | Pagina's (profielpagina) met gegevens uit Content                                                         |
-| FR2         | UC1         | Pagina's (profielpagina, sectie Skills) met gegevens uit Content                                          |
-| FR3         | UC1         | Pagina's (profielpagina, sectie Education) met gegevens uit Content                                       |
-| FR4         | UC1         | Pagina's (projectlijst en projectpagina's) met gegevens uit Content                                       |
-| FR5         | UC2         | Contactformulier, validatieregels, route handler contact                                                  |
-| FR6         | UC2         | Route handler contact, Mailservice, Mailtrap                                                              |
-| FR7         | UC2         | Captcha op de server; het contactformulier toont de som                                                   |
-| FR8         | UC2         | Contactformulier (spinner en melding)                                                                     |
-| FR9         | UC3         | Registratie- en codeformulier, route handlers voor accounts, Accounts, Eenmalige codes, Mailservice       |
-| FR10        | UC4         | Inlog- en codeformulier, route handlers voor accounts, Accounts, Eenmalige codes, Sessie                  |
-| FR11        | UC4         | Accountstatus in de navigatie, route handler uitloggen, Sessie                                            |
-| FR12        | UC5         | Vraagformulier, route handlers vragen, Datalaag vragen                                                    |
-| FR13        | UC6         | Vraag-item, route handlers vragen, Datalaag vragen (controleert de auteur)                                |
-| FR14        | UC7         | Vraag-item, route handlers vragen, Datalaag vragen (controleert de rol beheerder)                         |
-| FR15        | UC8         | Live-koppeling in de browser, live-verbinding van de server, Events, Pagina's                             |
-| FR16        | UC5 t/m UC7 | Sessie (rol in het token) en Datalaag vragen (rechtencontrole); de beheerder bestaat alleen via de deploy |
-| NFR1        | UC1         | Content staat in de code; er is geen beheerscherm                                                         |
-| NFR2        | UC1         | Pagina's worden vooraf gebouwd                                                                            |
-| NFR3        | alle        | Alle pagina's en componenten: semantische HTML, mobile first                                              |
-| NFR4        | UC1         | Privacymelding                                                                                            |
-| NFR5        | UC2         | Contactformulier (leeg na succesvol versturen)                                                            |
-| NFR6        | UC2         | Route handler contact slaat niets op                                                                      |
-| NFR7        | alle        | Validatieregels in browser en server, maximale lengtes in de database                                     |
-| NFR8        | -           | Back-endtests van route handlers en datalaag (hoofdstuk 7)                                                |
-| NFR9        | -           | Cypress-tests van de browser-client (hoofdstuk 7)                                                         |
-| NFR10       | -           | GitHub Actions en Railway (hoofdstuk 9)                                                                   |
-| NFR11       | -           | Sessie (cookie-instellingen) en security headers in de serverconfiguratie                                 |
+Elke use case uit het functioneel ontwerp komt terug in een of meer componenten. De tabel laat per use case zien waar de requirements zitten.
+
+| Use case                                | Requirements                  | Gerealiseerd in                                                                                                                          |
+| --------------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| UC1 Bekijken CV                         | FR1 t/m FR4, NFR1, NFR2, NFR4 | Pagina's met gegevens uit Content. De pagina's worden vooraf gebouwd en er is geen beheerscherm. De privacymelding staat op elke pagina. |
+| UC2 Contact opnemen                     | FR5 t/m FR8, NFR5, NFR6       | Contactformulier in de browser; route handler, Captcha en Mailservice op de server. Het bericht wordt niet opgeslagen.                   |
+| UC3 Account registreren                 | FR9                           | Registratie- en codeformulier; Accounts, Eenmalige codes en Mailservice.                                                                 |
+| UC4 Inloggen en uitloggen               | FR10, FR11                    | Inlog- en codeformulier en Accountstatus; Accounts, Eenmalige codes en Sessie.                                                           |
+| UC5 Vraag stellen                       | FR12                          | Vraagformulier; Datalaag vragen.                                                                                                         |
+| UC6 Eigen vraag bewerken of verwijderen | FR13                          | Vraag-item; Datalaag vragen controleert of de gebruiker de auteur is.                                                                    |
+| UC7 Vraag beantwoorden of verwijderen   | FR14                          | Vraag-item; Datalaag vragen controleert of de gebruiker beheerder is.                                                                    |
+| UC8 Vragen en antwoorden live volgen    | FR15                          | Live-koppeling in de browser; Events en de live-verbinding op de server.                                                                 |
+| UC5 t/m UC7                             | FR16                          | Sessie bewaart de rol; Datalaag vragen controleert die bij elke actie.                                                                   |
+
+Twee requirements gelden voor alle componenten: semantische HTML en mobile first (NFR3), en de maximale lengtes in de browser, op de server en in de database (NFR7). De overige requirements gaan over de werkwijze: de tests (NFR8, NFR9) staan in hoofdstuk 7, HTTPS en de cookie (NFR11) in hoofdstuk 8 en de OTAP-straat (NFR10) in hoofdstuk 9.
 
 ### 6.5 Ontwerpkeuzes
 
-| Keuze                                     | Alternatief                    | Reden                                                                                                                                                                                                                                        |
-| ----------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| API met route handlers                    | Server actions                 | De formulieren controleren elk veld al in de browser (React Hook Form); dat past beter bij een gewone API. De live-verbinding moet sowieso een API-route zijn. Zo is er één vast patroon dat los van de voorkant te testen is.               |
-| Eén Next.js-applicatie                    | Losse front-end en back-end    | Een aparte API-service betekent twee deployments en een sessie over twee domeinen, zonder functionele winst. Met één applicatie kan de sessiecookie strikt op de eigen site blijven.                                                         |
-| PostgreSQL met Prisma                     | JSON-bestand                   | Accounts, codes en vragen moeten blijvend zijn en tegelijk te wijzigen. Een bestand overleeft een nieuwe deploy niet. Prisma geeft veilige queries en migraties die meegaan met de code.                                                     |
-| Wachtwoord plus mailcode                  | Inloglink per mail             | Een inloglink is één factor: wie de mailbox heeft, is binnen. Wachtwoord plus code zijn twee factoren.                                                                                                                                       |
-| Server-Sent Events                        | WebSockets                     | Alleen de server hoeft iets te sturen. Server-Sent Events zijn gewoon HTTP, werken met de bestaande cookie en de browser maakt zelf opnieuw verbinding.                                                                                      |
-| Live-verbinding stuurt alleen een seintje | De hele vraag versturen        | Wat iemand mag zien, verschilt per bezoeker. Daarom stuurt de server alleen een seintje en haalt elke browser de pagina zelf opnieuw op. Zo kan er via de live-verbinding niets uitlekken (SM10).                                            |
-| Railway                                   | Vercel                         | Vercel draait elk verzoek als losse functie met een maximale looptijd. Een live-verbinding blijft open, en de events werken alleen binnen één proces dat blijft draaien. Railway draait de website als één proces en levert ook de database. |
-| Mailtrap HTTPS API                        | SMTP                           | Railway blokkeert uitgaande SMTP op het gebruikte abonnement. De HTTPS API werkt wel.                                                                                                                                                        |
-| Som als captcha                           | Google reCAPTCHA               | Geen externe partij, geen tracking en geen cookie van derden. Een som is zwakker tegen gerichte bots; voor een portfolio is dat acceptabel.                                                                                                  |
-| Validatie in browser én server            | Alleen op de server            | De browser geeft direct feedback; de server controleert opnieuw, omdat de browser te omzeilen is. Beide gebruiken dezelfde regels, dus ook dezelfde meldingen.                                                                               |
-| Rechtencontrole in de datalaag            | Controle in elke route handler | Er is één plek waar de regels staan. De pagina's en de API gebruiken die allebei, en de regels zijn los te testen (SM8).                                                                                                                     |
+**Eén Next.js-applicatie in plaats van een losse front-end en back-end.** Een aparte API betekent twee deployments en een sessie over twee domeinen, zonder dat de gebruiker er iets aan heeft. In één applicatie blijft de sessiecookie strikt op de eigen site.
 
-Een gevolg van de keuze voor één proces: draaien er ooit meerdere kopieën van de website, dan krijgen bezoekers op de ene kopie geen seintjes van de andere. Dan is een gedeelde berichtendienst nodig. Voor deze schaal is één kopie genoeg.
+**Route handlers in plaats van server actions.** De formulieren controleren elk veld al in de browser, en dat past beter bij een gewone API. De live-verbinding moet sowieso een API-route zijn. Zo is er één patroon, dat los van de voorkant te testen is.
+
+**PostgreSQL in plaats van een JSON-bestand.** Accounts, codes en vragen moeten blijvend zijn en door meerdere bezoekers tegelijk te wijzigen. Een bestand overleeft een nieuwe deploy niet.
+
+**Wachtwoord plus mailcode in plaats van alleen een inloglink.** Met een inloglink is de mailbox de enige sleutel. Wachtwoord plus code zijn twee factoren.
+
+**Rechten in de datalaag in plaats van in elke route handler.** De regels over wie wat mag, staan op één plek. Pagina's en API gebruiken dezelfde regels, en ze zijn los te testen.
+
+**Server-Sent Events in plaats van WebSockets.** Alleen de server hoeft iets te sturen. SSE is gewoon HTTP, werkt met de bestaande cookie, en de browser maakt zelf opnieuw verbinding als die wegvalt.
+
+**Alleen een seintje in plaats van de hele vraag.** Wat iemand mag zien, verschilt per bezoeker. Daarom meldt de server alleen dat er iets veranderd is, en haalt elke browser de pagina zelf opnieuw op met zijn eigen rechten. Zo kan er via de live-verbinding niets uitlekken.
+
+**Railway in plaats van Vercel.** Op Vercel is elk verzoek een losse functie met een maximale looptijd. De live-verbinding blijft open, en de seintjes werken alleen binnen één proces dat blijft draaien. Railway draait de website als één proces en levert ook de database.
+
+**Mailtrap via HTTPS in plaats van SMTP.** Railway blokkeert uitgaande SMTP; de HTTPS-API werkt wel.
+
+**Een som als captcha in plaats van reCAPTCHA.** Geen externe partij, geen tracking en geen cookie van derden. Een som houdt een gerichte bot minder goed tegen, maar voor een portfolio is dat genoeg.
 
 ## 7. Testen
 
