@@ -2,7 +2,11 @@
 
 Personal portfolio website of Sebastiaan Kolmschate, built for the Web Development semester (HBO-ICT, Windesheim). It shows a profile with projects, a contact form that delivers messages by email, and an Ask Me Anything page where visitors with an account ask questions that are answered live.
 
-Design and security documentation (in Dutch) lives in [`docs/`](docs/).
+## Documentation and live site
+
+- Documentation (in Dutch: requirements analysis, functional design, technical design): [Google Drive](https://drive.google.com/drive/folders/12M4qnu_alZtSuxdyhqXqTuXLji2_38Kj?usp=drive_link)
+- Production: https://portfolio-production-36a4.up.railway.app
+- Staging: https://portfolio-staging-9685.up.railway.app
 
 ## Requirements
 
