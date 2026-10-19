@@ -1,9 +1,14 @@
-.PHONY: setup install dev build lint prettier fix prettier-check test db-up db-down db-migrate db-deploy db-reset db-seed db-test-prepare e2e component check
+.PHONY: setup cypress-install install dev build lint prettier fix prettier-check test db-up db-down db-migrate db-deploy db-reset db-seed db-test-prepare e2e component check
 
 setup: install
 	@test -f .env.local || (cp .env.example .env.local && echo "Created .env.local from .env.example")
 	make db-up
 	make db-deploy
+	make cypress-install
+
+# The Cypress app (~200 MB) is only needed to run the browser tests, so `bun install` skips it.
+cypress-install:
+	bunx cypress install
 
 db-up:
 	docker compose up -d --wait

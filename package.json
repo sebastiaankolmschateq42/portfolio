@@ -58,7 +58,6 @@
   ],
   "trustedDependencies": [
     "@prisma/engines",
-    "cypress",
     "esbuild",
     "prisma",
     "sharp",
