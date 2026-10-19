@@ -23,7 +23,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Registration failed" }, { status: 500 });
   }
 
-  // Same response whether or not the address already had an account.
   return NextResponse.json(
     { message: "If this address can be used, we have sent a verification code to it." },
     { status: 202 },

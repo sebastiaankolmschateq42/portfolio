@@ -11,19 +11,16 @@ function readChoice(): Choice | null {
     const value = localStorage.getItem(STORAGE_KEY);
     return value === "accepted" || value === "declined" ? value : null;
   } catch {
-    // Storage can be blocked (private mode); then the banner shows again next visit.
     return null;
   }
 }
 
-// Keeps other open tabs in sync when the choice is made in one of them.
 function subscribe(onChange: () => void) {
   window.addEventListener("storage", onChange);
   return () => window.removeEventListener("storage", onChange);
 }
 
 export default function ConsentBanner() {
-  // The server has no localStorage: it renders nothing ("unknown"), the browser decides.
   const storedChoice = useSyncExternalStore(subscribe, readChoice, () => "unknown" as const);
   const [chosenNow, setChosenNow] = useState(false);
 
@@ -32,9 +29,7 @@ export default function ConsentBanner() {
   function choose(choice: Choice) {
     try {
       localStorage.setItem(STORAGE_KEY, choice);
-    } catch {
-      // Without storage the choice only lasts for this page view.
-    }
+    } catch {}
     setChosenNow(true);
   }
 
@@ -48,7 +43,6 @@ export default function ConsentBanner() {
           This site only uses what it needs to work: a session cookie when you log in. Messages sent
           through the contact form are emailed to me and not stored. Nothing is used for tracking.
         </p>
-        {/* Stacked on phones, side by side at half width each from the sm breakpoint */}
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <button type="button" onClick={() => choose("accepted")}>
             Accept

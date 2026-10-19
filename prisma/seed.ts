@@ -21,7 +21,6 @@ const prisma = new PrismaClient({
 
 const passwordHash = await bcrypt.hash(password, 12);
 
-// Creates the admin, or makes an existing account with this address the admin.
 await prisma.user.upsert({
   where: { email },
   create: { email, displayName, passwordHash, role: "ADMIN", emailVerifiedAt: new Date() },

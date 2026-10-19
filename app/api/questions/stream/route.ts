@@ -2,11 +2,6 @@ import { subscribeToQuestionEvents, type QuestionEvent } from "@/lib/events";
 
 const HEARTBEAT_MS = 25_000;
 
-/**
- * Server-Sent Events stream that tells open pages a question changed.
- * It only carries the event type and id, never question content, so it needs no
- * authentication: each page fetches the new state itself with its own permissions.
- */
 export async function GET(request: Request) {
   const encoder = new TextEncoder();
   let cleanup = () => {};
@@ -21,14 +16,12 @@ export async function GET(request: Request) {
         }
       };
 
-      // Tells the browser how long to wait before reconnecting after a dropped connection.
       send("retry: 3000\n\n");
 
       const unsubscribe = subscribeToQuestionEvents((event: QuestionEvent) => {
         send(`event: question\ndata: ${JSON.stringify(event)}\n\n`);
       });
 
-      // A comment line now and then keeps proxies from closing an idle connection.
       const heartbeat = setInterval(() => send(": keep-alive\n\n"), HEARTBEAT_MS);
 
       cleanup = () => {
@@ -40,9 +33,7 @@ export async function GET(request: Request) {
         cleanup();
         try {
           controller.close();
-        } catch {
-          // Already closed.
-        }
+        } catch {}
       });
     },
     cancel() {

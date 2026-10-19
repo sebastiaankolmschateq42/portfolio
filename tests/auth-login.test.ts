@@ -26,7 +26,6 @@ async function createUser({ verified = true } = {}) {
     data: {
       email: "jan@example.com",
       displayName: "Jan",
-      // Low cost keeps the tests fast; compare() works the same for any cost.
       passwordHash: await bcrypt.hash(PASSWORD, 4),
       emailVerifiedAt: verified ? new Date() : null,
     },

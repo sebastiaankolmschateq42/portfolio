@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ errors: z.flattenError(result.error).fieldErrors }, { status: 400 });
   }
 
-  // The author always comes from the session, never from the request body.
   const question = await createQuestion(session, result.data);
   return NextResponse.json({ id: question.id }, { status: 201 });
 }

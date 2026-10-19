@@ -55,12 +55,10 @@ export function clearSessionCookie(response: NextResponse): void {
   response.cookies.delete(SESSION_COOKIE);
 }
 
-/** For route handlers. */
 export async function getSessionFromRequest(request: NextRequest): Promise<Session | null> {
   return verifySession(request.cookies.get(SESSION_COOKIE)?.value);
 }
 
-/** For server components and pages. */
 export async function getSession(): Promise<Session | null> {
   const cookieStore = await cookies();
   return verifySession(cookieStore.get(SESSION_COOKIE)?.value);

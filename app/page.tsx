@@ -8,7 +8,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-8 mb-8">
-      {/* About me: photo left, introduction right */}
       <section className="flex flex-row items-start gap-4">
         <h1 className="sr-only">{portfolio.name}</h1>
         <Image
@@ -60,7 +59,7 @@ export default function Home() {
             <li key={item.degree}>
               <h3>{item.degree}</h3>
               <p className="text-base">
-                {item.institution}, {item.city} · {item.startYear}–{item.endYear}
+                {item.institution}, {item.city} · {item.startYear} - {item.endYear}
               </p>
             </li>
           ))}

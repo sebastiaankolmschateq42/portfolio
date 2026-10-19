@@ -10,7 +10,6 @@ describe("captcha", () => {
   it("asks a sum without revealing the answer", () => {
     const { question, token } = createCaptcha();
     expect(question).toMatch(/^\d \+ \d$/);
-    // expiry, nonce and signature: the answer itself is not one of the parts
     const parts = token.split(".");
     expect(parts).toHaveLength(3);
     expect(parts).not.toContain(solve(question));

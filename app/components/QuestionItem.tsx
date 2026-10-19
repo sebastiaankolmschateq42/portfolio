@@ -37,7 +37,6 @@ export default function QuestionItem({ question }: { question: QuestionView }) {
         return;
       }
       const data = await res.json().catch(() => ({}));
-      // Show the server's field message (400) when there is one.
       const fieldErrors = Object.values(data.errors ?? {}).flat() as string[];
       setError(data.error ?? fieldErrors[0] ?? "Something went wrong.");
     } catch {
@@ -58,7 +57,7 @@ export default function QuestionItem({ question }: { question: QuestionView }) {
       <div>
         <p className="whitespace-pre-line">{question.body}</p>
         <p className="text-sm">
-          — {question.authorName},{" "}
+          {question.authorName} ·{" "}
           <time dateTime={new Date(question.createdAt).toISOString()}>
             {formatDate(question.createdAt)}
           </time>
@@ -84,7 +83,6 @@ export default function QuestionItem({ question }: { question: QuestionView }) {
           className="flex flex-col gap-2"
           onSubmit={(event) => {
             event.preventDefault();
-            // Same schemas as the server, so limits and messages match (client and server side).
             const check =
               mode === "edit"
                 ? questionSchema.safeParse({ body: text })

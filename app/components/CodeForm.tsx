@@ -34,7 +34,6 @@ export default function CodeForm({ email, endpoint, onStartOver }: CodeFormProps
         body: JSON.stringify({ email, code }),
       });
       if (res.ok) {
-        // Full reload so the navigation picks up the new session.
         window.location.assign("/ask");
         return;
       }

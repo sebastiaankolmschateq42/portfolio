@@ -4,7 +4,6 @@ import { publishQuestionEvent } from "@/lib/events";
 import type { Session } from "@/lib/session";
 import type { AnswerInput, QuestionInput } from "@/lib/schemas/questions";
 
-/** What the page and API may show about a question. Never contains email addresses. */
 export type QuestionView = {
   id: string;
   body: string;

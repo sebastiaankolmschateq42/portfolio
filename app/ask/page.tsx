@@ -11,7 +11,6 @@ export const metadata: Metadata = {
   description: "Ask Sebastiaan Henri Kolmschate a question about his work",
 };
 
-// Questions and the viewer's session differ per request.
 export const dynamic = "force-dynamic";
 
 export default async function AskPage() {
