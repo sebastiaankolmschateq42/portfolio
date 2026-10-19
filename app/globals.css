@@ -39,7 +39,8 @@ body {
     outline-offset: 0px;
   }
 
+  /* Page titles look like the section headings: small, with a line underneath */
   h1 {
-    @apply text-2xl font-bold mb-4;
+    @apply mb-4 border-b font-semibold;
   }
 }

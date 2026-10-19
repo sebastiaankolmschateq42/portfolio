@@ -1,5 +1,4 @@
 import ContactForm from "@/app/components/ContactForm";
-import { portfolio } from "@/lib/content";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,7 +9,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <div>
-      <h1>Contact {portfolio.name}</h1>
+      <h1>Contact</h1>
       <p className="mb-4">
         Send me a message and I will reply by email. Your details are only used to answer you.
       </p>

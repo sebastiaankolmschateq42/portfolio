@@ -63,7 +63,7 @@ describe("ask me anything", () => {
     cy.clearCookies();
 
     cy.visit("/ask");
-    cy.contains("Live").should("exist");
+    cy.contains("Live updates on").should("exist"); // stream connected
     cy.contains("li", "What are you working on?").should("not.contain.text", "Answered on");
 
     // The admin answers from "another browser": a request with the admin's cookie.

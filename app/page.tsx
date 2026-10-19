@@ -8,21 +8,17 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-8 mb-8">
-      {/* Profile */}
-      <section className="flex flex-col items-center gap-3 text-center">
+      {/* About me: photo left, introduction right */}
+      <section className="flex flex-row items-start gap-4">
+        <h1 className="sr-only">{portfolio.name}</h1>
         <Image
           src={portfolio.photo.src}
           alt={portfolio.photo.alt}
-          width={160}
-          height={160}
+          width={100}
+          height={100}
           priority
-          className="size-40 rounded-full object-cover"
+          className="shrink-0 object-cover"
         />
-        <h1 className="text-2xl font-semibold">{portfolio.name}</h1>
-      </section>
-
-      {/* Bio */}
-      <section>
         <p>{portfolio.bio}</p>
       </section>
 
