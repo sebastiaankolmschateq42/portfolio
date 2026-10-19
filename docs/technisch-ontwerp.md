@@ -16,7 +16,7 @@ Dit project is de website van Sebastiaan Kolmschate, gebouwd voor het semester W
 
 Dit technisch ontwerp beschrijft hoe de applicatie is opgebouwd. Het volgt het C4-model tot en met niveau drie. Niveau vier, de code, staat in de repository. Waar een stuk code een ontwerpkeuze uitlegt, verwijst dit document naar het bestand.
 
-De use cases (UC), functionele requirements (FR), niet-functionele requirements (NFR) en security-maatregelen (SM) hebben dezelfde nummers als in de requirementsanalyse en het functioneel ontwerp. Paragraaf 6.6 laat per requirement zien in welk component het gerealiseerd is.
+De use cases (UC), functionele requirements (FR), niet-functionele requirements (NFR) en security-maatregelen (SM) hebben dezelfde nummers als in de requirementsanalyse en het functioneel ontwerp. Paragraaf 6.3 laat per requirement zien in welk component het gerealiseerd is.
 
 De diagrammen volgen het C4-model: personen, systemen en containers als blokken, met een gestippelde grens rond wat bij het systeem hoort. Ze staan als SVG in docs/img.
 
@@ -125,7 +125,7 @@ Het beheerdersaccount wordt niet via de website aangemaakt, maar door een seed-s
 
 ### 5.1 Applicaties
 
-Het systeem is één deploybare Next.js-applicatie met een eigen database. Er is bewust geen losse backend-service; voor deze schaal zou dat alleen een extra netwerkgrens en extra beheer opleveren (zie 6.7).
+Het systeem is één deploybare Next.js-applicatie met een eigen database. Er is bewust geen losse backend-service; voor deze schaal zou dat alleen een extra netwerkgrens en extra beheer opleveren (zie 6.4).
 
 Binnen het systeem zijn er drie containers:
 
@@ -143,27 +143,7 @@ Binnen het systeem zijn er drie containers:
 | Next.js-server naar PostgreSQL | Prisma Client met de `pg`-driver; verbinding via `DATABASE_URL`.                         |
 | Next.js-server naar Mailtrap   | HTTPS `POST` naar de sandbox-API met een Bearer-token; time-out na 10 seconden.          |
 
-### 5.2 Configuratie en secrets per omgeving
-
-Alle configuratie komt uit omgevingsvariabelen. De code is in elke omgeving gelijk; alleen de waarden verschillen (SM12).
-
-| Omgeving  | Waar staan de waarden                           | Database                           | Mail                           |
-| --------- | ----------------------------------------------- | ---------------------------------- | ------------------------------ |
-| Lokaal    | `.env.local`, valt buiten git                   | Docker, database `portfolio`       | Mailtrap, SMTP of console-log  |
-| Vitest    | `vitest.config.ts`, alleen testwaarden          | Database `portfolio_test`          | Gemockt                        |
-| CI        | `ci.yml`, waarden die alleen in die job bestaan | Postgres-service in GitHub Actions | Console-log (`MAIL_CONSOLE=1`) |
-| Staging   | Variabelen in Railway, omgeving staging         | Eigen Postgres op Railway          | Mailtrap HTTPS API             |
-| Productie | Variabelen in Railway, omgeving productie       | Eigen Postgres op Railway          | Mailtrap HTTPS API             |
-
-Afspraken:
-
-- `.env.example` bevat alleen namen en voorbeeldwaarden. Echte geheimen staan nooit in de repository.
-- Elke omgeving heeft eigen geheimen (`JWT_SECRET`, `AUTH_CODE_SECRET`, `CAPTCHA_SECRET`) en een eigen database. Een gelekte staging-sleutel geeft daardoor geen toegang tot productie.
-- Ontbreekt `JWT_SECRET`, `AUTH_CODE_SECRET` of `CAPTCHA_SECRET`, dan gooit de code een fout zodra het geheim nodig is. Er is geen standaardwaarde waarop de app stil terugvalt.
-- Zonder mailinstelling logt de mailservice de mail naar de console, zodat lokaal en in CI gewerkt kan worden zonder credentials. In productie faalt verzenden zonder mailinstelling. Anders zouden inlogcodes ongemerkt verdwijnen. Alleen met `MAIL_CONSOLE=1` mag een productiebuild naar de console loggen; dat gebruikt alleen de CI.
-- Het wachtwoord van de beheerder staat alleen als `ADMIN_PASSWORD` in de omgeving en gaat via het seed-script als bcrypt-hash de database in.
-
-### 5.3 Threat modelling op containerniveau
+### 5.2 Threat modelling op containerniveau
 
 Per container en per verbinding zijn de dreigingen benoemd met STRIDE. De tabel noemt de maatregel uit de catalogus die de dreiging afvangt. Hoofdstuk 8 laat zien waar elke maatregel in de code zit en welke test hem aantoont.
 
@@ -221,63 +201,11 @@ Per container worden hieronder de componenten beschreven. De Zod-schema's in `li
 - **Eenmalige codes** (`lib/auth-codes.ts`): zes cijfers uit `crypto.randomInt`. In de database staat alleen een HMAC-SHA256 van de code. Een code is 5 minuten geldig en na 5 pogingen op. Een nieuwe code maakt de vorige ongeldig, in één transactie. De code wordt verbruikt met een voorwaardelijke update op `used_at`, zodat twee gelijktijdige verzoeken hem niet allebei kunnen gebruiken.
 - **Datalaag vragen** (`lib/questions.ts`): alle queries op vragen én alle rechtencontroles. De functies krijgen de sessie mee en bepalen zelf of iets mag: alleen de auteur bewerkt, en alleen zolang er geen antwoord is; de auteur of de beheerder verwijdert; alleen de beheerder beantwoordt. De auteur-id komt altijd uit de sessie. `listQuestions` geeft per vraag alleen de weergavenaam van de auteur terug, nooit het e-mailadres, en rekent per kijker `canEdit`, `canDelete` en `canAnswer` uit. Na elke geslaagde wijziging meldt de datalaag een event.
 - **Captcha** (`lib/captcha.ts`): maakt een som van twee getallen van 1 tot en met 9. Het token bestaat uit vervaltijd, een willekeurige nonce en een HMAC over antwoord, vervaltijd en nonce. Het antwoord zelf gaat nooit naar de browser. Bij controle wordt de nonce eerst als gebruikt gemarkeerd, ook bij een fout antwoord. Gebruikte nonces staan in het geheugen van het proces tot hun vervaltijd.
-- **Mailservice** (`lib/email.ts`): kiest het eerste transport dat geconfigureerd is: de Mailtrap HTTPS API, dan SMTP, dan de console (zie 5.2). Een verzendfout geeft `false` terug, zodat de route handler een nette 500 kan geven. Het contactformulier mailt altijd naar het vaste adres uit `CONTACT_INBOX`; het adres van de bezoeker gaat alleen mee als reply-to. Zo kan niemand het formulier gebruiken om mail naar willekeurige adressen te sturen.
-- **Events** (`lib/events.ts`): één `EventEmitter` per serverproces, bewaard op `globalThis`. De datalaag publiceert `{ type, id }`; de stream-route abonneert zich per open verbinding en meldt zich af als de verbinding sluit. Dit werkt omdat de app als één Node-proces draait (zie 6.7).
+- **Mailservice** (`lib/email.ts`): kiest het eerste transport dat geconfigureerd is: de Mailtrap HTTPS API, dan SMTP, dan de console. Een verzendfout geeft `false` terug, zodat de route handler een nette 500 kan geven. Het contactformulier mailt altijd naar het vaste adres uit `CONTACT_INBOX`; het adres van de bezoeker gaat alleen mee als reply-to. Zo kan niemand het formulier gebruiken om mail naar willekeurige adressen te sturen.
+- **Events** (`lib/events.ts`): één `EventEmitter` per serverproces, bewaard op `globalThis`. De datalaag publiceert `{ type, id }`; de stream-route abonneert zich per open verbinding en meldt zich af als de verbinding sluit. Dit werkt omdat de app als één Node-proces draait (zie 6.4).
 - **Prisma-client** (`lib/prisma.ts`): één client met de PostgreSQL-adapter. In development blijft de client bewaard tussen herladen, zodat er niet bij elke wijziging een nieuwe connection pool ontstaat.
 
-### 6.3 Datamodel
-
-Het datamodel staat in `prisma/schema.prisma`. De migraties in `prisma/migrations/` maken de tabellen aan. De lengtes in de database zijn gelijk aan de Zod-limieten, zodat de database de laatste grens is (SM1).
-
-![Datamodel](img/to-datamodel.svg)
-
-- Beide relaties hebben `ON DELETE CASCADE`. Wordt een account verwijderd, dan verdwijnen zijn codes en vragen mee. De tests maken hier gebruik van om op te ruimen.
-- Indexen: `users.email` is uniek; `auth_codes` heeft een index op `(user_id, purpose)`; `questions` op `created_at`, voor de sortering op de pagina.
-- Een vraag is beantwoord als `answer` gevuld is. Er is geen aparte statuskolom.
-- Contactberichten hebben geen tabel. Ze worden alleen gemaild (NFR6).
-
-### 6.4 API-endpoints
-
-Alle endpoints ontvangen en geven JSON, behalve de stream. "Sessie" betekent: een geldige `session`-cookie is nodig, anders volgt 401.
-
-| Methode | Pad                          | Toegang                     | Request                                                                            | Responses                                                                                                      |
-| ------- | ---------------------------- | --------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| GET     | `/api/contact/captcha`       | Iedereen                    | -                                                                                  | 200 `{ question, token }`, met `Cache-Control: no-store`                                                       |
-| POST    | `/api/contact`               | Iedereen                    | `firstName, lastName, email, phone, subject, message, captchaAnswer, captchaToken` | 201 verstuurd · 400 kapotte JSON, veldfouten of fout/verlopen captcha in `errors.captchaAnswer` · 500 mailfout |
-| POST    | `/api/auth/register`         | Iedereen                    | `email, displayName, password`                                                     | 202 altijd dezelfde melding · 400 kapotte JSON of veldfouten · 500 mailfout                                    |
-| POST    | `/api/auth/verify`           | Iedereen                    | `email, code`                                                                      | 200 en sessiecookie · 400 kapotte JSON, veldfouten, of foute/verlopen code                                     |
-| POST    | `/api/auth/login`            | Iedereen                    | `email, password`                                                                  | 202 code gemaild · 400 kapotte JSON of veldfouten · 401 fout adres of wachtwoord · 500 mailfout                |
-| POST    | `/api/auth/login/verify`     | Iedereen                    | `email, code`                                                                      | 200 en sessiecookie · 400 kapotte JSON, veldfouten, of foute/verlopen code                                     |
-| POST    | `/api/auth/logout`           | Iedereen                    | -                                                                                  | 200, cookie gewist                                                                                             |
-| GET     | `/api/auth/me`               | Iedereen                    | -                                                                                  | 200 `{ user: { displayName, role } }` of `{ user: null }`                                                      |
-| POST    | `/api/questions`             | Sessie                      | `body`                                                                             | 201 `{ id }` · 400 kapotte JSON of veldfouten · 401                                                            |
-| PATCH   | `/api/questions/[id]`        | Sessie, auteur              | `body`                                                                             | 200 · 400 · 401 · 403 niet de auteur · 404 geen uuid of niet gevonden · 409 al beantwoord                      |
-| DELETE  | `/api/questions/[id]`        | Sessie, auteur of beheerder | -                                                                                  | 200 · 401 · 403 · 404                                                                                          |
-| POST    | `/api/questions/[id]/answer` | Sessie, beheerder           | `answer`                                                                           | 200 · 400 · 401 · 403 geen beheerder · 404                                                                     |
-| GET     | `/api/questions/stream`      | Iedereen                    | -                                                                                  | 200 `text/event-stream`; events `question` met `{ type, id }`                                                  |
-
-Toelichting:
-
-- Een ongeldig id in het pad geeft 404, niet 400. Voor de aanroeper is een id dat geen uuid is hetzelfde als een vraag die niet bestaat.
-- `POST /api/questions` negeert extra velden zoals `authorId`. Zod laat alleen `body` door en de auteur komt uit de sessie (SM8).
-- Registreren geeft altijd 202 met dezelfde tekst, ook als het adres al een bevestigd account heeft. Inloggen geeft 401 met één melding voor elk soort fout (SM7).
-- De stream stuurt eerst `retry: 3000`, zodat de browser na een verbroken verbinding na drie seconden opnieuw verbindt. Elke 25 seconden volgt een commentaarregel, zodat proxy's een stille verbinding niet sluiten.
-
-### 6.5 Sequentiediagrammen
-
-#### Inloggen met 2FA (UC4)
-
-![Sequentiediagram inloggen met 2FA](img/to-seq-login-2fa.svg)
-
-#### Antwoord verschijnt live (UC7 en UC8)
-
-![Sequentiediagram antwoord live](img/to-seq-live.svg)
-
-#### Contactformulier met captcha (UC2)
-
-![Sequentiediagram contact met captcha](img/to-seq-contact.svg)
-
-### 6.6 Herleidbaarheid naar het functioneel ontwerp
+### 6.3 Herleidbaarheid naar het functioneel ontwerp
 
 | Requirement | Use case    | Gerealiseerd in                                                                                              |
 | ----------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
@@ -309,7 +237,7 @@ Toelichting:
 | NFR10       | -           | `.github/workflows/ci.yml`, Railway-omgevingen staging en productie                                          |
 | NFR11       | -           | Cookie-opties in `lib/session.ts`, HSTS in `next.config.ts`                                                  |
 
-### 6.7 Ontwerpkeuzes
+### 6.4 Ontwerpkeuzes
 
 | Keuze                                  | Alternatief                    | Reden                                                                                                                                                                                                                                                                                                                                                                            |
 | -------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -341,77 +269,22 @@ Waarom deze tests belangrijk zijn:
 - **Foutpaden zijn anders niet te testen.** Een mailserver die faalt of een trage server komen bij handmatig testen bijna nooit voor. Met mocks en stubs worden ze in de test afgedwongen.
 - **De front-endtests bewaken de afspraken uit het functioneel ontwerp**: de knop blijft dicht tot alles geldig is, het formulier is leeg na verzenden, de fout staat bij het juiste veld, en het antwoord verschijnt zonder herladen.
 
-### 7.2 Back-end: Vitest
+### 7.2 Wat er getest wordt
 
-Vitest draait 65 tests in 10 bestanden in `tests/`. De route handlers worden direct aangeroepen met een `Request`-object, zonder draaiende server. Zo wordt de echte handler getest, inclusief statuscode, body en cookie.
+**Back-end, Vitest (65 tests).** De autorisatie in de datalaag (andermans vraag bewerken geeft 403, een gebruiker kan niet antwoorden), accounts en eenmalige codes (2FA, verlopen, maximaal 5 pogingen, geen account-enumeratie), de sessie (aangepast of verlopen token wordt geweigerd), de captcha, de contactroute (limieten, geen HTML of links) en de realtime events. De database-tests draaien tegen een aparte testdatabase, omdat de autorisatieregels in eigen code en queries zitten. Mail is een externe dienst en wordt gemockt: de test is dan snel, heeft geen account nodig en kan een mislukte verzending afdwingen.
 
-| Bestand                 | Tests | Wat wordt getest                                                                                                                                                                                                                                                                                                       | Database | Mock                       |
-| ----------------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------- |
-| `questions.test.ts`     | 13    | Vraag stellen alleen met sessie; auteur uit sessie, niet uit de body; bewerken van andermans vraag geeft 403 (IDOR); bewerken na antwoord geeft 409; gebruiker mag niet beantwoorden (privilege-escalatie); beheerder mag beantwoorden en alles verwijderen; lijst bevat geen e-mailadressen en zet rechten per kijker | Echt     | Geen                       |
-| `mail.test.ts`          | 9     | Mailtrap API krijgt het juiste verzoek met token; API gaat voor SMTP; fout van de API of ontbrekend inbox-id geeft `false`; SMTP-pad; console zonder configuratie; fout in productie zonder configuratie; console in productie alleen met `MAIL_CONSOLE=1`                                                             | Nee      | `nodemailer`, `fetch`, env |
-| `auth-login.test.ts`    | 7     | Fout wachtwoord mailt geen code; onbekend adres geeft hetzelfde antwoord; onbevestigd account kan niet inloggen; goed wachtwoord mailt code maar geeft nog geen sessie; goede code geeft sessie; foute code geeft geen sessie; uitloggen wist de cookie                                                                | Echt     | `sendEmail`                |
-| `auth-codes.test.ts`    | 7     | Alleen de hash wordt opgeslagen; code werkt precies één keer; foute code; na 5 pogingen op; verlopen code; code voor ander doel; nieuwe code maakt oude ongeldig                                                                                                                                                       | Echt     | Geen                       |
-| `contact.test.ts`       | 7     | Kapotte JSON geeft 400; veldfouten geven 400; maximale lengtes uit het ontwerp; HTML en links geweigerd; foute captcha geeft 400 en verstuurt niets; mailfout geeft 500; geldig bericht gaat met alle gegevens naar de vaste inbox en geeft 201                                                                        | Nee      | `sendEmail`                |
-| `auth-register.test.ts` | 6     | Veldfouten geven 400; nieuw account is onbevestigd met bcrypt-hash (cost 12) en krijgt een code; bestaand bevestigd adres geeft hetzelfde antwoord en het wachtwoord verandert niet; goede code zet een `HttpOnly`, `SameSite=Strict` cookie; foute code zet geen cookie; onbekend adres geeft dezelfde fout           | Echt     | `sendEmail`                |
-| `captcha.test.ts`       | 6     | Som zonder antwoord in het token; goed antwoord; fout antwoord; token maar één keer bruikbaar, ook na een fout; verloopt na tien minuten; gewijzigd token geweigerd                                                                                                                                                    | Nee      | Geen                       |
-| `session.test.ts`       | 5     | Token heen en terug; aangepast token, token met ander geheim en verlopen token geven geen sessie; geen token geeft geen sessie                                                                                                                                                                                         | Nee      | Geen                       |
-| `realtime.test.ts`      | 4     | Elke wijziging publiceert het juiste event; geweigerde wijziging publiceert niets; stream stuurt events als SSE met alleen type en id; listener wordt opgeruimd als de client de verbinding sluit                                                                                                                      | Echt     | Geen                       |
-| `smoke.test.ts`         | 1     | Controleert dat de testomgeving werkt                                                                                                                                                                                                                                                                                  | Nee      | Geen                       |
+**Front-end, Cypress (17 e2e-tests en 10 componenttests).** Elke techniek komt voor:
 
-**Echte testdatabase in plaats van mocks.** De database-tests draaien tegen een aparte database, `portfolio_test`. Lokaal staat die in dezelfde Docker-container; `make test` maakt hem aan en draait de migraties. In CI is het een Postgres-service in GitHub Actions. De datalaag wordt bewust niet gemockt. Daar zit eigen logica: de rechtencontrole gebruikt de auteur en het antwoord zoals ze in de database staan, een code wordt verbruikt met een voorwaardelijke update, een nieuwe code maakt de oude ongeldig in een transactie, en opruimen gaat via `ON DELETE CASCADE`. Met een gemockte Prisma-client test je alleen of de mock doet wat je hem opdraagt, niet of de query klopt. Elke test begint met `prisma.user.deleteMany()`; de cascade ruimt codes en vragen mee op. De bestanden draaien na elkaar (`fileParallelism: false`), omdat ze dezelfde database delen.
+- E2e tegen de echte app en database: profielpagina, contactformulier dat echt verstuurt, vragen stellen en live antwoorden (`profile.cy.ts`, `contact.cy.ts`, `ask.cy.ts`).
+- Stubs met `cy.intercept` en fixtures: een mislukte verzending, een trage server met spinner, een foute som en de inlogstappen (`contact.cy.ts`, `login.cy.ts`).
+- Componenttests van losse componenten: `Field`, `ConsentBanner` en `ContactForm`.
+- Eigen commando's en `cy.task`: inloggen zonder mailcode en testdata opruimen.
 
-**Mail wordt gemockt.** Mail is een externe dienst. Een echte verzending is traag, hangt af van netwerk en credentials, vult een inbox en is niet te sturen. In `contact.test.ts`, `auth-register.test.ts` en `auth-login.test.ts` is `sendEmail` vervangen door een `vi.fn()`. Dat heeft drie voordelen. Een mailfout is af te dwingen met `mockResolvedValueOnce(false)`, om de 500 te testen. De test controleert dat er níét gemaild wordt bij een foute captcha of een fout wachtwoord. En de test leest de code uit de aanroep van de mock, zodat de hele registratie en login met een echte code te testen zijn. In `mail.test.ts` zit de mock een laag dieper: daar zijn `nodemailer` en de globale `fetch` vervangen, zodat de eigen logica van de mailservice getest wordt, zoals de keuze van transport en het gedrag in productie. Omgevingsvariabelen worden per test gezet met `vi.stubEnv`.
-
-**Tijd.** Verlopen wordt getest zonder te wachten. `createCaptcha` en `verifyCaptcha` krijgen het tijdstip als parameter. Voor een verlopen sessie maakt de test een token met een vervaltijd in het verleden. Voor een verlopen code zet de test `expires_at` in de database terug.
-
-De testgeheimen staan in `vitest.config.ts`. Ze zijn alleen voor tests en worden nergens anders gebruikt.
-
-### 7.3 Front-end: Cypress
-
-Cypress draait 17 end-to-end-tests en 10 componenttests.
-
-| Spec                                     | Tests | Soort              | Wat wordt getest                                                                                                                                                                                                            |
-| ---------------------------------------- | ----- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cypress/e2e/profile.cy.ts`              | 4     | E2e                | Foto, naam, skills en opleidingen; project openen vanuit de lijst; geen horizontaal scrollen op telefoonformaat; privacymelding verdwijnt na een keuze en blijft weg na herladen                                            |
-| `cypress/e2e/contact.cy.ts`              | 6     | E2e, deels gestubd | Echte verzending met opgeloste som en leeg formulier; knop dicht tot alles geldig is; foutmeldingen per veld; spinner, request-body en flashmelding die verdwijnt; invoer blijft staan bij 500; servermelding bij foute som |
-| `cypress/e2e/ask.cy.ts`                  | 5     | E2e                | Bezoeker moet inloggen om te vragen; gebruiker stelt en bewerkt een vraag; lege bewerking wordt in de browser al geweigerd; geen knoppen op andermans vraag; antwoord van de beheerder verschijnt live bij een bezoeker     |
-| `cypress/e2e/login.cy.ts`                | 2     | E2e, gestubd       | Na de wachtwoordstap volgt het codeveld en daarna `/ask`; één melding bij fout adres of wachtwoord                                                                                                                          |
-| `cypress/component/Field.cy.tsx`         | 3     | Component          | Label is gekoppeld aan het veld; foutmelding heeft het juiste id; geen foutelement zonder fout                                                                                                                              |
-| `cypress/component/ConsentBanner.cy.tsx` | 3     | Component          | Zichtbaar zonder keuze; keuze opgeslagen en melding weg; verborgen bij een eerdere keuze                                                                                                                                    |
-| `cypress/component/ContactForm.cy.tsx`   | 4     | Component          | Som komt van de server; maximale lengte van onderwerp; HTML geweigerd; formulier leeg na verzenden                                                                                                                          |
-
-Per testtechniek:
-
-| Techniek                          | Hoe                                                                                                                                                                                      | Waar te zien                                                              |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| E2e tegen de echte app            | Cypress bezoekt de draaiende app met echte database. Lokaal tegen `make dev`, in CI tegen een productiebuild.                                                                            | `profile.cy.ts`, `ask.cy.ts`, eerste test in `contact.cy.ts`              |
-| Netwerk bespioneren               | `cy.intercept` zonder antwoord laat het verzoek door en controleert de statuscode.                                                                                                       | `contact.cy.ts`: wacht op 201 van de echte server                         |
-| Stubs met fixtures                | `cy.intercept` met `{ fixture: "captcha.json" }` geeft een vaste som `2 + 3`. `contact.json` levert de formulierwaarden.                                                                 | `contact.cy.ts`, `ContactForm.cy.tsx`                                     |
-| Fouten en traagheid afdwingen     | Stub met `statusCode: 500`, met een 400 met veldfout, of met `delay: 500` om de spinner te zien.                                                                                         | `contact.cy.ts`                                                           |
-| Stappen die niet te bereiken zijn | De mailcode is niet uit een test te lezen; de login-endpoints zijn gestubd om beide stappen van het formulier te testen.                                                                 | `login.cy.ts`                                                             |
-| Request controleren               | `cy.wait("@send").its("request.body")` controleert welke velden en welk captcha-token de browser stuurt.                                                                                 | `contact.cy.ts`, `login.cy.ts`                                            |
-| `cy.stub`                         | Telt hoe vaak het formulier verstuurt.                                                                                                                                                   | `ContactForm.cy.tsx`                                                      |
-| Componenttests                    | `cy.mount` rendert één React-component los, met Vite.                                                                                                                                    | `cypress/component/`                                                      |
-| Custom commands                   | `cy.loginAs(naam, rol)` maakt een account en zet een geldige sessiecookie. `cy.visitWithConsent(pad)` zet de privacykeuze vooraf, zodat de melding niets bedekt.                         | `cypress/support/commands.ts`, gebruikt in `ask.cy.ts` en `contact.cy.ts` |
-| `cy.task`                         | Draait in Node naast de app. `resetTestData` verwijdert alle accounts op `@cypress.test`; `createSession` maakt een bevestigd account en tekent een JWT met hetzelfde geheim als de app. | `cypress.config.ts`, gebruikt in `ask.cy.ts`                              |
-| Viewport                          | `cy.viewport("iphone-x")` voor mobile first.                                                                                                                                             | `profile.cy.ts`                                                           |
-
-De live-test in `ask.cy.ts` laat de hele keten van UC8 zien. Een gebruiker stelt een vraag via `cy.request`. Een bezoeker opent `/ask` en wacht tot "Live updates on" er staat. Daarna beantwoordt de beheerder de vraag vanuit een ander verzoek, met een eigen cookie. De test controleert dat het antwoord bij de bezoeker verschijnt zonder dat de pagina herlaadt.
-
-De testdata blijft beperkt tot accounts op het domein `cypress.test`. Andere data in de database blijft staan. Na de AMA-tests ruimt `resetTestData` alles weer op.
-
-### 7.4 Tests in CI
-
-`.github/workflows/ci.yml` heeft twee jobs, bij elke push naar `main` en `develop` en bij elke pull request:
-
-1. **check**: Postgres-service met database `portfolio_test`, `bun install --frozen-lockfile`, dan `make lint`, `make prettier-check` en `make test`.
-2. **cypress**: Postgres-service met database `portfolio_e2e`, migraties, productiebuild, `bun run start`, dan de e2e-tests en de componenttests. Mail gaat naar de console (`MAIL_CONSOLE=1`). De geheimen in deze job bestaan alleen daar. Faalt een test, dan worden de screenshots als artifact bewaard.
-
-De CI gebruikt dezelfde `make`-targets als lokaal. Wat lokaal slaagt, slaagt dus ook in CI.
+Beide draaien bij elke pull request in GitHub Actions. Een merge kan pas als alles groen is.
 
 ## 8. Security-maatregelen
 
-De maatregelen komen uit de threat modelling in 5.3. Het security-rapport werkt ze per ASVS-hoofdstuk verder uit.
+De maatregelen komen uit de threat modelling in 5.2. Het security-rapport werkt ze per ASVS-hoofdstuk verder uit.
 
 | SM   | Maatregel                                                                        | ASVS    | Waar in de code                                                                    | Test                                                                                                         |
 | ---- | -------------------------------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
@@ -455,18 +328,7 @@ De cookie krijgt `Secure` alleen als `NODE_ENV` gelijk is aan `production`. Loka
 
 Railway bouwt en start de app met de scripts uit `package.json` (`build` en `start`). Vóór elke deploy draait een pre-deploy-commando: `bun run db:deploy && bun run db:seed`. `db:deploy` past nieuwe migraties toe met `prisma migrate deploy`; dat maakt nooit zelf nieuwe migraties. `db:seed` maakt het beheerdersaccount aan of werkt het bij, met `ADMIN_EMAIL` en `ADMIN_PASSWORD` uit de omgeving. Mislukt de pre-deploy, bijvoorbeeld door een kapotte migratie of een ontbrekend beheerderswachtwoord, dan zet Railway de nieuwe versie niet live en blijft de oude draaien.
 
-Staging en productie zijn gescheiden omgevingen met elk een eigen database en eigen geheimen (zie 5.2). Een fout op staging raakt productie niet, en testdata van staging komt nooit in productie.
+Staging en productie zijn gescheiden omgevingen met elk een eigen database en eigen geheimen. Een fout op staging raakt productie niet, en testdata van staging komt nooit in productie.
 
 - Staging: `https://portfolio-staging-9685.up.railway.app`
 - Productie: `https://portfolio-production-36a4.up.railway.app`
-
-### 9.2 Branchflow
-
-1. Elk ticket is een GitHub-issue met acceptatiecriteria.
-2. Per ticket een feature-branch vanaf `develop`.
-3. Pull request naar `develop`, met `Closes #N` in de beschrijving.
-4. CI draait. Pas als beide jobs groen zijn, volgt een squash merge.
-5. Na de merge deployt Railway `develop` naar staging.
-6. Bij een mijlpaal gaat `develop` via een release-PR naar `main`. Railway deployt dan naar productie.
-
-Er wordt nooit direct naar `main` gepusht. Zo is elke wijziging in productie eerst door CI en staging gegaan.
