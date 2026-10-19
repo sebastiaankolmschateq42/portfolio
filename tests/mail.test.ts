@@ -29,7 +29,6 @@ function stubMailtrapEnv() {
 
 describe("email service", () => {
   beforeEach(() => {
-    // Start every test without any transport, regardless of the local .env.local.
     vi.stubEnv("MAILTRAP_API_TOKEN", "");
     vi.stubEnv("MAILTRAP_INBOX_ID", "");
     vi.stubEnv("SMTP_HOST", "");

@@ -1,6 +1,3 @@
-// Two-step login. The emailed code cannot be read from a test, so the network is stubbed
-// to test how the form behaves in each step.
-
 describe("login form", () => {
   beforeEach(() => {
     cy.visitWithConsent("/login");

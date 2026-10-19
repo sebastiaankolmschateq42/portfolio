@@ -1,6 +1,3 @@
-// UC2: the contact form. The first test uses the real server; the others stub the
-// network with cy.intercept so every outcome (success, failure, slow) can be forced.
-
 type ContactFixture = Record<
   "firstName" | "lastName" | "email" | "phone" | "subject" | "message",
   string
@@ -17,7 +14,7 @@ function fillForm(contact: ContactFixture) {
 
 describe("contact form (real server)", () => {
   it("solves the sum, sends the message and clears the form", () => {
-    cy.intercept("POST", "/api/contact").as("send"); // spy only: the request really goes out
+    cy.intercept("POST", "/api/contact").as("send");
     cy.visitWithConsent("/contact");
 
     cy.fixture("contact").then(fillForm);
@@ -63,7 +60,7 @@ describe("contact form (stubbed network)", () => {
     cy.intercept("POST", "/api/contact", {
       statusCode: 201,
       body: { success: true },
-      delay: 500, // slow enough to see the spinner
+      delay: 500,
     }).as("send");
 
     cy.fixture("contact").then(fillForm);
@@ -78,7 +75,6 @@ describe("contact form (stubbed network)", () => {
     });
     cy.get('[role="status"]').should("contain.text", "has been sent");
 
-    // The flash message disappears after a few seconds.
     cy.get('[role="status"]', { timeout: 8000 }).should("not.exist");
   });
 
@@ -92,7 +88,7 @@ describe("contact form (stubbed network)", () => {
 
     cy.get('[role="alert"]').should("contain.text", "not sent");
     cy.get("#firstName").should("have.value", "Ada");
-    cy.get("@captcha.all").should("have.length", 2); // a fresh sum was fetched
+    cy.get("@captcha.all").should("have.length", 2);
   });
 
   it("shows the server's message when the sum was wrong", () => {

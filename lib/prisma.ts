@@ -1,10 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
 
-// In development Next.js re-runs this module on every change. The client is kept on
-// globalThis so reloads don't open a new connection pool each time. The class it was
-// built from is stored too: after `prisma generate` that class changes, and the stale
-// client (which doesn't know new models) is replaced instead of reused.
 const globalForPrisma = globalThis as unknown as {
   prisma?: { client?: PrismaClient; generatedClass?: typeof PrismaClient };
 };

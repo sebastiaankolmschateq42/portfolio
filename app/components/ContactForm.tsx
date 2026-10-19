@@ -32,7 +32,6 @@ export default function ContactForm() {
     formState: { errors, isSubmitting, isValid },
   } = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
-    // Validate while typing, so the send button unlocks as soon as everything is valid (AC6).
     mode: "onChange",
   });
 
@@ -46,12 +45,10 @@ export default function ContactForm() {
   }, []);
 
   useEffect(() => {
-    // Fetching on mount is the point of this effect: the sum comes from the server.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadCaptcha();
   }, [loadCaptcha]);
 
-  // The status message is a flash message: it disappears after a few seconds (AC8).
   useEffect(() => {
     if (status === "idle") return;
     const timer = setTimeout(() => setStatus("idle"), FLASH_MS);
@@ -67,11 +64,10 @@ export default function ContactForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...data, captchaToken: captcha.token }),
       });
-      // Every token can be used once: clear the answer before showing any error on it.
       resetField("captchaAnswer");
       if (res.status === 201) {
         setStatus("sent");
-        reset(); // only clear the form after a successful send (NFR4)
+        reset();
       } else {
         const body = await res.json().catch(() => ({}));
         showServerErrors(body.errors);

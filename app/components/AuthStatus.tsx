@@ -17,7 +17,6 @@ export default function AuthStatus() {
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
-    // Full reload so every part of the page forgets the session.
     window.location.assign("/");
   }
 

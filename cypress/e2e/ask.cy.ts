@@ -1,11 +1,8 @@
-// Showcase: Ask Me Anything with roles and live updates, against the real app and database.
-
 describe("ask me anything", () => {
   beforeEach(() => {
     cy.task("resetTestData");
   });
 
-  // Leave no test accounts or questions behind in the development database.
   after(() => {
     cy.task("resetTestData");
   });
@@ -42,7 +39,7 @@ describe("ask me anything", () => {
     cy.contains("li button", "Save").click();
 
     cy.get('li [role="alert"]').should("have.text", "Question is required");
-    cy.get("@edit.all").should("have.length", 0); // nothing was sent
+    cy.get("@edit.all").should("have.length", 0);
   });
 
   it("does not show answer or delete buttons on someone else's question to a user", () => {
@@ -66,7 +63,6 @@ describe("ask me anything", () => {
   });
 
   it("shows an admin's answer to a visitor without reloading", () => {
-    // Set up a question with a user, then watch the page as a visitor.
     cy.loginAs("Grace").then((graceToken) => {
       cy.request({
         method: "POST",
@@ -78,10 +74,9 @@ describe("ask me anything", () => {
     cy.clearCookies();
 
     cy.visit("/ask");
-    cy.contains("Live updates on").should("exist"); // stream connected
+    cy.contains("Live updates on").should("exist");
     cy.contains("li", "What are you working on?").should("not.contain.text", "Answered on");
 
-    // The admin answers from "another browser": a request with the admin's cookie.
     cy.task<string>("createSession", { name: "Admin", role: "ADMIN" }).then((adminToken) => {
       cy.get<string>("@questionId").then((id) => {
         cy.request({

@@ -1,6 +1,5 @@
 import ContactForm from "@/app/components/ContactForm";
 
-// The form on its own, with the API replaced by stubs.
 describe("<ContactForm>", () => {
   beforeEach(() => {
     cy.intercept("GET", "/api/contact/captcha", { fixture: "captcha.json" }).as("captcha");

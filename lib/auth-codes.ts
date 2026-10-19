@@ -18,10 +18,6 @@ function generateCode(): string {
   return randomInt(0, 1_000_000).toString().padStart(6, "0");
 }
 
-/**
- * Creates a fresh one-time code and returns it in plain text so the caller can mail it.
- * Any earlier unused code for the same user and purpose stops working.
- */
 export async function createAuthCode(userId: string, purpose: AuthCodePurpose): Promise<string> {
   const code = generateCode();
 
@@ -68,7 +64,6 @@ export async function verifyAuthCode(
     return false;
   }
 
-  // Only the request that flips usedAt from null wins, so a code can never be used twice.
   const consumed = await prisma.authCode.updateMany({
     where: { id: record.id, usedAt: null },
     data: { usedAt: new Date() },
