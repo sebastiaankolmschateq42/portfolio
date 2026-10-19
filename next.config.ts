@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -29,6 +30,8 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // Do not tell attackers which framework runs the site.
   poweredByHeader: false,
+  // Pin the project root: a stray lockfile higher up made Next guess the wrong one.
+  turbopack: { root: path.resolve(__dirname) },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

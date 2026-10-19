@@ -33,16 +33,8 @@ export const EducationSchema = z
     message: "endYear must not be before startYear",
   });
 
-export const PersonaliaSchema = z.object({
-  email: z.email(),
-  phone: z.string().regex(/^\+?[0-9 ]{8,20}$/),
-  city: z.string().min(1),
-  linkedin: z.url(),
-});
-
 export const PortfolioSchema = z.object({
   name: z.string().min(1),
-  personalia: PersonaliaSchema,
   photo: z.object({ src: z.string().min(1), alt: z.string().min(1) }),
   bio: z.string().min(1),
   skills: z.array(z.string().min(1)).min(1),

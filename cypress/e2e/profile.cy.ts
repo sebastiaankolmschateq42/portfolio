@@ -1,7 +1,7 @@
 // UC1: the profile page, against the real app.
 
 describe("profile page", () => {
-  it("shows the developer's photo, skills, education and personal details", () => {
+  it("shows the developer's photo, name, skills and education", () => {
     cy.visitWithConsent("/");
 
     cy.get("main h1").should("contain.text", "Sebastiaan Henri Kolmschate");
@@ -13,7 +13,6 @@ describe("profile page", () => {
         cy.contains("Windesheim University of Applied Sciences, Zwolle");
         cy.contains("Corderius College, Amersfoort");
       });
-    cy.contains("h2", "Personal details").next("dl").find('a[href^="mailto:"]').should("exist");
   });
 
   it("opens a project from the list", () => {

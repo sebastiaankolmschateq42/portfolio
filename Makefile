@@ -1,8 +1,3 @@
-# Reference copy: share the dev Postgres container, use its own databases and port 3002
-export COMPOSE_PROJECT_NAME = portfolio
-export PORT = 3002
-export CYPRESS_baseUrl = http://localhost:3002
-
 .PHONY: setup install dev build lint prettier fix prettier-check test db-up db-down db-migrate db-deploy db-reset db-seed db-test-prepare e2e component
 
 setup: install
@@ -33,10 +28,10 @@ db-seed:
 	bun prisma/seed.ts
 
 # Separate database for tests, so tests never touch development data
-TEST_DATABASE_URL = postgresql://portfolio:portfolio@localhost:5433/portfolio_ref_test
+TEST_DATABASE_URL = postgresql://portfolio:portfolio@localhost:5433/portfolio_test
 
 db-test-prepare:
-	-@docker compose exec -T db createdb -U portfolio portfolio_ref_test 2>/dev/null
+	-@docker compose exec -T db createdb -U portfolio portfolio_test 2>/dev/null
 	DATABASE_URL=$(TEST_DATABASE_URL) bunx prisma migrate deploy
 
 install:

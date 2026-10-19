@@ -3,6 +3,7 @@ import { EB_Garamond } from "next/font/google";
 import "./globals.css";
 import Navigation from "./components/Navigation";
 import ConsentBanner from "./components/ConsentBanner";
+import { portfolio } from "@/lib/content";
 
 const garamond = EB_Garamond({
   subsets: ["latin"],
@@ -11,8 +12,7 @@ const garamond = EB_Garamond({
 
 export const metadata: Metadata = {
   title: "Sebastiaan Henri Kolmschate",
-  description:
-    "Sebastiaan Henri Kolmschate (Bsc) is an artist from Amersfoort, The Netherlands. With a background of organising, digital and physical products he persuits projects driven by passion and purpose.",
+  description: portfolio.bio,
 };
 
 export default function RootLayout({
