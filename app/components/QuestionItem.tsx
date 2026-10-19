@@ -152,7 +152,11 @@ export default function QuestionItem({ question }: { question: QuestionView }) {
         </div>
       )}
 
-      {error && <p role="alert">{error}</p>}
+      {error && (
+        <p role="alert" className="text-red-700 dark:text-red-400">
+          {error}
+        </p>
+      )}
     </li>
   );
 }

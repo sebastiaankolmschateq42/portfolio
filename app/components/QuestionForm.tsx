@@ -56,7 +56,11 @@ export default function QuestionForm() {
       <button type="submit" disabled={isSubmitting} className="sm:self-end">
         {isSubmitting ? "Sending..." : "Ask"}
       </button>
-      {error && <p role="alert">{error}</p>}
+      {error && (
+        <p role="alert" className="text-red-700 dark:text-red-400">
+          {error}
+        </p>
+      )}
     </form>
   );
 }
