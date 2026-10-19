@@ -1,4 +1,4 @@
-.PHONY: setup install dev build lint prettier fix prettier-check test db-up db-down db-migrate db-deploy db-reset db-seed db-test-prepare e2e component
+.PHONY: setup install dev build lint prettier fix prettier-check test db-up db-down db-migrate db-deploy db-reset db-seed db-test-prepare e2e component check
 
 setup: install
 	@test -f .env.local || (cp .env.example .env.local && echo "Created .env.local from .env.example")
@@ -58,6 +58,9 @@ prettier-check:
 
 test: db-test-prepare
 	bun run test
+
+# Everything CI checks, in one command: run before every push (never writes files)
+check: lint prettier-check test
 
 # Cypress end-to-end tests; needs the app running (make dev, or make build + bun run start)
 e2e:

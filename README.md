@@ -30,6 +30,7 @@ The site runs at [http://localhost:3000](http://localhost:3000).
 | `make dev`            | Start the database and the development server          |
 | `make build`          | Production build                                       |
 | `make test`           | Run the backend tests (Vitest)                         |
+| `make check`          | Run lint, the format check and the tests, like CI      |
 | `make e2e`            | Run the Cypress end-to-end tests (app must be running) |
 | `make component`      | Run the Cypress component tests                        |
 | `make db-seed`        | Create or update the admin account                     |
