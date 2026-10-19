@@ -62,6 +62,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bunx prisma migrate deploy
+      # bun install skips the Cypress app; fetch it only in this job
+      - run: bunx cypress install
       - uses: cypress-io/github-action@v6
         with:
           install: false
