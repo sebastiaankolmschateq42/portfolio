@@ -48,7 +48,8 @@ export default function ConsentBanner() {
           This site only uses what it needs to work: a session cookie when you log in. Messages sent
           through the contact form are emailed to me and not stored. Nothing is used for tracking.
         </p>
-        <div className="flex gap-2">
+        {/* Stacked on phones, side by side at half width each from the sm breakpoint */}
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <button type="button" onClick={() => choose("accepted")}>
             Accept
           </button>
