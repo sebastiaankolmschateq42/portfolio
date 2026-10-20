@@ -85,7 +85,12 @@ export default function ContactForm({ initialCaptcha }: { initialCaptcha: Captch
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2" noValidate>
+    <form
+      method="post"
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-2"
+      noValidate
+    >
       {fields.map((field) => (
         <Field
           key={field.name}

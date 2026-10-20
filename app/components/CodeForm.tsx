@@ -44,7 +44,12 @@ export default function CodeForm({ email, endpoint, onStartOver }: CodeFormProps
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2" noValidate>
+    <form
+      method="post"
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-2"
+      noValidate
+    >
       <p>We sent a 6-digit code to {email}. It is valid for 5 minutes.</p>
 
       <Field label="Code" htmlFor="code" error={errors.code?.message}>
