@@ -42,7 +42,12 @@ export default function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2" noValidate>
+    <form
+      method="post"
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-2"
+      noValidate
+    >
       <Field label="Email" htmlFor="email" error={errors.email?.message}>
         <input
           id="email"

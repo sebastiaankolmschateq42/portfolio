@@ -80,6 +80,7 @@ export default function QuestionItem({ question }: { question: QuestionView }) {
 
       {mode !== "view" && (
         <form
+          method="post"
           className="flex flex-col gap-2"
           onSubmit={(event) => {
             event.preventDefault();

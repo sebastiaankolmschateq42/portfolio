@@ -42,7 +42,12 @@ export default function QuestionForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2" noValidate>
+    <form
+      method="post"
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-2"
+      noValidate
+    >
       <Field label="Your question" htmlFor="body" error={errors.body?.message}>
         <textarea
           id="body"
