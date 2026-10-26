@@ -151,16 +151,13 @@ Op 26 oktober 2026 heb ik de zoekopdrachten uitgevoerd en daarnaast rechtstreeks
 
 ![Figuur 3](img/sec-dork-3.png)
 
-**Hoe sterk is dit bewijs?** Beperkt, en dat is ook een les. Een dork laat alleen zien wat een zoekmachine al heeft opgepikt; "geen resultaten" betekent niet dat er niets openstaat. D1 laat wel zien dat de techniek werkt: Google vindt bestanden in apps van anderen op hetzelfde platform. Het echte bewijs voor mijn site is de directe controle (404 op `/.env`, `/.git/config` en de source maps) en de scan van de git-geschiedenis. De dorks laten zien dat er ook niets is uitgelekt naar de zoekmachine.
+**Hoe sterk is dit bewijs?** Dit bewijs is beperkt. Een dork laat alleen zien wat een zoekmachine al heeft opgepikt; "geen resultaten" betekent niet dat er niets openstaat. D1 laat wel zien dat de techniek werkt: Google vindt bestanden in apps van anderen op hetzelfde platform. Het echte bewijs voor mijn site is de directe controle (404 op `/.env`, `/.git/config` en de source maps) en de scan van de git-geschiedenis. De dorks laten zien dat er ook niets is uitgelekt naar de zoekmachine.
 
 **Wie is verantwoordelijk als zoiets openbaar staat?** De eigenaar van de site of de data. Een zoekmachine indexeert alleen wat publiek bereikbaar is; wie het zonder toegangscontrole online zet, heeft het openbaar gemaakt.
 
-**Nieuwe requirement (NFR):** gegevens die mijn site verwerkt, zijn niet te vinden via een zoekmachine. Hoe de site dat nu al afdekt:
+**Nieuwe requirement (NFR):** gegevens die mijn site verwerkt, zijn niet te vinden via een zoekmachine. Mijn site dekt dat nu al grotendeels af.
 
-- Contactgegevens worden niet opgeslagen en staan op geen enkele pagina (AS1).
-- E-mailadressen van gebruikers verlaten de server nooit; de vragenlijst toont alleen een weergavenaam (SM10).
-- Geheimen staan alleen in omgevingsvariabelen; `.env`-bestanden staan niet in git (SM12).
-- Nog niet gedaan (advies, zie hoofdstuk 7): een `robots.txt` die `/api/` uitsluit en `noindex` op de stagingomgeving, zodat staging niet in zoekresultaten komt.
+Contactgegevens worden niet opgeslagen en staan op geen enkele pagina (AS1). E-mailadressen van gebruikers verlaten de server nooit; de vragenlijst toont alleen een weergavenaam (SM10). Geheimen staan alleen in omgevingsvariabelen, en `.env`-bestanden staan niet in git (SM12). Wat ik nog niet heb gedaan, is een `robots.txt` die `/api/` uitsluit en `noindex` op de stagingomgeving, zodat staging niet in zoekresultaten komt. Dat staat als advies in hoofdstuk 7.
 
 ## 2. Design: threat modeling
 
@@ -200,13 +197,11 @@ In het technisch ontwerp heb ik het systeem opgedeeld in drie containers: de bro
 
 ### 2.3 Ontwerpkeuzes voor security
 
-Een paar keuzes in het ontwerp zijn vooral om veiligheidsredenen gemaakt:
+Een paar keuzes in het ontwerp zijn vooral om veiligheidsredenen gemaakt.
 
-- **Eén applicatie, één domein.** Front-end en back-end draaien samen. De sessiecookie kan daardoor strikt op de eigen site blijven (SameSite=Strict), zonder CORS-instellingen.
-- **Rechten op één plek.** Alle regels over wie wat mag, staan in de datalaag. De pagina's en de API gebruiken dezelfde regels. De browser verbergt alleen knoppen en beslist niets.
-- **De live-verbinding stuurt geen inhoud.** Wat iemand mag zien, verschilt per bezoeker. Daarom stuurt de server alleen een seintje, en haalt elke browser de pagina zelf op met zijn eigen rechten.
-- **Wachtwoord plus code.** Een inloglink per mail zou één factor zijn. Wachtwoord plus een code uit de mail zijn er twee.
-- **Een eigen captcha.** Geen externe partij en geen tracking, dus ook geen cookie-toestemming nodig.
+Front-end en back-end draaien samen in één applicatie op één domein. Daardoor kan de sessiecookie strikt op de eigen site blijven (SameSite=Strict) en zijn er geen CORS-instellingen nodig. Alle regels over wie wat mag, staan op één plek, in de datalaag. De pagina's en de API gebruiken dezelfde regels; de browser verbergt alleen knoppen en beslist niets.
+
+De live-verbinding stuurt geen inhoud. Wat iemand mag zien, verschilt per bezoeker, dus stuurt de server alleen een seintje en haalt elke browser de pagina zelf op met zijn eigen rechten. Voor het inloggen heb ik gekozen voor een wachtwoord plus een code uit de mail. Een inloglink per mail zou maar één factor zijn; wachtwoord plus code zijn er twee. Tot slot heb ik een eigen captcha gebouwd, zonder externe partij en zonder tracking, zodat er ook geen cookie-toestemming nodig is.
 
 ## 3. Development: maatregelen in de code
 
@@ -214,19 +209,17 @@ Hieronder staan de maatregelen per ASVS-hoofdstuk. De showcase-requirements noem
 
 ### 3.1 V2 Authenticatie (2FA)
 
-- Inloggen gaat in twee stappen. Eerst e-mail en wachtwoord. Klopt dat, dan mailt de server een code van zes cijfers. Pas met de juiste code krijgt de browser een sessie (SM6).
-- Wachtwoorden worden opgeslagen met bcrypt, cost 12. bcrypt voegt per wachtwoord een eigen salt toe en is bewust traag, zodat raden veel tijd kost. Lekt de database toch, dan zijn de wachtwoorden niet direct te lezen. Dat is belangrijk omdat veel mensen hetzelfde wachtwoord ook voor andere sites gebruiken.
-- Een code is 5 minuten geldig, werkt één keer, en is na 5 foute pogingen ongeldig. Een nieuwe code maakt de vorige ongeldig.
-- In de database staat geen code, maar een HMAC van de code met een geheime sleutel. Een gewone hash zou niet genoeg zijn: er zijn maar een miljoen codes, en die reken je zo terug.
-- Codes worden vergeleken met een vergelijking die altijd even lang duurt, zodat de tijd niets verraadt.
-- Bij een fout wachtwoord en bij een onbekend adres geeft de server dezelfde melding, en het antwoord duurt even lang. Daarvoor vergelijkt bcrypt bij een onbekend adres met een nep-hash (SM7).
-- Registreren geeft altijd hetzelfde antwoord, of het adres nu al bestaat of niet (SM7).
+Inloggen gaat in twee stappen. Eerst vult de gebruiker zijn e-mail en wachtwoord in. Klopt dat, dan mailt de server een code van zes cijfers, en pas met de juiste code krijgt de browser een sessie (SM6). Een code is 5 minuten geldig, werkt één keer en is na 5 foute pogingen ongeldig. Vraagt iemand een nieuwe code aan, dan wordt de vorige ongeldig.
+
+Wachtwoorden worden opgeslagen met bcrypt, cost 12. bcrypt voegt per wachtwoord een eigen salt toe en is bewust traag, zodat raden veel tijd kost. Lekt de database toch, dan zijn de wachtwoorden niet direct te lezen. Dat is belangrijk, omdat veel mensen hetzelfde wachtwoord ook op andere sites gebruiken.
+
+Van de codes staat in de database alleen een HMAC met een geheime sleutel. Een gewone hash zou hier niet genoeg zijn: er zijn maar een miljoen mogelijke codes, en die reken je zo terug. Bij het controleren worden codes vergeleken met een vergelijking die altijd even lang duurt, zodat de tijd niets verraadt.
+
+Bij een fout wachtwoord en bij een onbekend adres geeft de server dezelfde melding, en het antwoord duurt even lang. Daarvoor vergelijkt bcrypt bij een onbekend adres met een nep-hash (SM7). Ook registreren geeft altijd hetzelfde antwoord, of het adres nu al bestaat of niet (SM7).
 
 ### 3.2 V3 Sessies
 
-- De sessie is een JWT met alleen het gebruikers-id en de rol, ondertekend met HS256 en een geheime sleutel. De server accepteert alleen dat algoritme (SM9).
-- De cookie is httpOnly (JavaScript kan hem niet lezen), Secure (alleen via HTTPS; die vlag staat aan zodra de app in productiemodus draait, zoals op staging en productie) en SameSite=Strict (gaat niet mee bij verzoeken vanaf een andere site). Hij is 1 dag geldig.
-- Uitloggen wist de cookie.
+De sessie is een JWT met alleen het gebruikers-id en de rol, ondertekend met HS256 en een geheime sleutel. De server accepteert alleen dat algoritme (SM9). Het token staat in een cookie die httpOnly is, zodat JavaScript hem niet kan lezen. De cookie is ook Secure, zodat hij alleen via HTTPS meegaat; die vlag staat aan zodra de app in productiemodus draait, zoals op staging en productie. Met SameSite=Strict gaat hij niet mee bij verzoeken vanaf een andere site. De cookie is 1 dag geldig, en uitloggen wist hem.
 
 ### 3.3 V4 Toegangscontrole (RBAC)
 
@@ -243,35 +236,29 @@ Er zijn twee ingelogde rollen: gebruiker en beheerder (SM8).
 | Andermans vraag verwijderen               | nee      | nee       | ja        |
 | Vraag beantwoorden                        | nee      | nee       | ja        |
 
-- De server haalt de gebruiker en zijn rol altijd uit de ondertekende sessie, nooit uit het verzoek. Wie zelf een andere auteur meestuurt, wordt genegeerd.
-- Een ander id in de URL invullen (IDOR) helpt niet: de datalaag vergelijkt de auteur van de vraag met de gebruiker in de sessie, en geeft anders 403.
-- Het beheerdersaccount kan niet via de website worden aangemaakt. Registreren geeft altijd de rol gebruiker.
+De server haalt de gebruiker en zijn rol altijd uit de ondertekende sessie en nooit uit het verzoek; een auteur die iemand zelf meestuurt, wordt genegeerd. Een ander id in de URL invullen (IDOR) helpt ook niet, omdat de datalaag de auteur van de vraag vergelijkt met de gebruiker in de sessie en anders 403 geeft. Het beheerdersaccount kan niet via de website worden aangemaakt: registreren geeft altijd de rol gebruiker.
 
 ### 3.4 V5 Validatie, XSS en injectie
 
-- **Validatie.** Alle invoer wordt gecontroleerd met dezelfde regels in de browser en op de server. De browser geeft direct feedback, de server controleert opnieuw, omdat de browser te omzeilen is. Ongeldige invoer geeft 400 met een melding per veld (SM1, SM2).
-- **Maximale lengtes.** Elk veld heeft een maximum, ook in de database. Zo is de database de laatste grens.
-- **XSS.** React toont invoer altijd als tekst en nooit als HTML. Nergens in de code wordt HTML uit invoer ingevoegd. Het contactbericht weigert bovendien HTML en links, wat strenger is dan het ontwerp van school (SM3).
-- **SQL-injectie.** Alle databasetoegang loopt via Prisma met parameters. Invoer gaat als waarde mee en nooit als stuk van de query (SM4).
+Alle invoer wordt gecontroleerd met dezelfde regels in de browser en op de server. De browser geeft direct feedback, maar omdat de browser te omzeilen is, controleert de server alles opnieuw. Ongeldige invoer geeft een 400 met een melding per veld (SM1, SM2). Elk veld heeft een maximale lengte, ook in de database, zodat de database de laatste grens is.
+
+Tegen XSS beschermt vooral React: het toont invoer altijd als tekst en nooit als HTML, en nergens in de code wordt HTML uit invoer ingevoegd. Het contactbericht weigert daarnaast HTML en links, wat strenger is dan het ontwerp van school (SM3). Tegen SQL-injectie loopt alle databasetoegang via Prisma met parameters; invoer gaat als waarde mee en nooit als stuk van de query (SM4).
 
 ### 3.5 V8 en V13: API en de live-verbinding
 
-- Elke API-route volgt dezelfde stappen: sessie controleren (401), invoer controleren (400), dan de logica. De uitkomst wordt vertaald naar een vaste statuscode: 403, 404 of 409.
-- De vragenlijst geeft van een auteur alleen de weergavenaam. Een e-mailadres verlaat de server nooit.
-- De live-verbinding is alleen-lezen. Hij stuurt alleen het type wijziging en het id van de vraag, geen inhoud. De browser haalt daarna de pagina opnieuw op met de rechten van die bezoeker (SM10).
-- Sluit een bezoeker het tabblad, dan ruimt de server de verbinding op, zodat er geen luisteraars blijven hangen.
+Elke API-route volgt dezelfde stappen: eerst de sessie controleren (401), dan de invoer (400), en pas daarna de logica. De uitkomst wordt vertaald naar een vaste statuscode, zoals 403, 404 of 409. De vragenlijst geeft van een auteur alleen de weergavenaam terug, zodat een e-mailadres de server nooit verlaat.
+
+De live-verbinding is alleen-lezen. Hij stuurt alleen het type wijziging en het id van de vraag, geen inhoud. De browser haalt daarna zelf de pagina opnieuw op, met de rechten van die bezoeker (SM10). Sluit een bezoeker het tabblad, dan ruimt de server de verbinding op, zodat er geen luisteraars blijven hangen.
 
 ### 3.6 V9 Communicatie
 
-- Railway levert de site alleen via HTTPS. De header Strict-Transport-Security vertelt de browser een jaar lang alleen HTTPS te gebruiken (SM11).
-- De sessiecookie gaat alleen via HTTPS mee.
-- De verbinding met Mailtrap loopt via hun HTTPS-API, met een time-out van 10 seconden.
+Railway levert de site alleen via HTTPS, en de header Strict-Transport-Security vertelt de browser een jaar lang alleen HTTPS te gebruiken (SM11). De sessiecookie gaat daardoor ook alleen via HTTPS mee. De verbinding met Mailtrap loopt via hun HTTPS-API, met een time-out van 10 seconden.
 
 ### 3.7 V14 Configuratie
 
-- Alle geheimen staan in omgevingsvariabelen en nooit in de code: de sleutels voor de sessie, de codes en de captcha, de databaseverbinding en de Mailtrap-sleutel. Staging en productie hebben elk hun eigen geheimen (SM12).
-- Ontbreekt een geheim, dan geeft de app een fout zodra dat geheim nodig is, in plaats van onveilig door te draaien met een lege sleutel. Die controle gebeurt bij het eerste gebruik, niet al bij het opstarten (zie hoofdstuk 7). Ontbreekt de mailinstelling in productie, dan geeft de server een fout in plaats van stil niets te versturen.
-- Security headers op elke pagina (SM11):
+Alle geheimen staan in omgevingsvariabelen en nooit in de code: de sleutels voor de sessie, de codes en de captcha, de databaseverbinding en de Mailtrap-sleutel. Staging en productie hebben elk hun eigen geheimen (SM12). Ontbreekt een geheim, dan geeft de app een fout zodra dat geheim nodig is, in plaats van onveilig door te draaien met een lege sleutel. Die controle gebeurt bij het eerste gebruik en niet al bij het opstarten (zie hoofdstuk 7). Ontbreekt de mailinstelling in productie, dan geeft de server een fout in plaats van stil niets te versturen.
+
+Op elke pagina stuurt de server de security headers uit tabel 11 mee (SM11).
 
 **Tabel 11.** _Security headers op elke pagina_
 
@@ -287,10 +274,9 @@ De server stuurt geen `X-Powered-By`-header meer mee. Een paar headers van Next.
 
 ### 3.8 Statische analyse
 
-- **TypeScript in strict mode.** Typefouten breken de build.
-- **ESLint** met de regels van Next.js en TypeScript. Draait lokaal en in CI bij elke push en pull request.
-- **Dependency-audit.** Met `bun audit` heb ik de gebruikte packages gecontroleerd op bekende kwetsbaarheden. De bevindingen staan in 4.3.
-- **Dependabot.** Na die audit heb ik Dependabot-meldingen en -beveiligingsupdates aangezet in GitHub. Wordt er een kwetsbaarheid bekend in een package dat ik gebruik, dan waarschuwt GitHub en opent het zelf een pull request met de fix. Die gaat door dezelfde CI als elke andere wijziging.
+De code wordt op drie manieren statisch gecontroleerd. TypeScript draait in strict mode, zodat typefouten de build breken. ESLint controleert de code met de regels van Next.js en TypeScript, lokaal en in CI bij elke push en pull request. Met `bun audit` heb ik de gebruikte packages gecontroleerd op bekende kwetsbaarheden; de bevindingen staan in 4.3.
+
+Na die audit heb ik ook Dependabot-meldingen en -beveiligingsupdates aangezet in GitHub. Wordt er een kwetsbaarheid bekend in een package dat ik gebruik, dan waarschuwt GitHub en opent het zelf een pull request met de fix. Die pull request gaat door dezelfde CI als elke andere wijziging.
 
 ## 4. Testing
 
@@ -371,7 +357,7 @@ Op 26 oktober 2026 heb ik de verbinding met de stagingomgeving gecontroleerd met
 | HTTP                | `curl -I http://portfolio-staging-9685.up.railway.app/`                       | 301 naar de HTTPS-versie                                                |
 | Security headers    | `curl -I https://...` (staging en productie)                                  | CSP, HSTS, nosniff, Referrer-Policy en Permissions-Policy aanwezig      |
 
-De TLS-instellingen beheert Railway, niet ik. Daarom test ik ze: ik vertrouw er niet op, ik controleer het.
+De TLS-instellingen beheert Railway, niet ik. Daarom heb ik ze zelf getest in plaats van erop te vertrouwen.
 
 Ik heb de controle zelf herhaald op productie (Figuur 4):
 
@@ -414,10 +400,7 @@ Resultaat: geen enkele treffer in de applicatiecode. Alle lees- en schrijfacties
 
 Ik heb niet de Skylab-omgeving van school gebruikt maar Railway; de FAQ staat een eigen platform toe (Hogeschool Windesheim, z.d.-a). De stagingomgeving op Railway is mijn acceptatieomgeving (A in DTAP): live bereikbaar via HTTPS, met een eigen database en eigen geheimen. Railway regelt de firewall, de reverse proxy en de TLS-terminatie die in de Skylab-opdrachten met pfSense en nginx worden ingericht; de TLS-instellingen heb ik gecontroleerd in 4.5.
 
-- Er wordt nooit direct naar main gepusht. Elke wijziging gaat eerst door CI en staging.
-- Staging en productie hebben elk een eigen database en eigen geheimen. Testdata van staging komt nooit in productie.
-- Vóór elke deploy draait Railway de databasemigraties en maakt het beheerdersaccount aan. Die stap staat in de instellingen van Railway, niet in de repository. Mislukt dat, dan blijft de oude versie draaien.
-- Het beheerderswachtwoord staat alleen als omgevingsvariabele in Railway.
+Er wordt nooit direct naar main gepusht: elke wijziging gaat eerst door CI en staging. Staging en productie hebben elk een eigen database en eigen geheimen, zodat testdata van staging nooit in productie komt. Vóór elke deploy draait Railway de databasemigraties en maakt het beheerdersaccount aan; die stap staat in de instellingen van Railway en niet in de repository. Mislukt die stap, dan blijft de oude versie draaien. Het beheerderswachtwoord staat alleen als omgevingsvariabele in Railway.
 
 ## 6. Restrisico's
 
@@ -442,10 +425,11 @@ Voordat een versie van acceptatie naar productie gaat, wil ik weten of hij veili
 
 ### 7.1 Aanpak
 
-- **Wat:** de broncode op de branch develop (commit 3406237, Next.js 16.3.8), plus de live staging- en productieomgeving.
-- **Hoe:** elk ASVS-hoofdstuk (V1 tot en met V14) nagelopen. Per claim in dit rapport heb ik in de code gezocht naar de plek waar het gebeurt. Daarnaast heb ik gezocht naar wat er níet is: dingen die ASVS vraagt en die ik niet heb gebouwd.
-- **Bronnen:** OWASP ASVS 4.0.3 (OWASP Foundation, 2021; niveau 1, en niveau 2 waar het om accounts en sessies gaat), de ZAP-rapporten (bijlage G en H), `bun audit`, de GitHub Advisory Database, de live response-headers (`curl -I`) en de instellingen van de GitHub-repository.
-- **Ernst:** hoog = een aanvaller kan zonder veel moeite bij accounts, gegevens of de server; middel = misbruik is mogelijk maar beperkt, of een beschermlaag ontbreekt; laag = verbetering op een plek waar al een andere maatregel staat.
+Ik heb de broncode op de branch develop bekeken (commit 3406237, Next.js 16.3.8), en daarnaast de live staging- en productieomgeving. Per ASVS-hoofdstuk (V1 tot en met V14) heb ik voor elke bewering in dit rapport in de code opgezocht waar het gebeurt. Daarna heb ik gekeken naar wat er níét is: eisen uit de ASVS die ik niet heb gebouwd.
+
+Als bronnen heb ik OWASP ASVS 4.0.3 gebruikt (OWASP Foundation, 2021), op niveau 1 en op niveau 2 waar het om accounts en sessies gaat. Daarnaast de ZAP-rapporten (bijlage G en H), `bun audit`, de GitHub Advisory Database, de live response-headers (`curl -I`) en de instellingen van de GitHub-repository.
+
+Elke bevinding heeft een ernst. Hoog betekent dat een aanvaller zonder veel moeite bij accounts, gegevens of de server kan. Middel betekent dat misbruik mogelijk maar beperkt is, of dat er een beschermlaag ontbreekt. Laag is een verbetering op een plek waar al een andere maatregel staat.
 
 ### 7.2 Bevindingen
 
@@ -478,8 +462,7 @@ Wat goed is en ik niet als bevinding meetel, omdat het in de code klopt met dit 
 
 **Productie: ja, onder twee voorwaarden.**
 
-1. B1 is opgelost: Next.js is bijgewerkt naar 16.4.1. In de code is dat gebeurd (PR #42); de deploy naar staging en productie wacht nog op een storing bij Railway.
-2. B3 en B5 zijn ingesteld: CI is verplicht vóór een merge (B3 is op 26-10-2026 ingesteld), en secret scanning staat aan (B5, nog te doen). Dat zijn instellingen, geen code, en ze voorkomen dat een onveilige versie of een gelekt geheim ongemerkt live gaat.
+De eerste voorwaarde is dat B1 is opgelost. In de code is dat gebeurd: Next.js is bijgewerkt naar 16.4.1 (PR #42), maar de deploy naar staging en productie wacht nog op een storing bij Railway. De tweede voorwaarde is dat B3 en B5 zijn ingesteld. CI is sinds 26-10-2026 verplicht vóór een merge (B3); secret scanning (B5) moet nog aangezet worden. Dat zijn instellingen en geen code, maar ze voorkomen dat een onveilige versie of een gelekt geheim ongemerkt live gaat.
 
 B2, B4 en B6 zijn de volgende stap als de site echt gebruikers krijgt. Voor een portfolio met één beheerder en weinig bezoekers accepteer ik ze nu, met de redenen uit hoofdstuk 6.
 
@@ -502,21 +485,23 @@ Security gaat niet alleen over techniek. Bij elke keuze weeg ik af wie er last v
 
 ### 8.1 Testen en hacken: alleen wat van mij is
 
-- **Alleen mijn eigen systemen.** De ZAP-scan en andere tests draai ik alleen op mijn eigen stagingomgeving of lokaal. Nooit op productie met echte gebruikers, en nooit op sites van anderen zonder schriftelijke toestemming. Scannen zonder toestemming is in Nederland computervredebreuk (Wetboek van Strafrecht, z.d., art. 138ab), ook als het "maar een scan" is.
-- **Ook het platform is van een ander.** Mijn site draait bij Railway. Een actieve scan belast hun infrastructuur en andere klanten. Daarom gebruik ik op Railway de passieve baseline-scan en doe ik zwaardere tests (zoals SQL-injectie-tests) lokaal.
-- **Google Dorks.** Een dork kan gegevens van anderen laten zien die per ongeluk openbaar staan. Ik heb dorks alleen gericht op mijn eigen site. Vind je toch gegevens van een ander, dan open en bewaar je ze niet, en meld je het bij de eigenaar (responsible disclosure).
-- **Een peer-pentest** heb ik niet uitgevoerd; mijn securityreview in hoofdstuk 7 gaat over mijn eigen applicatie, wat volgens de FAQ is toegestaan (Hogeschool Windesheim, z.d.-a). Zou ik de site van een medestudent testen, dan alleen na duidelijke afspraken met de eigenaar: welke host, welke periode, welke tools, en wat er met de bevindingen gebeurt.
+De ZAP-scan en de andere tests heb ik alleen uitgevoerd op mijn eigen stagingomgeving of lokaal, nooit op productie met echte gebruikers en nooit op sites van anderen. Scannen zonder toestemming is in Nederland computervredebreuk (Wetboek van Strafrecht, z.d., art. 138ab), ook als het om een eenvoudige scan gaat. Daarbij is het platform zelf ook van een ander: mijn site draait bij Railway, en een actieve scan belast hun infrastructuur en andere klanten. Op Railway heb ik daarom alleen de passieve baseline-scan gedraaid; zwaardere tests doe ik lokaal.
+
+Bij de Google Dorks speelt iets vergelijkbaars. Een dork kan gegevens van anderen laten zien die per ongeluk openbaar staan. Ik heb de zoekopdrachten daarom op mijn eigen site gericht. Kom je toch gegevens van een ander tegen, dan open en bewaar je ze niet en meld je het bij de eigenaar (responsible disclosure).
+
+Een peer-pentest heb ik niet uitgevoerd. Mijn securityreview in hoofdstuk 7 gaat over mijn eigen applicatie, wat volgens de FAQ is toegestaan (Hogeschool Windesheim, z.d.-a). Als ik de site van een medestudent zou testen, zou ik eerst afspraken maken met de eigenaar over de host, de periode, de tools en wat er met de bevindingen gebeurt.
 
 ### 8.2 Ontwerp: wat ik bewust niet verzamel
 
-- **Dataminimalisatie (AVG).** De AVG vraagt om niet meer persoonsgegevens te verwerken dan nodig (Verordening (EU) 2016/679, 2016, art. 5 lid 1c). Contactgegevens sla ik niet op; ze gaan alleen in een mail aan mij. Wat niet bewaard wordt, kan niet lekken en hoef ik niet te beveiligen of te verwijderen.
-- **Geen tracking.** Ik heb een eigen captcha gebouwd in plaats van een externe dienst. Een externe captcha stuurt gedrag van bezoekers naar een derde partij en vraagt om cookie-toestemming. Mijn bezoekers betalen dan met hun privacy voor mijn spamprobleem.
-- **Geen e-mailadressen naar buiten.** Andere bezoekers zien alleen een weergavenaam. Een e-mailadres is een persoonsgegeven en een ingang voor phishing.
-- **Niet verraden wie een account heeft (SM7).** Wie een e-mailadres invult, mag niet kunnen afleiden of die persoon bij mijn site zit. Dat beschermt gebruikers, ook al kost het wat gebruiksgemak: de melding is minder specifiek.
+De AVG vraagt om niet meer persoonsgegevens te verwerken dan nodig (Verordening (EU) 2016/679, 2016, art. 5 lid 1c). Daarom sla ik contactgegevens niet op: ze gaan alleen in een mail aan mij. Wat niet bewaard wordt, kan ook niet lekken, en ik hoef het niet te beveiligen of later te verwijderen.
+
+Om dezelfde reden heb ik een eigen captcha gebouwd en geen externe dienst gebruikt. Een externe captcha stuurt het gedrag van bezoekers naar een derde partij en vraagt om cookie-toestemming. Dan zouden bezoekers hun privacy inleveren om mijn spamprobleem op te lossen, en dat vind ik geen goede ruil.
+
+Andere bezoekers zien van een gebruiker alleen de weergavenaam, nooit het e-mailadres. Een e-mailadres is een persoonsgegeven en kan gebruikt worden voor phishing. Ook verraadt de site niet wie een account heeft (SM7): wie een e-mailadres invult, kan niet afleiden of die persoon bij mijn site zit. Dat kost wat gebruiksgemak, omdat de foutmelding minder specifiek is, maar het beschermt de gebruikers.
 
 ### 8.3 Nalaten: wat het kost als ik iets niet doe
 
-Niets doen is ook een keuze. Voor elk restrisico (Tabel 17) heb ik gekeken wie de gevolgen draagt (Tabel 19):
+Voor elk restrisico (Tabel 17) heb ik gekeken wie de gevolgen draagt (Tabel 19):
 
 **Tabel 19.** _Wie de gevolgen draagt als ik iets nalaat_
 
@@ -617,6 +602,7 @@ _[TODO Sebastiaan: deze bijlage moet jouw eigen, eerlijke verhaal zijn. De tabel
 | 1.3.3 Dependency-update    | Next.js, Zod en Nodemailer bijgewerkt, lint, tests, build en Cypress gedraaid, `bun audit` voor en na                                                                                                         | _[invullen: diff zelf nagekeken vóór de commit]_                                |
 | Correcties in H3 t/m H5    | Vijf beweringen in het rapport vergeleken met de code en aangepast waar ze niet klopten                                                                                                                       | _[invullen]_                                                                    |
 | CI en GitHub-instellingen  | De Cypress-stap in CI hersteld, op mijn verzoek CI verplicht gemaakt op main en develop en de pull request gemerged                                                                                           | Ik gaf per stap akkoord; de Railway-deploy heb ik zelf in het dashboard bekeken |
+| Opmaak en schrijfstijl     | APA-bronnenlijst en nummering van tabellen en figuren toegevoegd; op mijn verzoek de opsommingen in het hele rapport omgezet naar lopende tekst, zonder inhoud te veranderen                                  | _[invullen]_                                                                    |
 | 8 Ethiek                   | Concepttekst opgesteld op basis van de keuzes in mijn ontwerp                                                                                                                                                 | _[invullen]_                                                                    |
 | Bijlage B ASVS-lijst       | Kolom "Measures taken" ingevuld op basis van de code en dit rapport                                                                                                                                           | _[invullen]_                                                                    |
 | Hoofdstukken 1 t/m 6       | _[invullen: welke rol had AI hier, bv. feedback op tekst, review van de code?]_                                                                                                                               | _[invullen]_                                                                    |
