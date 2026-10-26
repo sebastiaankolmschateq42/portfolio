@@ -64,7 +64,7 @@ Ik heb de risico's geschat als kans maal impact. Voor elk middelmatig of hoog ri
 
 ### 1.3 Actualiteit: wat er nu speelt en wat het voor mijn site betekent
 
-Mijn site draait op Next.js en React. Kwetsbaarheden in dat framework raken mij direct, ook als mijn eigen code goed is. Daarom volg ik de security-advisories van Next.js op GitHub en de berichtgeving van securitybedrijven. Hieronder drie gevallen die ik op mijn eigen situatie heb betrokken.
+Mijn site draait op Next.js en React. Zit er een lek in dat framework, dan zit het ook in mijn site, hoe netjes mijn eigen code ook is. Daarom houd ik de security-advisories van Next.js op GitHub bij en lees ik wat securitybedrijven erover schrijven. Twee hacks en de advisories van deze maand heb ik naast mijn eigen site gelegd.
 
 #### 1.3.1 Recente hack 1: React2Shell (december 2025)
 
@@ -109,7 +109,7 @@ Op 14 oktober 2026 bracht Next.js een extra security-release uit; de advisories 
 
 Ook als ik de fout niet direct kan misbruiken, update ik: de volgende variant is misschien wel bereikbaar, en aanvallers scannen juist op bekende kwetsbare versies. Dit is hetzelfde patroon als in 4.3, waar de dependency-audit een kritieke fout in de beeldoptimalisatie vond.
 
-**Actie (26-10-2026):** Next.js en eslint-config-next bijgewerkt naar 16.4.1, op een aparte branch. In dezelfde ronde liet de dependency-audit nog twee packages zien die in productie draaien en binnen hun versiebereik te repareren waren: Zod (onder 4.6.6, geheugen uitputten bij validatie; Zod controleert al mijn invoer) en Nodemailer (onder 10.1.4, fouten in het ontleden van e-mailadressen; het adres van de bezoeker gaat mee als reply-to). Die heb ik bijgewerkt naar 4.6.7 en 10.2.1.
+Op 26 oktober 2026 heb ik Next.js en eslint-config-next op een aparte branch bijgewerkt naar 16.4.1. De dependency-audit liet daarna nog twee packages zien die in productie draaien en die ik binnen hun versiebereik kon repareren. Zod (onder 4.6.6) kon bij het valideren het geheugen laten vollopen, en Zod controleert al mijn invoer. Nodemailer (onder 10.1.4) las e-mailadressen soms verkeerd uit, terwijl bij mij het adres van de bezoeker als reply-to meegaat. Die twee staan nu op 4.6.7 en 10.2.1.
 
 **Tabel 6.** _Controles vóór en na de update naar Next.js 16.4.1_
 
@@ -129,7 +129,7 @@ Bronnen: GitHub (2026a, 2026b).
 
 Met Google Dorks zoek je met speciale zoekoperators, zoals site, inurl en filetype, naar informatie die per ongeluk openbaar staat. Ik heb dit alleen gebruikt om te kijken wat er over mijn eigen site te vinden is; gevonden gegevens van anderen open of bewaar ik niet (zie hoofdstuk 8).
 
-Op 26 oktober 2026 heb ik de zoekopdrachten uitgevoerd en daarnaast rechtstreeks gecontroleerd of de bestanden die een dork zou vinden, op mijn sites bereikbaar zijn. Een dork laat alleen zien wat al geïndexeerd is; de directe controle laat zien of er überhaupt iets te vinden valt. De resultaten staan in Tabel 7 en Figuur 1 tot en met 3.
+Op 26 oktober 2026 heb ik de zoekopdrachten uitgevoerd, en ook rechtstreeks op mijn sites gekeken of de bestanden die een dork zou vinden, op te vragen zijn. De resultaten staan in Tabel 7 en Figuur 1 tot en met 3.
 
 **Tabel 7.** _Google Dorks: zoekopdrachten en resultaten_
 
@@ -151,11 +151,11 @@ Op 26 oktober 2026 heb ik de zoekopdrachten uitgevoerd en daarnaast rechtstreeks
 
 ![Figuur 3](img/sec-dork-3.png)
 
-De dorks zelf bewijzen maar weinig. Een dork laat alleen zien wat een zoekmachine al heeft opgepikt; "geen resultaten" betekent niet dat er niets openstaat. D1 laat wel zien dat de techniek werkt: Google vindt bestanden in apps van anderen op hetzelfde platform. Het echte bewijs voor mijn site is de directe controle (de bestanden met geheimen, de git-gegevens en de source maps zijn niet op te vragen) en de scan van de git-geschiedenis. De dorks laten zien dat er ook niets is uitgelekt naar de zoekmachine.
+Veel bewijzen de dorks niet. Google laat alleen zien wat het al heeft opgepikt, dus "geen resultaten" betekent niet dat er niets openstaat. Dat de techniek wel werkt, zie je bij D1: daar vindt Google gewoon bestanden in apps van anderen op hetzelfde platform. Het echte bewijs voor mijn site is de directe controle, samen met de scan van de git-geschiedenis. De dorks voegen daar alleen aan toe dat er ook niets bij de zoekmachine terecht is gekomen.
 
-Als er toch iets openbaar staat, is de eigenaar van de site of de data daarvoor verantwoordelijk. Een zoekmachine indexeert alleen wat publiek bereikbaar is; wie het zonder toegangscontrole online zet, heeft het openbaar gemaakt.
+Staat er toch iets openbaar, dan ligt de verantwoordelijkheid bij de eigenaar van de site of de data, niet bij Google. Een zoekmachine indexeert alleen wat al publiek bereikbaar is.
 
-**Nieuwe requirement (NFR):** gegevens die mijn site verwerkt, zijn niet te vinden via een zoekmachine. Mijn site dekt dat nu al grotendeels af.
+Daaruit volgt een nieuwe requirement (NFR): gegevens die mijn site verwerkt, zijn niet via een zoekmachine te vinden. Grotendeels voldoet de site daar al aan.
 
 Contactgegevens worden niet opgeslagen en staan op geen enkele pagina (AS1). E-mailadressen van gebruikers verlaten de server nooit; de vragenlijst toont alleen een weergavenaam (SM10). Geheimen staan alleen in omgevingsvariabelen, en de bestanden met die geheimen staan niet in git (SM12). Wat ik nog niet heb gedaan, is zoekmachines vragen om de API en de stagingomgeving over te slaan, zodat staging niet in zoekresultaten komt. Dat staat als advies in hoofdstuk 7.
 
@@ -197,15 +197,13 @@ In het technisch ontwerp heb ik het systeem opgedeeld in drie containers: de bro
 
 ### 2.3 Ontwerpkeuzes voor security
 
-Een paar keuzes in het ontwerp zijn vooral om veiligheidsredenen gemaakt.
-
 Front-end en back-end draaien samen in één applicatie op één domein. Daardoor kan de sessiecookie strikt op de eigen site blijven (SameSite=Strict) en zijn er geen CORS-instellingen nodig. Alle regels over wie wat mag, staan op één plek, in de datalaag. De pagina's en de API gebruiken dezelfde regels; de browser verbergt alleen knoppen en beslist niets.
 
 De live-verbinding stuurt geen inhoud. Wat iemand mag zien, verschilt per bezoeker, dus stuurt de server alleen een seintje en haalt elke browser de pagina zelf op met zijn eigen rechten. Voor het inloggen heb ik gekozen voor een wachtwoord plus een code uit de mail. Een inloglink per mail zou maar één factor zijn; wachtwoord plus code zijn er twee. Tot slot heb ik een eigen captcha gebouwd, zonder externe partij en zonder tracking, zodat er ook geen cookie-toestemming nodig is.
 
 ## 3. Development: maatregelen in de code
 
-Hieronder staan de maatregelen per ASVS-hoofdstuk. De showcase-requirements noemen V2 tot en met V5, V9, V13 en V14 expliciet.
+Per ASVS-hoofdstuk staat hier wat ik in de code heb gedaan. De showcase-requirements noemen V2 tot en met V5, V9, V13 en V14 expliciet, dus die komen allemaal langs.
 
 ### 3.1 V2 Authenticatie (2FA)
 
@@ -314,21 +312,19 @@ Ik heb een ZAP baseline-scan (ZAP Dev Team, z.d.) gedraaid op de stagingomgeving
 | Cache-control nakijken, niet op te slaan inhoud        | Info       | Geen probleem: statische pagina's mogen gecachet worden, de pagina's met persoonlijke inhoud niet.                                                                       |
 | Moderne webapplicatie                                  | Info       | Geen probleem: ZAP meldt dat de site JavaScript gebruikt.                                                                                                                |
 
-**Bevinding: wachtwoord in de URL.** ZAP voert geen JavaScript uit en verstuurde de formulieren dus als gewoon HTML-formulier. Omdat er geen methode op stond, gebeurde dat met GET. E-mail en wachtwoord kwamen daardoor in de URL te staan. Dat kan bij een echte bezoeker ook gebeuren: als hij op de knop drukt voordat de pagina helemaal geladen is. Een URL komt in de browsergeschiedenis en in serverlogs terecht.
+Eén waarschuwing bleek een echte fout: het wachtwoord kwam in de URL terecht. ZAP voert geen JavaScript uit en verstuurde mijn formulieren daarom als gewoon HTML-formulier. Er stond geen methode op, dus ging dat met GET, en zo kwamen e-mail en wachtwoord in de URL. Een echte bezoeker kan hetzelfde overkomen als hij op de knop drukt voordat de pagina helemaal geladen is. Zo'n URL belandt in de browsergeschiedenis en in serverlogs.
 
-**Oplossing:** alle formulieren versturen nu met POST. Met JavaScript verandert er niets, zonder JavaScript komt er geen invoer meer in de URL. Daarna heb ik de scan opnieuw gedraaid (zie 4.4). Zodat de fout niet terugkomt bij een nieuw formulier, controleert een test (PR #44) dat elk formulier in de app met POST verstuurt. Ik heb gecontroleerd dat die test faalt als ik POST uit het inlogformulier haal.
+Alle formulieren versturen nu met POST. Met JavaScript merk je daar niets van; zonder JavaScript komt er geen invoer meer in de URL. Daarna heb ik de scan opnieuw gedraaid (zie 4.4). Om te voorkomen dat een nieuw formulier dezelfde fout krijgt, controleert een test (PR #44) dat elk formulier in de app met POST verstuurt. Die test heb ik zelf laten falen door POST uit het inlogformulier te halen.
 
-**Nieuwe waarschuwing na de fix: geen anti-CSRF-token.** Nu de formulieren POST gebruiken, meldt ZAP dat er geen CSRF-token in staat. Dat heb ik bewust zo gelaten. Alle acties gaan als JSON-verzoek naar de API van de eigen site, en de sessiecookie heeft SameSite=Strict. Een andere site kan die cookie dus niet laten meesturen. Een HTML-formulier zonder JavaScript komt bij de pagina zelf uit en doet niets.
+Na de fix kwam er een nieuwe waarschuwing bij: de formulieren hebben geen anti-CSRF-token. Dat heb ik bewust zo gelaten. Alle acties gaan als JSON-verzoek naar de API van de eigen site, en omdat de sessiecookie SameSite=Strict heeft, kan een andere site hem niet laten meesturen. Een HTML-formulier zonder JavaScript komt bij de pagina zelf uit en doet niets.
 
 ### 4.3 Dependency-audit
 
 De dependency-audit vond 34 bekende kwetsbaarheden in packages, waarvan 20 in packages die in productie meedraaien.
 
-**Bevinding: kritieke kwetsbaarheden in Next.js.** De gebruikte versie (16.2.11) had onder meer een kwetsbaarheid waarmee een aanvaller code op de server kan uitvoeren via de beeldoptimalisatie, en een SSRF in diezelfde functie. Die functie gebruik ik, voor de foto's op de profiel- en projectpagina's. Dit was dus echt bereikbaar.
+De ernstigste zaten in Next.js. Versie 16.2.11 had onder meer een kwetsbaarheid waarmee een aanvaller via de beeldoptimalisatie code op de server kon uitvoeren, en een SSRF in diezelfde functie. Die functie gebruik ik voor de foto's op de profiel- en projectpagina's, dus dit was echt bereikbaar. Na de update naar 16.3.8 waren er geen kritieke kwetsbaarheden in productie meer, en slaagden alle tests en de build nog steeds.
 
-**Oplossing:** Next.js bijgewerkt naar 16.3.8. Daarna 0 kritieke kwetsbaarheden in productie. Alle tests en de build slagen nog.
-
-**Overgebleven, geaccepteerd:** 6 meldingen in packages die alleen tijdens het bouwen of door de database-CLI worden gebruikt, zoals PostCSS en een MySQL-driver die Prisma meelevert terwijl ik PostgreSQL gebruik. Die code verwerkt geen invoer van bezoekers.
+Zes meldingen heb ik laten staan. Ze zitten in packages die alleen tijdens het bouwen of door de database-CLI worden gebruikt, zoals PostCSS en een MySQL-driver die Prisma meelevert terwijl ik PostgreSQL gebruik. Die code komt niet in aanraking met invoer van bezoekers.
 
 ### 4.4 Hertest
 
@@ -369,9 +365,9 @@ Ik heb de controle zelf herhaald op productie (Figuur 4):
 
 SM4 zegt dat alle databasetoegang via Prisma met parameters loopt. Dat heb ik op twee manieren gecontroleerd.
 
-**1. Codereview: nergens ruwe SQL.** Prisma heeft een paar functies waarmee je zelf SQL-tekst kunt samenstellen. Dat is de enige manier om met Prisma een onveilige query te schrijven. Ik heb de hele code daarop doorzocht en ze komen nergens in de applicatie voor. Alle lees- en schrijfacties gaan via de gewone functies van Prisma, waarbij invoer altijd als losse parameter meegaat en nooit als tekst in de query. Alleen de testopzet van Cypress bevat handgeschreven SQL, en ook die gebruikt parameters in plaats van samengevoegde tekst.
+Eerst met een codereview. Prisma heeft een paar functies waarmee je zelf SQL-tekst kunt samenstellen, en alleen daarmee schrijf je met Prisma een onveilige query. Die functies komen nergens in de applicatie voor. Alle lees- en schrijfacties lopen via de gewone functies, waarbij invoer als losse parameter meegaat en nooit als tekst in de query. Alleen de testopzet van Cypress bevat handgeschreven SQL, en ook die werkt met parameters.
 
-**2. Handmatige test.** Ik heb in de loginroute en bij het stellen van een vraag klassieke injectiepogingen als waarde ingevuld, bijvoorbeeld ' OR '1'='1 als wachtwoord en '; DROP TABLE users; -- als vraag. De server behandelt ze als gewone tekst: inloggen mislukt normaal (401), en een vraag met zo'n tekst wordt letterlijk opgeslagen en als tekst getoond. De tabellen blijven intact (Figuur 5 en 6).
+Daarna heb ik het met de hand geprobeerd. Bij het inloggen vulde ik ' OR '1'='1 in als wachtwoord, en als vraag stelde ik '; DROP TABLE users; --. De server behandelt beide als gewone tekst: het inloggen mislukt zoals altijd (401), en de vraag staat er letterlijk tussen (Figuur 5 en 6). De tabellen zijn intact gebleven.
 
 **Figuur 5.** _Inloggen met het wachtwoord ' OR '1'='1 geeft gewoon "Invalid email or password" (de API antwoordt 401)_
 
@@ -415,13 +411,13 @@ De securityreview in hoofdstuk 7 vond nog een aantal kleinere punten. Die staan 
 
 ## 7. Acceptatie: securityreview en advies
 
-Voordat een versie van acceptatie naar productie gaat, wil ik weten of hij veilig genoeg is. Daarvoor heb ik een gestructureerde securityreview gedaan van mijn eigen applicatie. Dat mag volgens de FAQ, mits de review gestructureerd en onderbouwd is (Hogeschool Windesheim, z.d.-a). De lezer van het technische deel is een ontwikkelaar; 7.4 is voor een niet-technische lezer.
+Voordat een versie van acceptatie naar productie gaat, wil ik weten of hij veilig genoeg is. Daarom heb ik mijn eigen applicatie gestructureerd gereviewd; volgens de FAQ mag dat, als de review onderbouwd is (Hogeschool Windesheim, z.d.-a). 7.1 tot en met 7.3 zijn geschreven voor een ontwikkelaar, 7.4 voor iemand zonder technische achtergrond.
 
 ### 7.1 Aanpak
 
-Ik heb de broncode op de branch develop bekeken (commit 3406237, Next.js 16.3.8), en daarnaast de live staging- en productieomgeving. Per ASVS-hoofdstuk (V1 tot en met V14) heb ik voor elke bewering in dit rapport in de code opgezocht waar het gebeurt. Daarna heb ik gekeken naar wat er níét is: eisen uit de ASVS die ik niet heb gebouwd.
+Ik heb de broncode op de branch develop bekeken (commit 3406237, Next.js 16.3.8), en de live staging- en productieomgeving. Per ASVS-hoofdstuk (V1 tot en met V14) heb ik voor elke bewering in dit rapport in de code opgezocht waar het gebeurt. Daarna heb ik gekeken naar wat er níét is: eisen uit de ASVS die ik niet heb gebouwd.
 
-Als bronnen heb ik OWASP ASVS 4.0.3 gebruikt (OWASP Foundation, 2021), op niveau 1 en op niveau 2 waar het om accounts en sessies gaat. Daarnaast de ZAP-rapporten (bijlage G en H), de dependency-audit, de GitHub Advisory Database, de headers die de live sites terugsturen en de instellingen van de GitHub-repository.
+Als bronnen heb ik OWASP ASVS 4.0.3 gebruikt (OWASP Foundation, 2021), op niveau 1 en op niveau 2 waar het om accounts en sessies gaat. Verder heb ik de ZAP-rapporten (bijlage G en H), de dependency-audit, de GitHub Advisory Database, de headers die de live sites terugsturen en de instellingen van de GitHub-repository gebruikt.
 
 Elke bevinding heeft een ernst. Hoog betekent dat een aanvaller zonder veel moeite bij accounts, gegevens of de server kan. Middel betekent dat misbruik mogelijk maar beperkt is, of dat er een beschermlaag ontbreekt. Laag is een verbetering op een plek waar al een andere maatregel staat.
 
@@ -452,30 +448,25 @@ Veel punten heb ik niet als bevinding opgenomen, omdat de code daar doet wat dit
 
 ### 7.3 Oordeel
 
-**Acceptatie: ja.** De maatregelen uit de risicoanalyse (SM1 tot en met SM12) zijn gebouwd, getest en werken live. Ik vond geen fout waarmee een aanvaller zonder veel moeite een account, de gegevens van een ander of de beheerdersrechten kan overnemen.
+Voor acceptatie is mijn oordeel ja. De maatregelen uit de risicoanalyse (SM1 tot en met SM12) zijn gebouwd, getest en werken live, en ik heb geen fout gevonden waarmee een aanvaller zonder veel moeite een account, de gegevens van een ander of de beheerdersrechten kan overnemen.
 
-**Productie: ja, onder twee voorwaarden.**
+Voor productie is het ook ja, maar onder twee voorwaarden. Ten eerste moet B1 opgelost zijn. In de code is dat al gebeurd, want Next.js staat op 16.4.1 (PR #42), maar de deploy naar staging en productie wacht nog op een storing bij Railway. Ten tweede moeten B3 en B5 ingesteld zijn. CI is sinds 26-10-2026 verplicht vóór een merge (B3); secret scanning (B5) moet nog aan. Het zijn instellingen en geen code, maar ze houden een onveilige versie of een gelekt geheim tegen voordat die live gaat.
 
-De eerste voorwaarde is dat B1 is opgelost. In de code is dat gebeurd: Next.js is bijgewerkt naar 16.4.1 (PR #42), maar de deploy naar staging en productie wacht nog op een storing bij Railway. De tweede voorwaarde is dat B3 en B5 zijn ingesteld. CI is sinds 26-10-2026 verplicht vóór een merge (B3); secret scanning (B5) moet nog aangezet worden. Dat zijn instellingen en geen code, maar ze voorkomen dat een onveilige versie of een gelekt geheim ongemerkt live gaat.
-
-B2, B4 en B6 zijn de volgende stap als de site echt gebruikers krijgt. Voor een portfolio met één beheerder en weinig bezoekers accepteer ik ze nu, met de redenen uit hoofdstuk 6.
+B2, B4 en B6 zijn de volgende stap als de site echt gebruikers krijgt. Voor een portfolio met één beheerder en weinig bezoekers accepteer ik ze nu, om de redenen uit hoofdstuk 6.
 
 ### 7.4 Managementsamenvatting
 
 De website "Ask me anything" laat bezoekers met een account vragen stellen die ik beantwoord. Ik heb de beveiliging gecontroleerd volgens de OWASP-standaard voor webapplicaties.
 
-**Conclusie:** de site is veilig genoeg om te testen en te laten zien. Accounts zijn beschermd met een wachtwoord én een code per mail. Gebruikers kunnen alleen hun eigen vragen wijzigen. Contactgegevens worden niet bewaard, en e-mailadressen zijn voor andere bezoekers nooit zichtbaar. Een automatische scan vond geen ernstige problemen; het enige echte probleem dat hij vond, is opgelost.
+Mijn conclusie is dat de site veilig genoeg is om te testen en te laten zien. Inloggen kan alleen met een wachtwoord én een code per mail, en gebruikers kunnen alleen hun eigen vragen wijzigen. Contactgegevens worden niet bewaard, en andere bezoekers zien nooit iemands e-mailadres. Een automatische scan vond één echt probleem, en dat is opgelost.
 
-**Wat er nog moet gebeuren vóór echte livegang:**
+Vóór een echte livegang moeten er nog twee dingen gebeuren. Het onderliggende framework moet worden bijgewerkt, omdat daar deze maand een ernstig lek in is gevonden. Op mijn site is het nauwelijks te misbruiken, maar ik wil er niet op wachten: de update is klaar en getest en moet alleen nog live. Daarnaast moeten er twee instellingen in GitHub aan, zodat een versie met fouten of een uitgelekt wachtwoord niet vanzelf live kan gaan. De eerste staat sinds 26 oktober aan, de tweede is een paar minuten werk.
 
-1. Het onderliggende framework bijwerken. Daar is deze maand een ernstig lek in gevonden. Op mijn site is het nauwelijks te misbruiken, maar uitstellen is onverstandig. De update is gemaakt en getest; hij moet alleen nog live gezet worden.
-2. Twee instellingen in GitHub aanzetten, zodat een versie met fouten of een uitgelekt wachtwoord niet automatisch live kan gaan. De eerste (alleen mergen als alle tests slagen) staat sinds 26 oktober aan; de tweede (secret scanning) kost een paar minuten.
-
-**Wat er later kan:** een limiet op het aantal inlogpogingen, en een logboek waarin verdachte activiteit zichtbaar wordt. Dat wordt belangrijk zodra er veel gebruikers zijn.
+Later, als er echt gebruikers komen, wil ik een limiet op het aantal inlogpogingen en een logboek waarin verdachte activiteit opvalt.
 
 ## 8. Ethiek: handelen en nalaten
 
-In dit hoofdstuk beschrijf ik de ethische afwegingen die ik heb gemaakt: bij het testen, bij het ontwerp en bij wat ik bewust niet heb gedaan. Steeds ging het om de vraag wie er last van heeft als ik iets wel of juist niet doe.
+Bij bijna elke securitykeuze speelde nog een andere vraag mee: wie heeft er last van als ik dit wel doe, of juist niet?
 
 ### 8.1 Testen en hacken: alleen wat van mij is
 
