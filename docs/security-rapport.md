@@ -85,7 +85,7 @@ Op 26 oktober 2026 heb ik Next.js en eslint-config-next op een aparte branch bij
 | Cypress-tests          | Alle 17 end-to-end- en 10 componenttests geslaagd (in CI) | Alle 17 end-to-end- en 10 componenttests geslaagd |
 | Productiebuild         | slaagt (CI)                                               | slaagt                                            |
 
-De overgebleven meldingen zitten in bouw- en ontwikkeltools (PostCSS, source-map-js, nanoid), in de database-CLI van Prisma (mysql2, deepmerge-ts) en in een eigen kopie van Zod binnen de ESLint-plugin. Geen daarvan verwerkt invoer van bezoekers. De update staat sinds 26 oktober 2026 in develop ([pull request #42](https://github.com/sebastiaankolmschateq42/portfolio/pull/42), gemerged nadat alle verplichte CI-checks groen waren). De automatische deploy naar staging liep die avond vast door een storing bij Railway; staging en productie draaiden op het moment van inleveren nog op 16.3.8. Bevinding B1 is daarom in de code opgelost, maar pas helemaal afgerond als de nieuwe versie live staat.
+De overgebleven meldingen zitten in bouw- en ontwikkeltools (PostCSS, source-map-js, nanoid), in de database-CLI van Prisma (mysql2, deepmerge-ts) en in een eigen kopie van Zod binnen de ESLint-plugin. Geen daarvan verwerkt invoer van bezoekers. De update staat sinds 26 oktober 2026 in develop (pull request #42, gemerged nadat alle verplichte CI-checks groen waren). De automatische deploy naar staging liep die avond vast door een storing bij Railway; staging en productie draaiden op het moment van inleveren nog op 16.3.8. Bevinding B1 is daarom in de code opgelost, maar pas helemaal afgerond als de nieuwe versie live staat.
 
 Bronnen: GitHub (2026a, 2026b).
 
