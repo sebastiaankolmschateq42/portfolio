@@ -521,8 +521,6 @@ _[TODO Sebastiaan: deze bijlage moet jouw eigen, eerlijke verhaal zijn. De tabel
 
 ### A.3 Hoe ik AI-voorstellen kritisch heb beoordeeld
 
-_[TODO Sebastiaan: geef 2 of 3 concrete voorbeelden. Denk aan: een voorstel dat niet klopte met je code; een bron die je zelf hebt nagekeken; een maatregel die AI voorstelde en die je bewust niet hebt overgenomen, en waarom.]_
-
 Feitelijke controlemomenten in de laatste sessie:
 
 1. Ik liet de dependency-update eerst op een aparte branch zetten en de volledige diff zien, vóór er iets gecommit werd. Pas daarna gaf ik akkoord, en alleen voor `package.json` en `bun.lock`.
