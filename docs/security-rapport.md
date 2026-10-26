@@ -560,48 +560,37 @@ Broncode: https://github.com/sebastiaankolmschateq42/portfolio. Staging: https:/
 
 ## Bijlage A: Verantwoording AI-gebruik (intern)
 
-Voor het securityportfolio geldt AIAS niveau 3, AI-samenwerking (Hogeschool Windesheim, z.d.-b; Perkins et al., 2024): AI mag, mits ik verantwoord hoe ik het heb ingezet, wat ik heb aangepast en hoe ik er kritisch mee ben omgegaan.
+Voor dit portfolio geldt AIAS niveau 3, AI-samenwerking (Hogeschool Windesheim, z.d.-b; Perkins et al., 2024). Hieronder staat hoe ik AI heb ingezet, wat ik heb aangepast en hoe ik kritisch heb gekeken naar wat AI voorstelde.
 
-### A.1 Welke AI-tools en waarvoor
+### A.1 Hoe ik AI heb ingezet
 
-**Tabel 21.** _Gebruikte AI-tools_
+De applicatie heb ik van juli tot oktober 2026 zelf gebouwd. De securitykeuzes daarin komen uit mijn eigen ontwerp: inloggen in twee stappen, contactgegevens niet bewaren en een eigen captcha zonder tracking. Bij het bouwen gebruikte ik Claude Code voor uitleg, advies, debughulp, code review en commitberichten; GitHub Copilot doet een automatische review op elke pull request naar main. Twaalf van de 43 commits op develop hebben een Co-Authored-By-regel van Claude.
 
-| Tool                    | Waarvoor gebruikt                                                                                                                                                                                     | Periode             |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| Claude Code (Anthropic) | Bij de applicatie: uitleg, advies, debughulp, code review en commitberichten. Bij dit portfolio ook onderzoek, conceptteksten, de ASVS-lijst, de dependency-update en de aanpassing van CI (zie A.2). | juli – oktober 2026 |
-| GitHub Copilot          | Automatische code review op elke pull request naar main                                                                                                                                               | oktober 2026        |
+Bij dit portfolio heb ik AI in de laatste week veel meer laten doen. AI zocht bronnen op, analyseerde mijn code per ASVS-hoofdstuk, schreef grote delen van de tekst (vooral 1.3, hoofdstuk 7 en hoofdstuk 8), vulde de ASVS-lijst in en voerde op mijn verzoek de dependency-update en een aanpassing van CI uit. Tabel 21 laat per onderdeel zien wat AI deed en wat ik deed.
 
-### A.2 Wat AI heeft opgesteld en wat ik ermee heb gedaan
+**Tabel 21.** _Bijdragen van AI per onderdeel en mijn eigen rol_
 
-**Tabel 22.** _Bijdragen van AI per onderdeel en mijn controle_
+| Onderdeel               | Wat AI deed                                                                      | Wat ik deed                                                          |
+| ----------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| 1.3 Actualiteit         | Advisories en twee recente hacks opgezocht, tekst en tabellen opgesteld          | Gelezen; gekozen voor een bronnenlijst in APA                        |
+| 1.3.3 Dependency-update | Packages bijgewerkt, alle tests en de build gedraaid, audit voor en na           | De volledige diff bekeken en pas daarna akkoord gegeven op de commit |
+| 1.3.4 Google Dorks      | Zoekopdrachten voorgesteld, de sites en de git-geschiedenis direct gecontroleerd | De zoekopdrachten zelf in Google uitgevoerd, met screenshots         |
+| 4.5 TLS-test            | De test uitgevoerd en beschreven                                                 | De test zelf herhaald op productie, met screenshot                   |
+| 4.6 SQL-injectie        | De code doorzocht op onveilige SQL                                               | De injectiepogingen zelf uitgevoerd via de site, met screenshots     |
+| Hoofdstuk 7             | Securityreview, oordeel en advies opgesteld                                      | Gelezen; op basis van het advies CI verplicht laten maken (B3)       |
+| Hoofdstuk 8             | Tekst opgesteld over de ethische keuzes in mijn ontwerp                          | De keuzes zelf komen uit mijn ontwerp                                |
+| ASVS-lijst (bijlage B)  | Maatregel en status per eis ingevuld                                             | Niet regel voor regel nagelopen; de lijst volgt hoofdstuk 7          |
+| Rest van het rapport    | Beweringen tegen de code gecontroleerd, opmaak en stijl aangepast                | Akkoord gegeven op de wijzigingen                                    |
 
-| Onderdeel                  | Wat AI deed                                                                                                                                                                        | Wat ik heb aangepast of gecontroleerd                                                                                                     |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| 1.3 Actualiteit            | Advisories en twee recente hacks opgezocht, conceptteksten en tabellen opgesteld, met bronnen                                                                                      | Gelezen en gekozen voor een bronnenlijst in APA, zodat elke bewering te herleiden is                                                      |
-| 1.3.3 Dependency-update    | Next.js, Zod en Nodemailer bijgewerkt, lint, tests, build en Cypress gedraaid, de dependency-audit voor en na                                                                      | Eerst de volledige diff bekeken; pas daarna akkoord gegeven voor de commit                                                                |
-| 1.3.4 Google Dorks         | Drie zoekopdrachten voorgesteld, twee uitgevoerd, de bestanden direct op de sites gecontroleerd en de git-geschiedenis doorzocht                                                   | De drie zoekopdrachten zelf in Google uitgevoerd en de screenshots gemaakt; gevraagd of dit wel een goede testmethode is (zie A.3)        |
-| 4.5 TLS-test               | De commando's uitgevoerd en de uitkomst in de tabel gezet                                                                                                                          | De controle zelf herhaald op productie (screenshot)                                                                                       |
-| 4.6 SQL-injectie           | De code doorzocht op ruwe SQL (geen treffers) en de controle beschreven                                                                                                            | De twee injectiepogingen zelf uitgevoerd via de site (screenshots)                                                                        |
-| Correcties in H3 t/m H5    | Vijf beweringen in het rapport vergeleken met de code en aangepast waar ze niet klopten                                                                                            | Akkoord gegeven op de correcties                                                                                                          |
-| 7 Securityreview en advies | De code per ASVS-hoofdstuk nagelopen en een concept-oordeel en -advies opgesteld                                                                                                   | Gelezen; op basis van het advies CI verplicht laten maken (B3) en de bevindingen in gewone taal laten beschrijven                         |
-| 8 Ethiek                   | Concepttekst opgesteld op basis van de keuzes in mijn ontwerp                                                                                                                      | De keuzes zelf (geen opslag van contactgegevens, geen externe captcha) komen uit mijn eigen ontwerp                                       |
-| CI en GitHub-instellingen  | De Cypress-stap in CI hersteld, op mijn verzoek CI verplicht gemaakt op main en develop en de pull request gemerged                                                                | Per stap akkoord gegeven; de Railway-deploy zelf in het dashboard bekeken                                                                 |
-| Opmaak en schrijfstijl     | APA-bronnenlijst en nummering van tabellen en figuren; opsommingen omgezet naar lopende tekst; bestandsnamen, paden en code-opmaak vervangen door gewone taal; twee stijlrondes    | Zelf om gewone taal en een minder gepolijste stijl gevraagd, omdat de tekst niet als mijn eigen stem klonk                                |
-| Bijlage B ASVS-lijst       | Kolom "Measures taken" ingevuld op basis van de code en dit rapport                                                                                                                | Niet regel voor regel nagelopen; de lijst volgt de bevindingen uit hoofdstuk 7                                                            |
-| Hoofdstukken 1 t/m 6       | In de laatste sessie: beweringen tegen de code gecontroleerd, opsommingen omgezet naar lopende tekst en de stijl aangepast                                                         | Akkoord gegeven op de wijzigingen                                                                                                         |
-| Code van de applicatie     | Uitleg, advies, debughulp, code review en commitberichten, volgens de werkafspraak in mijn repository. 12 van de 43 commits op develop dragen een Co-Authored-By-regel van Claude. | Ik typ de code zelf; uitzondering zijn de dependency-update en de CI-aanpassing van de laatste week, die AI op mijn verzoek heeft gemaakt |
+### A.2 Welke aanpassingen ik heb gedaan
 
-### A.3 Hoe ik AI-voorstellen kritisch heb beoordeeld
+Ik heb de tekst van AI niet zelf herschreven, maar wel gestuurd waar hij anders moest. Ik vroeg om lopende tekst in plaats van opsommingen, en om gewone taal zonder bestandsnamen, paden en code-opmaak, zoals ik dat ook in mijn andere documenten doe. Ik vroeg om een minder gepolijste stijl, omdat de tekst niet als mijn eigen stem klonk. Verder liet ik de bronnen in APA vermelden, de tabellen en figuren nummeren en een onduidelijke rij in Tabel 6 uitschrijven. De screenshots in hoofdstuk 1 en 4 zijn van mijn eigen tests.
 
-1. Ik liet de dependency-update eerst op een aparte branch zetten en de volledige diff zien, vóór er iets gecommit werd. Pas daarna gaf ik akkoord, en alleen voor de twee bestanden met de package-versies.
-2. Ik liet AI de beweringen in mijn eigen rapport tegen de code controleren. Vijf beweringen bleken te sterk, zoals "mergen kan pas als alles groen is", en zijn aangepast in plaats van opgepoetst.
-3. Bij de Google Dorks vroeg ik me af of dit wel een goede manier van testen is. Dat bleek terecht: een dork bewijst weinig, omdat een zoekmachine alleen laat zien wat hij al heeft opgepikt. Daarom staat er in 1.3.4 nu hoe sterk dit bewijs is, en is de directe controle op mijn sites het echte bewijs.
-4. In Tabel 6 vond ik de rij met de Cypress-resultaten onduidelijk. Daar stond "17 / 10", wat niemand begrijpt zonder uitleg. Die rij is nu uitgeschreven.
-5. Ik vroeg of het rapport klinkt als een HBO-ICT-student. Het antwoord was nee: het was te gepolijst, met bestandsnamen en code-opmaak die ik in mijn andere documenten ook niet gebruik. Op mijn verzoek is de tekst daarna in gewone taal herschreven.
-6. Toen de deploy naar staging bleef hangen, heb ik zelf in Railway gekeken en besloten de deploy te laten rusten in plaats van door te drukken naar productie.
+### A.3 Hoe ik kritisch heb beoordeeld wat AI voorstelde
 
-### A.4 Wat ik zelf heb gedaan
+- Ik liet AI de beweringen in mijn eigen rapport tegen de code controleren. Vijf bleken te sterk, zoals "mergen kan pas als alles groen is", en zijn aangepast.
+- Bij de Google Dorks vroeg ik me af of dit wel een goede testmethode is. Dat bleek terecht: een dork laat alleen zien wat een zoekmachine al heeft opgepikt. Daarom staat er nu bij hoe sterk dit bewijs is, en is de directe controle het echte bewijs.
+- De dependency-update liet ik eerst op een aparte branch zetten. Ik heb de diff bekeken voordat er iets werd gecommit.
+- Toen de deploy naar staging bleef hangen, heb ik zelf in Railway gekeken en besloten niet door te drukken naar productie.
 
-De applicatie heb ik tussen juli en oktober 2026 zelf gebouwd. In de werkafspraak in mijn repository staat dat ik de code zelf typ en AI gebruik voor uitleg, advies, debughulp en review. Elke wijziging gaat via een pull request met CI, en ik geef zelf akkoord op een merge.
-
-In de laatste week voor de deadline heb ik AI meer laten doen dan tijdens het bouwen. AI voerde de dependency-update en de CI-aanpassing uit, en schreef grote delen van de tekst van dit rapport, vooral 1.3, hoofdstuk 7 en hoofdstuk 8. Wat AI deed, staat per onderdeel in Tabel 22. De tests met de Google Dorks, de TLS-controle en de injectiepogingen heb ik zelf uitgevoerd. De keuzes over wat ik bouw, wat ik accepteer als restrisico en wat ik inlever, heb ik zelf gemaakt.
+Wat ik hiervan heb geleerd: AI schrijft snel een overtuigend rapport, maar alleen controle tegen de echte code laat zien of het ook klopt.
