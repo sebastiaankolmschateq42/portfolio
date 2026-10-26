@@ -117,13 +117,21 @@ Bronnen: [GitHub Advisory GHSA-2464-fhr4-w9xw](https://github.com/advisories/GHS
 
 Met Google Dorks zoek je met operators als `site:`, `inurl:` en `filetype:` naar informatie die per ongeluk openbaar staat. Ik heb dit alleen gebruikt om te kijken wat er over mijn eigen site te vinden is; gevonden gegevens van anderen open of bewaar ik niet (zie hoofdstuk 8).
 
-Op 26 oktober 2026 heb ik de zoekopdrachten uitgevoerd en daarnaast rechtstreeks gecontroleerd of de bestanden die een dork zou vinden, op mijn sites bereikbaar zijn. Een dork laat alleen zien wat al geïndexeerd is; de directe controle laat zien of er überhaupt iets te vinden valt. _[TODO Sebastiaan: zelf de drie zoekopdrachten in Google herhalen en een screenshot toevoegen.]_
+Op 26 oktober 2026 heb ik de zoekopdrachten uitgevoerd en daarnaast rechtstreeks gecontroleerd of de bestanden die een dork zou vinden, op mijn sites bereikbaar zijn. Een dork laat alleen zien wat al geïndexeerd is; de directe controle laat zien of er überhaupt iets te vinden valt.
 
-| #   | Zoekopdracht                                                              | Waarom                                                                | Resultaat                                                                                                                                                                                                  |
-| --- | ------------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| D1  | `site:up.railway.app inurl:portfolio`                                     | Welke van mijn omgevingen zijn geïndexeerd, ook staging?              | Geen van mijn omgevingen staat in de zoekresultaten.                                                                                                                                                       |
-| D2  | `site:up.railway.app ext:env OR ext:log OR ext:sql OR ext:map`            | Staan er configuratie-, log-, database- of source-map-bestanden open? | Geen treffers. Direct gecontroleerd op staging en productie: `/.env`, `/.env.local`, `/.git/config`, `/package.json`, `/prisma/schema.prisma` en de `.map`-bestanden van de JavaScript geven allemaal 404. |
-| D3  | `site:github.com "portfolio-staging-9685" OR "Kolmschate" "DATABASE_URL"` | Staan er geheimen of verbindingsgegevens van mij in openbare code?    | De repository is openbaar. Ik heb de hele git-geschiedenis doorzocht op de namen van mijn geheimen: alleen `.env.example` met voorbeeldwaarden is ooit gecommit, nooit een echte sleutel.                  |
+| #   | Zoekopdracht                                        | Waarom                                                                | Resultaat                                                                                                                                                                                                  |
+| --- | --------------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | `site:up.railway.app inurl:portfolio`               | Welke van mijn omgevingen zijn geïndexeerd, ook staging?              | Geen van mijn omgevingen staat in de zoekresultaten.                                                                                                                                                       |
+| D2  | `site:up.railway.app ext:env OR ext:log OR ext:sql` | Staan er configuratie-, log-, database- of source-map-bestanden open? | Geen treffers. Direct gecontroleerd op staging en productie: `/.env`, `/.env.local`, `/.git/config`, `/package.json`, `/prisma/schema.prisma` en de `.map`-bestanden van de JavaScript geven allemaal 404. |
+| D3  | `site:github.com "Kolmschate" "DATABASE_URL"`       | Staan er geheimen of verbindingsgegevens van mij in openbare code?    | De repository is openbaar. Ik heb de hele git-geschiedenis doorzocht op de namen van mijn geheimen: alleen `.env.example` met voorbeeldwaarden is ooit gecommit, nooit een echte sleutel.                  |
+
+![D1: Google toont wel apps van anderen op up.railway.app, maar geen van mijn omgevingen](img/sec-dork-1.png)
+
+![D2: geen configuratie-, log- of databasebestanden geïndexeerd](img/sec-dork-2.png)
+
+![D3: geen verbindingsgegevens van mij op GitHub](img/sec-dork-3.png)
+
+**Hoe sterk is dit bewijs?** Beperkt, en dat is ook een les. Een dork laat alleen zien wat een zoekmachine al heeft opgepikt; "geen resultaten" betekent niet dat er niets openstaat. D1 laat wel zien dat de techniek werkt: Google vindt bestanden in apps van anderen op hetzelfde platform. Het echte bewijs voor mijn site is de directe controle (404 op `/.env`, `/.git/config` en de source maps) en de scan van de git-geschiedenis. De dorks laten zien dat er ook niets is uitgelekt naar de zoekmachine.
 
 **Wie is verantwoordelijk als zoiets openbaar staat?** De eigenaar van de site of de data. Een zoekmachine indexeert alleen wat publiek bereikbaar is; wie het zonder toegangscontrole online zet, heeft het openbaar gemaakt.
 
@@ -328,7 +336,9 @@ Op 26 oktober 2026 heb ik de verbinding met de stagingomgeving gecontroleerd met
 
 De TLS-instellingen beheert Railway, niet ik. Daarom test ik ze: ik vertrouw er niet op, ik controleer het.
 
-_[TODO Sebastiaan: draai deze commando's zelf opnieuw en voeg een screenshot van de uitvoer toe.]_
+Ik heb de controle zelf herhaald op productie:
+
+![openssl s_client op productie: TLS 1.3 met TLS_AES_256_GCM_SHA384](img/sec-tls-productie.png)
 
 ### 4.6 SQL-injectie: aantonen dat de query's veilig zijn
 
@@ -344,7 +354,9 @@ Resultaat: geen enkele treffer in de applicatiecode. Alle lees- en schrijfacties
 
 **2. Handmatige test.** Ik heb in de loginroute en bij het stellen van een vraag klassieke injectiepogingen als waarde ingevuld, bijvoorbeeld `' OR '1'='1` en `'; DROP TABLE users; --`. De server behandelt ze als gewone tekst: inloggen mislukt normaal (401), en een vraag met zo'n tekst wordt letterlijk opgeslagen en als tekst getoond. De tabellen blijven intact.
 
-_[TODO Sebastiaan: voer de twee injectiepogingen zelf één keer uit via het formulier of met curl, en voeg een screenshot toe van de 401 en van de letterlijk opgeslagen vraag.]_
+![Inloggen met wachtwoord ' OR '1'='1 geeft gewoon "Invalid email or password" (de API antwoordt 401)](img/sec-injectie-login.png)
+
+![De vraag '; DROP TABLE users; -- staat letterlijk als tekst op staging; de tabellen zijn intact](img/sec-injectie-vraag.png)
 
 ## 5. Deployment: veilige configuratie
 
@@ -507,10 +519,10 @@ _[TODO Sebastiaan: deze bijlage moet jouw eigen, eerlijke verhaal zijn. De tabel
 | Onderdeel                  | Wat AI deed                                                                                                                                                                                                   | Wat ik heb aangepast of gecontroleerd                                           |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | 1.3 Actualiteit            | Advisories en twee recente hacks opgezocht, conceptteksten en tabellen opgesteld, met bronnen                                                                                                                 | _[invullen]_                                                                    |
-| 1.3.4 Google Dorks         | Drie zoekopdrachten voorgesteld, twee uitgevoerd, de bestanden direct op de sites gecontroleerd en de git-geschiedenis doorzocht                                                                              | _[invullen]_                                                                    |
+| 1.3.4 Google Dorks         | Drie zoekopdrachten voorgesteld, twee uitgevoerd, de bestanden direct op de sites gecontroleerd en de git-geschiedenis doorzocht                                                                              | De drie zoekopdrachten zelf in Google uitgevoerd en de screenshots gemaakt      |
 | 7 Securityreview en advies | De code per ASVS-hoofdstuk nagelopen en een concept-oordeel en -advies opgesteld                                                                                                                              | _[invullen]_                                                                    |
-| 4.5 TLS-test               | De openssl- en curl-commando's uitgevoerd en de uitkomst in de tabel gezet                                                                                                                                    | _[invullen: zelf opnieuw gedraaid?]_                                            |
-| 4.6 SQL-injectie           | De code doorzocht op ruwe SQL (geen treffers) en de controle beschreven                                                                                                                                       | _[invullen]_                                                                    |
+| 4.5 TLS-test               | De openssl- en curl-commando's uitgevoerd en de uitkomst in de tabel gezet                                                                                                                                    | De controle zelf herhaald op productie (screenshot)                             |
+| 4.6 SQL-injectie           | De code doorzocht op ruwe SQL (geen treffers) en de controle beschreven                                                                                                                                       | De twee injectiepogingen zelf uitgevoerd via de site (screenshots)              |
 | 1.3.3 Dependency-update    | Next.js, Zod en Nodemailer bijgewerkt, lint, tests, build en Cypress gedraaid, `bun audit` voor en na                                                                                                         | _[invullen: diff zelf nagekeken vóór de commit]_                                |
 | Correcties in H3 t/m H5    | Vijf beweringen in het rapport vergeleken met de code en aangepast waar ze niet klopten                                                                                                                       | _[invullen]_                                                                    |
 | CI en GitHub-instellingen  | De Cypress-stap in CI hersteld, op mijn verzoek CI verplicht gemaakt op main en develop en de pull request gemerged                                                                                           | Ik gaf per stap akkoord; de Railway-deploy heb ik zelf in het dashboard bekeken |
