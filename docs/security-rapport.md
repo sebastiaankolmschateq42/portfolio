@@ -6,7 +6,7 @@ Security for Web Applications
 
 Sebastiaan Kolmschate (S1148925)
 HBO-ICT, Windesheim
-Versie 1.2, 26-10-2026
+Versie 1.1, 26-10-2026
 Voor dit portfolio geldt AIAS niveau 3: AI-samenwerking. Tijdens de ontwikkeling van dit werk heb ik AI-toepassingen gebruikt; de verantwoording staat in bijlage A.
 
 ## Revisietabel
@@ -15,7 +15,6 @@ Voor dit portfolio geldt AIAS niveau 3: AI-samenwerking. Tijdens de ontwikkeling
 | ------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
 | 1.0    | 20-10-2026 | Eerste volledige versie                                                                                                                         | Sebastiaan Kolmschate |
 | 1.1    | 26-10-2026 | Actualiteit (1.3), TLS-test (4.5), securityreview en advies (H7), ethiek (H8), ASVS-lijst, AI-verantwoording; claims gecorrigeerd na codereview | Sebastiaan Kolmschate |
-| 1.2    | 26-10-2026 | Indeling omgezet naar het portfoliotemplate: één hoofdstuk per rubriccriterium; inhoudsopgave; voorbeelden van prompts in bijlage A             | Sebastiaan Kolmschate |
 
 ## Inleiding
 
