@@ -298,7 +298,7 @@ Ik heb een ZAP baseline-scan gedraaid op de stagingomgeving. Die scan zoekt alle
 
 **Bevinding: wachtwoord in de URL.** ZAP voert geen JavaScript uit en verstuurde de formulieren dus als gewoon HTML-formulier. Omdat er geen methode op stond, gebeurde dat met GET. E-mail en wachtwoord kwamen daardoor in de URL te staan. Dat kan bij een echte bezoeker ook gebeuren: als hij op de knop drukt voordat de pagina helemaal geladen is. Een URL komt in de browsergeschiedenis en in serverlogs terecht.
 
-**Oplossing:** alle formulieren versturen nu met POST. Met JavaScript verandert er niets, zonder JavaScript komt er geen invoer meer in de URL. Daarna heb ik de scan opnieuw gedraaid (zie 4.4).
+**Oplossing:** alle formulieren versturen nu met POST. Met JavaScript verandert er niets, zonder JavaScript komt er geen invoer meer in de URL. Daarna heb ik de scan opnieuw gedraaid (zie 4.4). Zodat de fout niet terugkomt bij een nieuw formulier, controleert een test (`tests/forms.test.ts`, [PR #44](https://github.com/sebastiaankolmschateq42/portfolio/pull/44)) dat elk formulier in de app `method="post"` heeft. Ik heb gecontroleerd dat die test faalt als ik `method="post"` uit het inlogformulier haal.
 
 **Nieuwe waarschuwing na de fix: geen anti-CSRF-token.** Nu de formulieren POST gebruiken, meldt ZAP dat er geen CSRF-token in staat. Dat heb ik bewust zo gelaten. Alle acties gaan als JSON-verzoek naar de API van de eigen site, en de sessiecookie heeft SameSite=Strict. Een andere site kan die cookie dus niet laten meesturen. Een HTML-formulier zonder JavaScript komt bij de pagina zelf uit en doet niets.
 
@@ -320,6 +320,7 @@ Ik heb een ZAP baseline-scan gedraaid op de stagingomgeving. Die scan zoekt alle
 | bun audit (productie) | 3 kritiek, 10 hoog          | 0 kritiek, 4 hoog (alleen bouwtools)              |
 | bun audit, 26-10-2026 | 2 kritiek (Next.js 16.3.8)  | 0 kritiek na 16.4.1 (zie 1.3.3)                   |
 | Back-endtests         | 65 geslaagd                 | 65 geslaagd                                       |
+| Formuliertest         | -                           | elk formulier gebruikt POST (PR #44)              |
 
 ### 4.5 Versleutelde verbinding (V9)
 
