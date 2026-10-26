@@ -14,7 +14,7 @@ Voor dit portfolio geldt AIAS niveau 3: AI-samenwerking. Tijdens de ontwikkeling
 | Versie | Datum      | Wijzigingen                                                                                                                                     | Auteur                |
 | ------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
 | 1.0    | 20-10-2026 | Eerste volledige versie                                                                                                                         | Sebastiaan Kolmschate |
-| 1.1    | 26-10-2026 | Actualiteit (1.3), TLS-test (4.5), securityreview en advies (H7), ethiek (H8), ASVS-lijst, AI-verantwoording; claims gecorrigeerd na codereview | Sebastiaan Kolmschate |
+| 1.1    | 26-10-2026 | Actualiteit (H1), TLS-test (4.11), securityreview en advies (H5), ethiek (H6), ASVS-lijst, AI-verantwoording; claims gecorrigeerd na codereview | Sebastiaan Kolmschate |
 
 ## Inleiding
 
