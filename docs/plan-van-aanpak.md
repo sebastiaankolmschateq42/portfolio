@@ -1,4 +1,13 @@
+# Ask me anything
+
 # Plan van aanpak
+
+Portfolio website met profielpagina, contactpagina en showcase "Ask Me Anything"
+
+Sebastiaan Kolmschate (S1148925)
+HBO-ICT, Windesheim
+Client- en Server Technology
+19-10-2026
 
 ## 1. Aanleiding en doel
 
