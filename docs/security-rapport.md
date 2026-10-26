@@ -109,7 +109,7 @@ Ook als ik de fout niet direct kan misbruiken, update ik: de volgende variant is
 | Cypress e2e / component | groen in CI                     | 17 / 10 geslaagd                            |
 | Productiebuild          | slaagt (CI)                     | slaagt                                      |
 
-De overgebleven meldingen zitten in bouw- en ontwikkeltools (PostCSS, source-map-js, nanoid), in de database-CLI van Prisma (mysql2, deepmerge-ts) en in een eigen kopie van Zod binnen de ESLint-plugin. Geen daarvan verwerkt invoer van bezoekers. _[TODO Sebastiaan: link naar de pull request en datum van de deploy naar staging en productie invullen.]_
+De overgebleven meldingen zitten in bouw- en ontwikkeltools (PostCSS, source-map-js, nanoid), in de database-CLI van Prisma (mysql2, deepmerge-ts) en in een eigen kopie van Zod binnen de ESLint-plugin. Geen daarvan verwerkt invoer van bezoekers. De update staat sinds 26 oktober 2026 in develop ([pull request #42](https://github.com/sebastiaankolmschateq42/portfolio/pull/42), gemerged nadat alle verplichte CI-checks groen waren). De automatische deploy naar staging liep die avond vast door een storing bij Railway; staging en productie draaiden op het moment van inleveren nog op 16.3.8. Bevinding B1 is daarom in de code opgelost, maar pas helemaal afgerond als de nieuwe versie live staat.
 
 Bronnen: [GitHub Advisory GHSA-2464-fhr4-w9xw](https://github.com/advisories/GHSA-2464-fhr4-w9xw), [GitHub Advisory GHSA-673q-mjm6-r5xr](https://github.com/advisories/GHSA-673q-mjm6-r5xr).
 
@@ -392,7 +392,7 @@ Voordat een versie van acceptatie naar productie gaat, wil ik weten of hij veili
 
 | #   | ASVS             | Bevinding                                                                                                                                                                                                       | Ernst  | Advies                                                                                                                                                    |
 | --- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| B1  | V14.2.1          | Next.js 16.3.8 valt onder twee kritieke advisories van oktober 2026 (1.3.3). Via mijn configuratie nauwelijks bereikbaar, maar wel een bekende kwetsbare versie.                                                | Hoog   | Bijwerken naar 16.4.1, tests draaien, via staging uitrollen.                                                                                              |
+| B1  | V14.2.1          | Next.js 16.3.8 valt onder twee kritieke advisories van oktober 2026 (1.3.3). Via mijn configuratie nauwelijks bereikbaar, maar wel een bekende kwetsbare versie.                                                | Hoog   | **In code opgelost 26-10-2026** (16.4.1, PR #42); live zodra de Railway-deploy lukt.                                                                      |
 | B2  | V2.2.1, V11.1.4  | Geen limiet op verzoeken. Wachtwoorden raden kan onbeperkt. Wie een wachtwoord kent, kan steeds een nieuwe code aanvragen, elk met 5 pogingen. Registreren kan gebruikt worden om iemand te bestoken met mails. | Middel | Teller per IP-adres en per account (bv. 5 pogingen per 15 minuten), daarna 429. Maximaal aantal codes per uur.                                            |
 | B3  | V14.1.1, V1.1.1  | Main is alleen via een pull request te wijzigen, maar een groene CI is geen verplichte voorwaarde. Develop, dat automatisch naar staging gaat, is niet beschermd.                                               | Middel | **Opgelost 26-10-2026:** `check` en `cypress` zijn verplichte status checks op main en develop; develop is ook beschermd tegen verwijderen en force-push. |
 | B4  | V7.1, V7.2       | Geen logging van security-gebeurtenissen: mislukte logins, geweigerde acties (403) en beheerdersacties worden niet vastgelegd. Een aanval valt daardoor niet op.                                                | Middel | Gestructureerd loggen (wie, wat, wanneer, uitkomst), zonder wachtwoorden, codes of contactgegevens.                                                       |
@@ -417,7 +417,7 @@ Wat goed is en ik niet als bevinding meetel, omdat het in de code klopt met dit 
 
 **Productie: ja, onder twee voorwaarden.**
 
-1. B1 is opgelost: Next.js is bijgewerkt naar 16.4.1.
+1. B1 is opgelost: Next.js is bijgewerkt naar 16.4.1. In de code is dat gebeurd (PR #42); de deploy naar staging en productie wacht nog op een storing bij Railway.
 2. B3 en B5 zijn ingesteld: CI is verplicht vóór een merge (B3 is op 26-10-2026 ingesteld), en secret scanning staat aan (B5, nog te doen). Dat zijn instellingen, geen code, en ze voorkomen dat een onveilige versie of een gelekt geheim ongemerkt live gaat.
 
 B2, B4 en B6 zijn de volgende stap als de site echt gebruikers krijgt. Voor een portfolio met één beheerder en weinig bezoekers accepteer ik ze nu, met de redenen uit hoofdstuk 6.
@@ -430,7 +430,7 @@ De website "Ask me anything" laat bezoekers met een account vragen stellen die i
 
 **Wat er nog moet gebeuren vóór echte livegang:**
 
-1. Het onderliggende framework bijwerken. Daar is deze maand een ernstig lek in gevonden. Op mijn site is het nauwelijks te misbruiken, maar uitstellen is onverstandig. Werk: minder dan een uur.
+1. Het onderliggende framework bijwerken. Daar is deze maand een ernstig lek in gevonden. Op mijn site is het nauwelijks te misbruiken, maar uitstellen is onverstandig. De update is gemaakt en getest; hij moet alleen nog live gezet worden.
 2. Twee instellingen in GitHub aanzetten, zodat een versie met fouten of een uitgelekt wachtwoord niet automatisch live kan gaan. De eerste (alleen mergen als alle tests slagen) staat sinds 26 oktober aan; de tweede (secret scanning) kost een paar minuten.
 
 **Wat er later kan:** een limiet op het aantal inlogpogingen, en een logboek waarin verdachte activiteit zichtbaar wordt. Dat wordt belangrijk zodra er veel gebruikers zijn.
@@ -444,7 +444,7 @@ Security gaat niet alleen over techniek. Bij elke keuze weeg ik af wie er last v
 - **Alleen mijn eigen systemen.** De ZAP-scan en andere tests draai ik alleen op mijn eigen stagingomgeving of lokaal. Nooit op productie met echte gebruikers, en nooit op sites van anderen zonder schriftelijke toestemming. Scannen zonder toestemming is in Nederland computervredebreuk (artikel 138ab Wetboek van Strafrecht), ook als het "maar een scan" is.
 - **Ook het platform is van een ander.** Mijn site draait bij Railway. Een actieve scan belast hun infrastructuur en andere klanten. Daarom gebruik ik op Railway de passieve baseline-scan en doe ik zwaardere tests (zoals SQL-injectie-tests) lokaal.
 - **Google Dorks.** Een dork kan gegevens van anderen laten zien die per ongeluk openbaar staan. Ik heb dorks alleen gericht op mijn eigen site. Vind je toch gegevens van een ander, dan open en bewaar je ze niet, en meld je het bij de eigenaar (responsible disclosure).
-- **Een peer-pentest** doe ik alleen na duidelijke afspraken met de eigenaar: welke host, welke periode, welke tools, en wat er met de bevindingen gebeurt. _[TODO Sebastiaan: alleen invullen als je een peer-test of codereview van een ander hebt gedaan.]_
+- **Een peer-pentest** heb ik niet uitgevoerd; mijn securityreview in hoofdstuk 7 gaat over mijn eigen applicatie, wat volgens de FAQ is toegestaan. Zou ik de site van een medestudent testen, dan alleen na duidelijke afspraken met de eigenaar: welke host, welke periode, welke tools, en wat er met de bevindingen gebeurt.
 
 ### 8.2 Ontwerp: wat ik bewust niet verzamel
 
@@ -474,7 +474,7 @@ Ik heb AI gebruikt bij het maken van dit portfolio. School staat dat toe onder v
 
 Losse bijlagen bij dit portfolio. Elk document waarnaar ik verwijs, zit erbij.
 
-In de ASVS-lijst (bijlage B) staat per eis wat ik heb gedaan en een status. Van de 286 eisen zijn er 142 geïmplementeerd, 39 deels, 32 niet en 73 niet van toepassing (bijvoorbeeld eisen over bestandsuploads of XML, die mijn site niet heeft). Zo is direct te zien welke eisen nog openstaan; de belangrijkste staan als bevinding in 7.2.
+In de ASVS-lijst (bijlage B) staat per eis wat ik heb gedaan en een status. Van de 286 eisen zijn er 143 geïmplementeerd, 38 deels, 32 niet en 73 niet van toepassing (bijvoorbeeld eisen over bestandsuploads of XML, die mijn site niet heeft). Zo is direct te zien welke eisen nog openstaan; de belangrijkste staan als bevinding in 7.2.
 
 | Bijlage | Document                                      | Bestand                          |
 | ------- | --------------------------------------------- | -------------------------------- |
@@ -497,33 +497,39 @@ _[TODO Sebastiaan: deze bijlage moet jouw eigen, eerlijke verhaal zijn. De tabel
 
 ### A.1 Welke AI-tools en waarvoor
 
-| Tool                    | Waarvoor gebruikt                                                                    | Periode      |
-| ----------------------- | ------------------------------------------------------------------------------------ | ------------ |
-| Claude Code (Anthropic) | _[bv. uitleg, code review van pull requests, debuggen, commitberichten — aanvullen]_ | _[invullen]_ |
-| _[andere tools?]_       | _[invullen]_                                                                         | _[invullen]_ |
+| Tool                    | Waarvoor gebruikt                                                                                                                                                                        | Periode             |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| Claude Code (Anthropic) | Uitleg, advies, debughulp, code review en commitberichten bij de applicatie; bij dit portfolio ook onderzoek, conceptteksten, de ASVS-lijst, de dependency-update en de CI-fix (zie A.2) | juli – oktober 2026 |
+| _[andere tools?]_       | _[invullen]_                                                                                                                                                                             | _[invullen]_        |
 
 ### A.2 Wat AI heeft opgesteld en wat ik ermee heb gedaan
 
-| Onderdeel                  | Wat AI deed                                                                                           | Wat ik heb aangepast of gecontroleerd            |
-| -------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| 1.3 Actualiteit            | Advisories en twee recente hacks opgezocht, conceptteksten en tabellen opgesteld, met bronnen         | _[invullen]_                                     |
-| 1.3.4 Google Dorks         | Drie zoekopdrachten voorgesteld; de resultaten heb ik zelf ingevuld                                   | _[invullen]_                                     |
-| 7 Securityreview en advies | De code per ASVS-hoofdstuk nagelopen en een concept-oordeel en -advies opgesteld                      | _[invullen]_                                     |
-| 4.5 TLS-test               | De openssl- en curl-commando's uitgevoerd en de uitkomst in de tabel gezet                            | _[invullen: zelf opnieuw gedraaid?]_             |
-| 4.6 SQL-injectie           | De code doorzocht op ruwe SQL (geen treffers) en de controle beschreven                               | _[invullen]_                                     |
-| 1.3.3 Dependency-update    | Next.js, Zod en Nodemailer bijgewerkt, lint, tests, build en Cypress gedraaid, `bun audit` voor en na | _[invullen: diff zelf nagekeken vóór de commit]_ |
-| Correcties in H3 t/m H5    | Vijf beweringen in het rapport vergeleken met de code en aangepast waar ze niet klopten               | _[invullen]_                                     |
-| 8 Ethiek                   | Concepttekst opgesteld op basis van de keuzes in mijn ontwerp                                         | _[invullen]_                                     |
-| Bijlage B ASVS-lijst       | Kolom "Measures taken" ingevuld op basis van de code en dit rapport                                   | _[invullen]_                                     |
-| Hoofdstukken 1 t/m 6       | _[invullen: welke rol had AI hier, bv. feedback op tekst, review van de code?]_                       | _[invullen]_                                     |
-| Code van de applicatie     | _[invullen: bv. code review in pull requests, uitleg, debughulp]_                                     | _[invullen]_                                     |
+| Onderdeel                  | Wat AI deed                                                                                                                                                                                                   | Wat ik heb aangepast of gecontroleerd                                           |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| 1.3 Actualiteit            | Advisories en twee recente hacks opgezocht, conceptteksten en tabellen opgesteld, met bronnen                                                                                                                 | _[invullen]_                                                                    |
+| 1.3.4 Google Dorks         | Drie zoekopdrachten voorgesteld, twee uitgevoerd, de bestanden direct op de sites gecontroleerd en de git-geschiedenis doorzocht                                                                              | _[invullen]_                                                                    |
+| 7 Securityreview en advies | De code per ASVS-hoofdstuk nagelopen en een concept-oordeel en -advies opgesteld                                                                                                                              | _[invullen]_                                                                    |
+| 4.5 TLS-test               | De openssl- en curl-commando's uitgevoerd en de uitkomst in de tabel gezet                                                                                                                                    | _[invullen: zelf opnieuw gedraaid?]_                                            |
+| 4.6 SQL-injectie           | De code doorzocht op ruwe SQL (geen treffers) en de controle beschreven                                                                                                                                       | _[invullen]_                                                                    |
+| 1.3.3 Dependency-update    | Next.js, Zod en Nodemailer bijgewerkt, lint, tests, build en Cypress gedraaid, `bun audit` voor en na                                                                                                         | _[invullen: diff zelf nagekeken vóór de commit]_                                |
+| Correcties in H3 t/m H5    | Vijf beweringen in het rapport vergeleken met de code en aangepast waar ze niet klopten                                                                                                                       | _[invullen]_                                                                    |
+| CI en GitHub-instellingen  | De Cypress-stap in CI hersteld, op mijn verzoek CI verplicht gemaakt op main en develop en de pull request gemerged                                                                                           | Ik gaf per stap akkoord; de Railway-deploy heb ik zelf in het dashboard bekeken |
+| 8 Ethiek                   | Concepttekst opgesteld op basis van de keuzes in mijn ontwerp                                                                                                                                                 | _[invullen]_                                                                    |
+| Bijlage B ASVS-lijst       | Kolom "Measures taken" ingevuld op basis van de code en dit rapport                                                                                                                                           | _[invullen]_                                                                    |
+| Hoofdstukken 1 t/m 6       | _[invullen: welke rol had AI hier, bv. feedback op tekst, review van de code?]_                                                                                                                               | _[invullen]_                                                                    |
+| Code van de applicatie     | Volgens mijn werkafspraak (AGENTS.md): uitleg, advies, debughulp, code review en commitberichten. 12 van de 43 commits op develop dragen een Co-Authored-By-regel van Claude. _[aanvullen waar AI meer deed]_ | _[invullen]_                                                                    |
 
 ### A.3 Hoe ik AI-voorstellen kritisch heb beoordeeld
 
 _[TODO Sebastiaan: geef 2 of 3 concrete voorbeelden. Denk aan: een voorstel dat niet klopte met je code; een bron die je zelf hebt nagekeken; een maatregel die AI voorstelde en die je bewust niet hebt overgenomen, en waarom.]_
 
-1. _[voorbeeld 1]_
-2. _[voorbeeld 2]_
+Feitelijke controlemomenten in de laatste sessie:
+
+1. Ik liet de dependency-update eerst op een aparte branch zetten en de volledige diff zien, vóór er iets gecommit werd. Pas daarna gaf ik akkoord, en alleen voor `package.json` en `bun.lock`.
+2. Ik liet AI de beweringen in mijn eigen rapport tegen de code controleren. Vijf beweringen bleken te sterk (zoals "mergen kan pas als alles groen is") en zijn aangepast in plaats van opgepoetst.
+3. Toen de deploy naar staging bleef hangen, heb ik zelf in Railway gekeken en besloten de deploy te laten rusten in plaats van door te drukken naar productie.
+
+_[TODO Sebastiaan: vul aan met 1 of 2 eigen voorbeelden uit de bouwperiode, in je eigen woorden.]_
 
 ### A.4 Wat ik zelf heb gedaan
 
