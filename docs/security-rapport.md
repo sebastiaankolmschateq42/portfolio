@@ -220,7 +220,7 @@ Ik heb niet de Skylab-omgeving van school gebruikt maar Railway; de FAQ staat ee
 
 Er wordt nooit direct naar main gepusht: elke wijziging gaat eerst door CI en staging. Staging en productie hebben elk een eigen database en eigen geheimen, zodat testdata van staging nooit in productie komt. Vóór elke deploy draait Railway de databasemigraties en maakt het beheerdersaccount aan; die stap staat in de instellingen van Railway en niet in de repository. Mislukt die stap, dan blijft de oude versie draaien. Het beheerderswachtwoord staat alleen als omgevingsvariabele in Railway.
 
-De acceptatieomgeving is te bekijken op https://portfolio-staging-9685.up.railway.app.
+De acceptatieomgeving is te bekijken op https://portfolio-staging-9685.up.railway.app. In bijlage I staat een screencast van twee minuten waarin ik door de acceptatieomgeving klik.
 
 ### 3.2 Statische analyse
 
@@ -557,6 +557,7 @@ In de ASVS-lijst (bijlage B) staat per eis wat ik heb gedaan en een status. Van 
 | F       | Plan van aanpak                               | PDF                  |
 | G       | ZAP-rapport vóór de fix                       | HTML-rapport van ZAP |
 | H       | ZAP-rapport na de fix                         | HTML-rapport van ZAP |
+| I       | Screencast van de acceptatieomgeving          | Video                |
 
 Broncode: https://github.com/sebastiaankolmschateq42/portfolio. Staging: https://portfolio-staging-9685.up.railway.app, productie: https://portfolio-production-36a4.up.railway.app.
 
