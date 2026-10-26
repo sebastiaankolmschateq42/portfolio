@@ -19,7 +19,7 @@ HBO-ICT, Windesheim
 
 Dit portfolio laat zien hoe ik de website "Ask me anything" veilig heb gebouwd. De website heeft een profielpagina (UC1), een contactpagina (UC2) en een showcase waarin bezoekers met een account vragen stellen die de beheerder live beantwoordt (UC3 tot en met UC8).
 
-Ik volg de Secure Software Development Life Cycle van Snyk uit de studentenhandleiding. Elk hoofdstuk is één fase: requirements, design, development, testing en deployment. Per fase beschrijf ik welke securitystap ik heb gezet en wat het bewijs is. Als kader gebruik ik OWASP ASVS 4.0.
+Ik volg de Secure Software Development Life Cycle van Snyk uit de studentenhandleiding (Hogeschool Windesheim, 2024). Elk hoofdstuk is één fase: requirements, design, development, testing en deployment. Per fase beschrijf ik welke securitystap ik heb gezet en wat het bewijs is. Als kader gebruik ik OWASP ASVS 4.0.3 (OWASP Foundation, 2021).
 
 Na de vijf fasen volgen de restrisico's (hoofdstuk 6), een securityreview met oordeel en advies voor acceptatie (hoofdstuk 7) en de ethische afwegingen (hoofdstuk 8). Bijlage A verantwoordt mijn gebruik van AI.
 
@@ -28,6 +28,8 @@ De nummers komen overeen met de andere documenten: assets (AS), risico's (RSK) e
 ## 1. Requirements: risicoanalyse
 
 ### 1.1 Wat er te beschermen valt
+
+**Tabel 1.** _Assets en waarom ze waardevol zijn_
 
 | #   | Asset                                          | Waarom het waardevol is                                                                                                                                |
 | --- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -42,6 +44,8 @@ Contactgegevens worden niet opgeslagen. Ze gaan alleen mee in de e-mail aan mij.
 ### 1.2 Risico's
 
 Ik heb de risico's geschat als kans maal impact. Voor elk middelmatig of hoog risico is er een maatregel. De volledige tabel staat in de requirementsanalyse, hoofdstuk 4.
+
+**Tabel 2.** _Risico's met ASVS-hoofdstuk en maatregel_
 
 | #     | Risico                                                 | Risico | ASVS    | Maatregel |
 | ----- | ------------------------------------------------------ | ------ | ------- | --------- |
@@ -64,6 +68,8 @@ Mijn site draait op Next.js en React. Kwetsbaarheden in dat framework raken mij 
 
 #### 1.3.1 Recente hack 1: React2Shell (december 2025)
 
+**Tabel 3.** _React2Shell langs de vragen van de risicoanalyse_
+
 | Vraag                    | Antwoord                                                                                                                                                                                                                                                                                        |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Wat gebeurde er?         | Een fout in React Server Components (CVE-2025-55182, CVSS 10) liet een aanvaller zonder inloggen code uitvoeren op de server, met één verzoek. Binnen enkele uren na publicatie werd hij massaal misbruikt; CISA zette hem op 5 december 2025 op de lijst van actief misbruikte kwetsbaarheden. |
@@ -73,9 +79,11 @@ Mijn site draait op Next.js en React. Kwetsbaarheden in dat framework raken mij 
 | Relevant voor mijn site? | Ja. Mijn site gebruikt de App Router van Next.js 16, precies de getroffen combinatie. Een standaard Next.js-app was zonder aanpassingen kwetsbaar.                                                                                                                                              |
 | Maatregel voor mijn site | Next.js up-to-date houden (de versie die ik gebruik bevat de fix), Dependabot-meldingen aan, en geheimen alleen in omgevingsvariabelen van Railway, zodat een aanvaller op de server niet ook bij mijn repository of andere omgevingen kan.                                                     |
 
-Bronnen: [Wiz](https://www.wiz.io/blog/critical-vulnerability-in-react-cve-2025-55182), [Datadog Security Labs](https://securitylabs.datadoghq.com/articles/cve-2025-55182-react2shell-remote-code-execution-react-server-components/), [Huntress](https://www.huntress.com/blog/peerblight-linux-backdoor-exploits-react2shell).
+Bronnen: Tikochinski et al. (2025), Tafani-Dereeper et al. (2025) en Pham et al. (2025).
 
 #### 1.3.2 Recente hack 2: autorisatie omzeilen via de middleware van Next.js (maart 2025)
+
+**Tabel 4.** _Middleware-bypass van Next.js langs de vragen van de risicoanalyse_
 
 | Vraag                    | Antwoord                                                                                                                                                                                                                    |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -86,11 +94,13 @@ Bronnen: [Wiz](https://www.wiz.io/blog/critical-vulnerability-in-react-cve-2025-
 | Relevant voor mijn site? | Het type fout wel, deze versie niet meer. Het laat zien waarom ik rechten niet alleen in middleware of in de pagina controleer.                                                                                             |
 | Maatregel voor mijn site | Mijn site heeft geen middleware. Elke API-route en de datalaag controleren zelf de sessie en de rol (SM8, 3.3). Valt één laag weg, dan staat de controle in de volgende laag nog steeds (defense in depth).                 |
 
-Bronnen: [ProjectDiscovery](https://projectdiscovery.io/blog/nextjs-middleware-authorization-bypass), [Datadog Security Labs](https://securitylabs.datadoghq.com/articles/nextjs-middleware-auth-bypass/).
+Bronnen: Chaddha (2025) en Baguelin et al. (2025).
 
 #### 1.3.3 Mijn eigen situatie: Next.js-advisories van oktober 2026
 
 Op 14 oktober 2026 bracht Next.js een extra security-release uit; de advisories staan sinds 22 oktober in de GitHub Advisory Database. Mijn versie (16.3.8) valt in het getroffen bereik (16.0.0 tot en met 16.4.0):
+
+**Tabel 5.** _Next.js-advisories van oktober 2026 en wat ze voor mijn site betekenen_
 
 | Advisory            | Ernst   | Wat                                                              | Raakt het mij?                                                                                                                               |
 | ------------------- | ------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -100,6 +110,8 @@ Op 14 oktober 2026 bracht Next.js een extra security-release uit; de advisories 
 Ook als ik de fout niet direct kan misbruiken, update ik: de volgende variant is misschien wel bereikbaar, en een bekende kwetsbare versie is precies waar scanners op zoeken. Dit is hetzelfde patroon als in 4.3, waar `bun audit` een kritieke fout in de beeldoptimalisatie vond.
 
 **Actie (26-10-2026):** Next.js en eslint-config-next bijgewerkt naar 16.4.1 op de branch `chore/next-16.4.1`. In dezelfde ronde liet `bun audit` nog twee packages zien die in productie draaien en binnen hun versiebereik te repareren waren: Zod (onder 4.6.6, geheugen uitputten bij validatie; Zod controleert al mijn invoer) en Nodemailer (onder 10.1.4, fouten in het ontleden van e-mailadressen; het adres van de bezoeker gaat mee als reply-to). Die heb ik bijgewerkt naar 4.6.7 en 10.2.1.
+
+**Tabel 6.** _Controles vóór en na de update naar Next.js 16.4.1_
 
 | Controle                | Vóór (16.3.8)                   | Na (16.4.1)                                 |
 | ----------------------- | ------------------------------- | ------------------------------------------- |
@@ -111,13 +123,15 @@ Ook als ik de fout niet direct kan misbruiken, update ik: de volgende variant is
 
 De overgebleven meldingen zitten in bouw- en ontwikkeltools (PostCSS, source-map-js, nanoid), in de database-CLI van Prisma (mysql2, deepmerge-ts) en in een eigen kopie van Zod binnen de ESLint-plugin. Geen daarvan verwerkt invoer van bezoekers. De update staat sinds 26 oktober 2026 in develop ([pull request #42](https://github.com/sebastiaankolmschateq42/portfolio/pull/42), gemerged nadat alle verplichte CI-checks groen waren). De automatische deploy naar staging liep die avond vast door een storing bij Railway; staging en productie draaiden op het moment van inleveren nog op 16.3.8. Bevinding B1 is daarom in de code opgelost, maar pas helemaal afgerond als de nieuwe versie live staat.
 
-Bronnen: [GitHub Advisory GHSA-2464-fhr4-w9xw](https://github.com/advisories/GHSA-2464-fhr4-w9xw), [GitHub Advisory GHSA-673q-mjm6-r5xr](https://github.com/advisories/GHSA-673q-mjm6-r5xr).
+Bronnen: GitHub (2026a, 2026b).
 
 #### 1.3.4 Google Dorks
 
 Met Google Dorks zoek je met operators als `site:`, `inurl:` en `filetype:` naar informatie die per ongeluk openbaar staat. Ik heb dit alleen gebruikt om te kijken wat er over mijn eigen site te vinden is; gevonden gegevens van anderen open of bewaar ik niet (zie hoofdstuk 8).
 
-Op 26 oktober 2026 heb ik de zoekopdrachten uitgevoerd en daarnaast rechtstreeks gecontroleerd of de bestanden die een dork zou vinden, op mijn sites bereikbaar zijn. Een dork laat alleen zien wat al geïndexeerd is; de directe controle laat zien of er überhaupt iets te vinden valt.
+Op 26 oktober 2026 heb ik de zoekopdrachten uitgevoerd en daarnaast rechtstreeks gecontroleerd of de bestanden die een dork zou vinden, op mijn sites bereikbaar zijn. Een dork laat alleen zien wat al geïndexeerd is; de directe controle laat zien of er überhaupt iets te vinden valt. De resultaten staan in Tabel 7 en Figuur 1 tot en met 3.
+
+**Tabel 7.** _Google Dorks: zoekopdrachten en resultaten_
 
 | #   | Zoekopdracht                                        | Waarom                                                                | Resultaat                                                                                                                                                                                                  |
 | --- | --------------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -125,11 +139,17 @@ Op 26 oktober 2026 heb ik de zoekopdrachten uitgevoerd en daarnaast rechtstreeks
 | D2  | `site:up.railway.app ext:env OR ext:log OR ext:sql` | Staan er configuratie-, log-, database- of source-map-bestanden open? | Geen treffers. Direct gecontroleerd op staging en productie: `/.env`, `/.env.local`, `/.git/config`, `/package.json`, `/prisma/schema.prisma` en de `.map`-bestanden van de JavaScript geven allemaal 404. |
 | D3  | `site:github.com "Kolmschate" "DATABASE_URL"`       | Staan er geheimen of verbindingsgegevens van mij in openbare code?    | De repository is openbaar. Ik heb de hele git-geschiedenis doorzocht op de namen van mijn geheimen: alleen `.env.example` met voorbeeldwaarden is ooit gecommit, nooit een echte sleutel.                  |
 
-![D1: Google toont wel apps van anderen op up.railway.app, maar geen van mijn omgevingen](img/sec-dork-1.png)
+**Figuur 1.** _Zoekopdracht D1: Google toont wel apps van anderen op up.railway.app, maar geen van mijn omgevingen_
 
-![D2: geen configuratie-, log- of databasebestanden geïndexeerd](img/sec-dork-2.png)
+![Figuur 1](img/sec-dork-1.png)
 
-![D3: geen verbindingsgegevens van mij op GitHub](img/sec-dork-3.png)
+**Figuur 2.** _Zoekopdracht D2: geen configuratie-, log- of databasebestanden geïndexeerd_
+
+![Figuur 2](img/sec-dork-2.png)
+
+**Figuur 3.** _Zoekopdracht D3: geen verbindingsgegevens van mij op GitHub_
+
+![Figuur 3](img/sec-dork-3.png)
 
 **Hoe sterk is dit bewijs?** Beperkt, en dat is ook een les. Een dork laat alleen zien wat een zoekmachine al heeft opgepikt; "geen resultaten" betekent niet dat er niets openstaat. D1 laat wel zien dat de techniek werkt: Google vindt bestanden in apps van anderen op hetzelfde platform. Het echte bewijs voor mijn site is de directe controle (404 op `/.env`, `/.git/config` en de source maps) en de scan van de git-geschiedenis. De dorks laten zien dat er ook niets is uitgelekt naar de zoekmachine.
 
@@ -148,6 +168,8 @@ Op 26 oktober 2026 heb ik de zoekopdrachten uitgevoerd en daarnaast rechtstreeks
 
 In het functioneel ontwerp staan per use case evil user stories: wat zou een aanvaller hier willen? Een paar voorbeelden:
 
+**Tabel 8.** _Evil user stories per use case met maatregel_
+
 | Use case | Als aanvaller wil ik…                                          | Maatregel |
 | -------- | -------------------------------------------------------------- | --------- |
 | UC2      | …het formulier gebruiken om spam of een phishinglink te sturen | SM3, SM5  |
@@ -160,6 +182,8 @@ In het functioneel ontwerp staan per use case evil user stories: wat zou een aan
 ### 2.2 STRIDE per verbinding
 
 In het technisch ontwerp heb ik het systeem opgedeeld in drie containers: de browser, de Next.js-server en de database. Per container en per verbinding heb ik met STRIDE gekeken wat er mis kan gaan.
+
+**Tabel 9.** _STRIDE-dreigingen per verbinding_
 
 | Plek                 | Dreiging                                        | STRIDE                 | Maatregel   |
 | -------------------- | ----------------------------------------------- | ---------------------- | ----------- |
@@ -208,6 +232,8 @@ Hieronder staan de maatregelen per ASVS-hoofdstuk. De showcase-requirements noem
 
 Er zijn twee ingelogde rollen: gebruiker en beheerder (SM8).
 
+**Tabel 10.** _Rechten per rol (RBAC)_
+
 | Actie                                     | Bezoeker | Gebruiker | Beheerder |
 | ----------------------------------------- | -------- | --------- | --------- |
 | Vragen en antwoorden lezen                | ja       | ja        | ja        |
@@ -247,6 +273,8 @@ Er zijn twee ingelogde rollen: gebruiker en beheerder (SM8).
 - Ontbreekt een geheim, dan geeft de app een fout zodra dat geheim nodig is, in plaats van onveilig door te draaien met een lege sleutel. Die controle gebeurt bij het eerste gebruik, niet al bij het opstarten (zie hoofdstuk 7). Ontbreekt de mailinstelling in productie, dan geeft de server een fout in plaats van stil niets te versturen.
 - Security headers op elke pagina (SM11):
 
+**Tabel 11.** _Security headers op elke pagina_
+
 | Header                    | Waarde (kort)                                | Doel                                           |
 | ------------------------- | -------------------------------------------- | ---------------------------------------------- |
 | Content-Security-Policy   | alleen de eigen site; frame-ancestors 'none' | Beperkt wat de pagina laadt; geen clickjacking |
@@ -270,6 +298,8 @@ De server stuurt geen `X-Powered-By`-header meer mee. Een paar headers van Next.
 
 De back-end heeft 65 tests (Vitest) tegen een echte testdatabase. De mail wordt nagebootst. De front-end heeft 17 end-to-end-tests en 10 componenttests (Cypress). Alles draait in CI bij elke push en pull request. Main is beschermd: wijzigingen kunnen er alleen via een pull request in. Sinds 26 oktober 2026 zijn de CI-jobs (`check` en `cypress`) op main en develop verplichte status checks: een pull request kan pas gemerged worden als alles groen is (bevinding B3, opgelost).
 
+**Tabel 12.** _Wat de geautomatiseerde tests per maatregel aantonen_
+
 | Maatregel | Wat de tests aantonen                                                                                                                      |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | SM1, SM2  | Ongeldige of te lange invoer en kapotte JSON geven 400; de limieten uit het ontwerp worden afgedwongen                                     |
@@ -285,7 +315,9 @@ De back-end heeft 65 tests (Vitest) tegen een echte testdatabase. De mail wordt 
 
 ### 4.2 Vulnerability scan met OWASP ZAP
 
-Ik heb een ZAP baseline-scan gedraaid op de stagingomgeving. Die scan zoekt alle pagina's op en controleert passief de antwoorden van de server. Resultaat: 60 controles geslaagd, 0 fouten en 7 waarschuwingen.
+Ik heb een ZAP baseline-scan (ZAP Dev Team, z.d.) gedraaid op de stagingomgeving. Die scan zoekt alle pagina's op en controleert passief de antwoorden van de server. Resultaat: 60 controles geslaagd, 0 fouten en 7 waarschuwingen.
+
+**Tabel 13.** _Waarschuwingen uit de ZAP-baseline-scan en mijn beoordeling_
 
 | Waarschuwing                                           | Risico ZAP | Beoordeling                                                                                                                                                              |
 | ------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -314,6 +346,8 @@ Ik heb een ZAP baseline-scan gedraaid op de stagingomgeving. Die scan zoekt alle
 
 ### 4.4 Hertest
 
+**Tabel 14.** _Hertest vóór en na de fixes_
+
 | Test                  | Voor                        | Na                                                |
 | --------------------- | --------------------------- | ------------------------------------------------- |
 | ZAP: invoer in de URL | e-mail en wachtwoord in URL | weg; ZAP verstuurt het inlogformulier nu met POST |
@@ -326,6 +360,8 @@ Ik heb een ZAP baseline-scan gedraaid op de stagingomgeving. Die scan zoekt alle
 
 Op 26 oktober 2026 heb ik de verbinding met de stagingomgeving gecontroleerd met `openssl s_client` en `curl`:
 
+**Tabel 15.** _TLS- en HTTPS-controles op staging_
+
 | Controle            | Commando                                                                      | Uitkomst                                                                |
 | ------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | TLS 1.3             | `openssl s_client -connect portfolio-staging-9685.up.railway.app:443 -tls1_3` | Werkt, met TLS_AES_256_GCM_SHA384                                       |
@@ -337,9 +373,11 @@ Op 26 oktober 2026 heb ik de verbinding met de stagingomgeving gecontroleerd met
 
 De TLS-instellingen beheert Railway, niet ik. Daarom test ik ze: ik vertrouw er niet op, ik controleer het.
 
-Ik heb de controle zelf herhaald op productie:
+Ik heb de controle zelf herhaald op productie (Figuur 4):
 
-![openssl s_client op productie: TLS 1.3 met TLS_AES_256_GCM_SHA384](img/sec-tls-productie.png)
+**Figuur 4.** _openssl s_client op productie: TLS 1.3 met TLS_AES_256_GCM_SHA384_
+
+![Figuur 4](img/sec-tls-productie.png)
 
 ### 4.6 SQL-injectie: aantonen dat de query's veilig zijn
 
@@ -353,13 +391,19 @@ grep -rn "\$queryRaw\|\$executeRaw\|\$queryRawUnsafe\|\$executeRawUnsafe" app li
 
 Resultaat: geen enkele treffer in de applicatiecode. Alle lees- en schrijfacties gaan via de getypte Prisma-methodes (`findUnique`, `create`, `updateMany`), waarbij invoer altijd als losse parameter meegaat en nooit als tekst in de query. De enige plek met handgeschreven SQL is de testopzet in `cypress.config.ts`, en ook die gebruikt genummerde parameters (`$1`, `$2`), geen samengevoegde strings.
 
-**2. Handmatige test.** Ik heb in de loginroute en bij het stellen van een vraag klassieke injectiepogingen als waarde ingevuld, bijvoorbeeld `' OR '1'='1` en `'; DROP TABLE users; --`. De server behandelt ze als gewone tekst: inloggen mislukt normaal (401), en een vraag met zo'n tekst wordt letterlijk opgeslagen en als tekst getoond. De tabellen blijven intact.
+**2. Handmatige test.** Ik heb in de loginroute en bij het stellen van een vraag klassieke injectiepogingen als waarde ingevuld, bijvoorbeeld `' OR '1'='1` en `'; DROP TABLE users; --`. De server behandelt ze als gewone tekst: inloggen mislukt normaal (401), en een vraag met zo'n tekst wordt letterlijk opgeslagen en als tekst getoond. De tabellen blijven intact (Figuur 5 en 6).
 
-![Inloggen met wachtwoord ' OR '1'='1 geeft gewoon "Invalid email or password" (de API antwoordt 401)](img/sec-injectie-login.png)
+**Figuur 5.** _Inloggen met het wachtwoord ' OR '1'='1 geeft gewoon "Invalid email or password" (de API antwoordt 401)_
 
-![De vraag '; DROP TABLE users; -- staat letterlijk als tekst op staging; de tabellen zijn intact](img/sec-injectie-vraag.png)
+![Figuur 5](img/sec-injectie-login.png)
+
+**Figuur 6.** _De vraag '; DROP TABLE users; -- staat letterlijk als tekst op staging; de tabellen zijn intact_
+
+![Figuur 6](img/sec-injectie-vraag.png)
 
 ## 5. Deployment: veilige configuratie
+
+**Tabel 16.** _De DTAP-straat_
 
 | Fase       | Omgeving          | Wat er gecontroleerd wordt                                           |
 | ---------- | ----------------- | -------------------------------------------------------------------- |
@@ -368,7 +412,7 @@ Resultaat: geen enkele treffer in de applicatiecode. Alle lees- en schrijfacties
 | Acceptatie | Railway staging   | Automatische deploy na merge naar develop; hier draait de ZAP-scan   |
 | Productie  | Railway productie | Automatische deploy na een release van develop naar main             |
 
-Ik heb niet de Skylab-omgeving van school gebruikt maar Railway; de FAQ staat een eigen platform toe. De stagingomgeving op Railway is mijn acceptatieomgeving (A in DTAP): live bereikbaar via HTTPS, met een eigen database en eigen geheimen. Railway regelt de firewall, de reverse proxy en de TLS-terminatie die in de Skylab-opdrachten met pfSense en nginx worden ingericht; de TLS-instellingen heb ik gecontroleerd in 4.5.
+Ik heb niet de Skylab-omgeving van school gebruikt maar Railway; de FAQ staat een eigen platform toe (Hogeschool Windesheim, z.d.-a). De stagingomgeving op Railway is mijn acceptatieomgeving (A in DTAP): live bereikbaar via HTTPS, met een eigen database en eigen geheimen. Railway regelt de firewall, de reverse proxy en de TLS-terminatie die in de Skylab-opdrachten met pfSense en nginx worden ingericht; de TLS-instellingen heb ik gecontroleerd in 4.5.
 
 - Er wordt nooit direct naar main gepusht. Elke wijziging gaat eerst door CI en staging.
 - Staging en productie hebben elk een eigen database en eigen geheimen. Testdata van staging komt nooit in productie.
@@ -379,6 +423,8 @@ Ik heb niet de Skylab-omgeving van school gebruikt maar Railway; de FAQ staat ee
 
 Deze risico's ken ik en heb ik bewust geaccepteerd voor een portfolio van deze omvang:
 
+**Tabel 17.** _Bewust geaccepteerde restrisico's_
+
 | Restrisico                                             | Waarom geaccepteerd                                                   | Hoe ik het zou oplossen                                                 |
 | ------------------------------------------------------ | --------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | Geen limiet op verzoeken per IP-adres                  | Codes en sommen hebben al een pogingslimiet; bcrypt maakt raden traag | Een teller per IP in de database of Redis, met 429 bij te veel pogingen |
@@ -388,20 +434,22 @@ Deze risico's ken ik en heb ik bewust geaccepteerd voor een portfolio van deze o
 | Registreren kan iets langer duren als er een mail gaat | Het antwoord zelf is altijd gelijk                                    | De mail in de achtergrond versturen                                     |
 | Veel open live-verbindingen kosten geheugen            | Voor deze schaal geen probleem                                        | Een maximum aantal verbindingen per gebruiker                           |
 
-De securityreview in hoofdstuk 7 vond nog een aantal kleinere punten. Die staan met ernst en advies in 7.2.
+De securityreview in hoofdstuk 7 vond nog een aantal kleinere punten. Die staan met ernst en advies in Tabel 18.
 
 ## 7. Acceptatie: securityreview en advies
 
-Voordat een versie van acceptatie naar productie gaat, wil ik weten of hij veilig genoeg is. Daarvoor heb ik een gestructureerde securityreview gedaan van mijn eigen applicatie. Dat mag volgens de FAQ, mits de review gestructureerd en onderbouwd is. De lezer van het technische deel is een ontwikkelaar; 7.4 is voor een niet-technische lezer.
+Voordat een versie van acceptatie naar productie gaat, wil ik weten of hij veilig genoeg is. Daarvoor heb ik een gestructureerde securityreview gedaan van mijn eigen applicatie. Dat mag volgens de FAQ, mits de review gestructureerd en onderbouwd is (Hogeschool Windesheim, z.d.-a). De lezer van het technische deel is een ontwikkelaar; 7.4 is voor een niet-technische lezer.
 
 ### 7.1 Aanpak
 
 - **Wat:** de broncode op de branch develop (commit 3406237, Next.js 16.3.8), plus de live staging- en productieomgeving.
 - **Hoe:** elk ASVS-hoofdstuk (V1 tot en met V14) nagelopen. Per claim in dit rapport heb ik in de code gezocht naar de plek waar het gebeurt. Daarnaast heb ik gezocht naar wat er níet is: dingen die ASVS vraagt en die ik niet heb gebouwd.
-- **Bronnen:** OWASP ASVS 4.0.3 (niveau 1, en niveau 2 waar het om accounts en sessies gaat), de ZAP-rapporten (bijlage G en H), `bun audit`, de GitHub Advisory Database, de live response-headers (`curl -I`) en de instellingen van de GitHub-repository.
+- **Bronnen:** OWASP ASVS 4.0.3 (OWASP Foundation, 2021; niveau 1, en niveau 2 waar het om accounts en sessies gaat), de ZAP-rapporten (bijlage G en H), `bun audit`, de GitHub Advisory Database, de live response-headers (`curl -I`) en de instellingen van de GitHub-repository.
 - **Ernst:** hoog = een aanvaller kan zonder veel moeite bij accounts, gegevens of de server; middel = misbruik is mogelijk maar beperkt, of een beschermlaag ontbreekt; laag = verbetering op een plek waar al een andere maatregel staat.
 
 ### 7.2 Bevindingen
+
+**Tabel 18.** _Bevindingen van de securityreview_
 
 | #   | ASVS             | Bevinding                                                                                                                                                                                                       | Ernst  | Advies                                                                                                                                                    |
 | --- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -416,7 +464,7 @@ Voordat een versie van acceptatie naar productie gaat, wil ik weten of hij veili
 | B9  | V13.2.5, V4.2.2  | De server controleert niet of een verzoek echt JSON is of van de eigen site komt. De CSRF-bescherming leunt helemaal op SameSite=Strict.                                                                        | Laag   | `Content-Type: application/json` afdwingen en de `Origin`-header controleren bij acties die iets wijzigen.                                                |
 | B10 | V14.3.3          | Headers als `x-nextjs-cache` en `vary: rsc` laten zien dat de site Next.js gebruikt.                                                                                                                            | Laag   | Accepteren: het framework is ook aan de HTML te herkennen. Echte bescherming is up-to-date blijven (B1).                                                  |
 | B11 | V6.4.1           | Geheimen worden pas gecontroleerd als ze nodig zijn, niet bij het opstarten. Ontbreekt de sessiesleutel, dan lijkt iedereen uitgelogd. De sterkte van een sleutel wordt niet gecontroleerd.                     | Laag   | Bij het opstarten alle geheimen controleren op aanwezigheid en minimale lengte (32 tekens).                                                               |
-| B12 | V2.1.7           | Geen controle op gelekte wachtwoorden. bcrypt gebruikt alleen de eerste 72 bytes van een wachtwoord; het formulier staat er 128 toe.                                                                            | Laag   | Controle tegen de Have I Been Pwned-lijst (k-anonimiteit); maximum op 72 bytes zetten.                                                                    |
+| B12 | V2.1.7           | Geen controle op gelekte wachtwoorden. bcrypt gebruikt alleen de eerste 72 bytes van een wachtwoord; het formulier staat er 128 toe.                                                                            | Laag   | Controle tegen de Pwned Passwords-lijst (Hunt, z.d.) met k-anonimiteit; maximum op 72 bytes zetten.                                                       |
 | B13 | V11.1            | De captcha is een eenvoudige som die een bot kan uitrekenen. Hij remt spam, maar houdt een gericht script niet tegen.                                                                                           | Laag   | Samen met B2: een limiet per IP-adres op het contactformulier.                                                                                            |
 | B14 | V2.1             | Opnieuw registreren met een nog niet bevestigd adres overschrijft naam en wachtwoord. De code in de mailbox van de echte eigenaar voorkomt overname.                                                            | Laag   | Een onbevestigd account na een tijd verwijderen in plaats van overschrijven.                                                                              |
 | B15 | V7.4.1           | Geen eigen foutpagina voor serverfouten. Next.js toont in productie een algemene pagina zonder details, dus er lekt niets.                                                                                      | Info   | Een eigen `error.tsx` voor een nette melding.                                                                                                             |
@@ -454,21 +502,23 @@ Security gaat niet alleen over techniek. Bij elke keuze weeg ik af wie er last v
 
 ### 8.1 Testen en hacken: alleen wat van mij is
 
-- **Alleen mijn eigen systemen.** De ZAP-scan en andere tests draai ik alleen op mijn eigen stagingomgeving of lokaal. Nooit op productie met echte gebruikers, en nooit op sites van anderen zonder schriftelijke toestemming. Scannen zonder toestemming is in Nederland computervredebreuk (artikel 138ab Wetboek van Strafrecht), ook als het "maar een scan" is.
+- **Alleen mijn eigen systemen.** De ZAP-scan en andere tests draai ik alleen op mijn eigen stagingomgeving of lokaal. Nooit op productie met echte gebruikers, en nooit op sites van anderen zonder schriftelijke toestemming. Scannen zonder toestemming is in Nederland computervredebreuk (Wetboek van Strafrecht, z.d., art. 138ab), ook als het "maar een scan" is.
 - **Ook het platform is van een ander.** Mijn site draait bij Railway. Een actieve scan belast hun infrastructuur en andere klanten. Daarom gebruik ik op Railway de passieve baseline-scan en doe ik zwaardere tests (zoals SQL-injectie-tests) lokaal.
 - **Google Dorks.** Een dork kan gegevens van anderen laten zien die per ongeluk openbaar staan. Ik heb dorks alleen gericht op mijn eigen site. Vind je toch gegevens van een ander, dan open en bewaar je ze niet, en meld je het bij de eigenaar (responsible disclosure).
-- **Een peer-pentest** heb ik niet uitgevoerd; mijn securityreview in hoofdstuk 7 gaat over mijn eigen applicatie, wat volgens de FAQ is toegestaan. Zou ik de site van een medestudent testen, dan alleen na duidelijke afspraken met de eigenaar: welke host, welke periode, welke tools, en wat er met de bevindingen gebeurt.
+- **Een peer-pentest** heb ik niet uitgevoerd; mijn securityreview in hoofdstuk 7 gaat over mijn eigen applicatie, wat volgens de FAQ is toegestaan (Hogeschool Windesheim, z.d.-a). Zou ik de site van een medestudent testen, dan alleen na duidelijke afspraken met de eigenaar: welke host, welke periode, welke tools, en wat er met de bevindingen gebeurt.
 
 ### 8.2 Ontwerp: wat ik bewust niet verzamel
 
-- **Dataminimalisatie (AVG).** Contactgegevens sla ik niet op; ze gaan alleen in een mail aan mij. Wat niet bewaard wordt, kan niet lekken en hoef ik niet te beveiligen of te verwijderen.
+- **Dataminimalisatie (AVG).** De AVG vraagt om niet meer persoonsgegevens te verwerken dan nodig (Verordening (EU) 2016/679, 2016, art. 5 lid 1c). Contactgegevens sla ik niet op; ze gaan alleen in een mail aan mij. Wat niet bewaard wordt, kan niet lekken en hoef ik niet te beveiligen of te verwijderen.
 - **Geen tracking.** Ik heb een eigen captcha gebouwd in plaats van een externe dienst. Een externe captcha stuurt gedrag van bezoekers naar een derde partij en vraagt om cookie-toestemming. Mijn bezoekers betalen dan met hun privacy voor mijn spamprobleem.
 - **Geen e-mailadressen naar buiten.** Andere bezoekers zien alleen een weergavenaam. Een e-mailadres is een persoonsgegeven en een ingang voor phishing.
 - **Niet verraden wie een account heeft (SM7).** Wie een e-mailadres invult, mag niet kunnen afleiden of die persoon bij mijn site zit. Dat beschermt gebruikers, ook al kost het wat gebruiksgemak: de melding is minder specifiek.
 
 ### 8.3 Nalaten: wat het kost als ik iets niet doe
 
-Niets doen is ook een keuze. Voor elk restrisico (hoofdstuk 6) heb ik gekeken wie de gevolgen draagt:
+Niets doen is ook een keuze. Voor elk restrisico (Tabel 17) heb ik gekeken wie de gevolgen draagt (Tabel 19):
+
+**Tabel 19.** _Wie de gevolgen draagt als ik iets nalaat_
 
 | Als ik dit nalaat                      | Wie draagt de gevolgen                                                              |
 | -------------------------------------- | ----------------------------------------------------------------------------------- |
@@ -481,13 +531,49 @@ Een restrisico accepteer ik alleen als de schade klein is of vooral mijzelf raak
 
 ### 8.4 AI
 
-Ik heb AI gebruikt bij het maken van dit portfolio. School staat dat toe onder voorwaarden (AIAS niveau 3). Hoe en waarvoor, en wat ik zelf heb gecontroleerd, staat in bijlage A.
+Ik heb AI gebruikt bij het maken van dit portfolio. School staat dat toe onder voorwaarden: AIAS niveau 3 (Hogeschool Windesheim, z.d.-b; Perkins et al., 2024). Hoe en waarvoor, en wat ik zelf heb gecontroleerd, staat in bijlage A.
+
+## Bronnenlijst
+
+Baguelin, F., Salem, E., Spir, E.-H., Muir, M., & Korn, A. (2025, 28 maart). _Understanding CVE-2025-29927: The Next.js middleware authorization bypass vulnerability_. Datadog Security Labs. https://securitylabs.datadoghq.com/articles/nextjs-middleware-auth-bypass/
+
+Chaddha, P. (2025, 23 maart). _CVE-2025-29927: Next.js middleware authorization bypass – Technical analysis_. ProjectDiscovery. https://projectdiscovery.io/blog/nextjs-middleware-authorization-bypass
+
+GitHub. (2026a, 22 oktober). _Next.js: Unauthenticated remote code execution in Image Optimization API when SVG files are used (GHSA-2464-fhr4-w9xw)_. GitHub Advisory Database. https://github.com/advisories/GHSA-2464-fhr4-w9xw
+
+GitHub. (2026b, 22 oktober). _Next.js: Unauthenticated remote code execution in use cache functions returning typed arrays (GHSA-673q-mjm6-r5xr)_. GitHub Advisory Database. https://github.com/advisories/GHSA-673q-mjm6-r5xr
+
+Hogeschool Windesheim. (2024). _Studentenhandleiding showcase: Modules Client- en Server Technology, Security for Web Applications_ (versie 1.4) [Cursusmateriaal]. Team SE.
+
+Hogeschool Windesheim. (z.d.-a). _FAQ, veelgestelde vragen_ [Cursusmateriaal Security for Web Applications]. Brightspace.
+
+Hogeschool Windesheim. (z.d.-b). _Gebruik van AI binnen het vak Security for Web Applications_ [Cursusmateriaal]. Brightspace.
+
+Hunt, T. (z.d.). _Pwned Passwords_. Have I Been Pwned. https://haveibeenpwned.com/Passwords
+
+OWASP Foundation. (2021). _OWASP Application Security Verification Standard 4.0.3_. https://owasp.org/www-project-application-security-verification-standard/
+
+Perkins, M., Furze, L., Roe, J., & MacVaugh, J. (2024). The Artificial Intelligence Assessment Scale (AIAS): A framework for ethical integration of generative AI in educational assessment. _Journal of University Teaching and Learning Practice, 21_(6). https://doi.org/10.53761/q3azde36
+
+Pham, A., Sweeney, C., & Tigges, M. (2025, 9 december). _PeerBlight Linux backdoor exploits React2Shell CVE-2025-55182_. Huntress. https://www.huntress.com/blog/peerblight-linux-backdoor-exploits-react2shell
+
+Tafani-Dereeper, C., Spir, E.-H., & Salem, E. (2025, 4 december). _CVE-2025-55182 (React2Shell): Remote code execution in React Server Components and Next.js_. Datadog Security Labs. https://securitylabs.datadoghq.com/articles/cve-2025-55182-react2shell-remote-code-execution-react-server-components/
+
+Tikochinski, G., Bar, M., & Aminov, D. (2025, 3 december). _React2Shell (CVE-2025-55182): Everything you need to know about the critical React vulnerability_. Wiz. https://www.wiz.io/blog/critical-vulnerability-in-react-cve-2025-55182
+
+Verordening (EU) 2016/679 van het Europees Parlement en de Raad van 27 april 2016 (Algemene verordening gegevensbescherming). (2016). https://eur-lex.europa.eu/eli/reg/2016/679/oj
+
+Wetboek van Strafrecht. (z.d.). Overheid.nl. https://wetten.overheid.nl/BWBR0001854/
+
+ZAP Dev Team. (z.d.). _ZAP – Baseline scan_. https://www.zaproxy.org/docs/docker/baseline-scan/
 
 ## Bijlagen
 
 Losse bijlagen bij dit portfolio. Elk document waarnaar ik verwijs, zit erbij.
 
 In de ASVS-lijst (bijlage B) staat per eis wat ik heb gedaan en een status. Van de 286 eisen zijn er 143 geïmplementeerd, 38 deels, 32 niet en 73 niet van toepassing (bijvoorbeeld eisen over bestandsuploads of XML, die mijn site niet heeft). Zo is direct te zien welke eisen nog openstaan; de belangrijkste staan als bevinding in 7.2.
+
+**Tabel 20.** _Overzicht van de bijlagen_
 
 | Bijlage | Document                                      | Bestand                          |
 | ------- | --------------------------------------------- | -------------------------------- |
@@ -504,11 +590,13 @@ Broncode: https://github.com/sebastiaankolmschateq42/portfolio. Staging: https:/
 
 ## Bijlage A: Verantwoording AI-gebruik (intern)
 
-Voor het securityportfolio geldt AIAS niveau 3, AI-samenwerking: AI mag, mits ik verantwoord hoe ik het heb ingezet, wat ik heb aangepast en hoe ik er kritisch mee ben omgegaan.
+Voor het securityportfolio geldt AIAS niveau 3, AI-samenwerking (Hogeschool Windesheim, z.d.-b; Perkins et al., 2024): AI mag, mits ik verantwoord hoe ik het heb ingezet, wat ik heb aangepast en hoe ik er kritisch mee ben omgegaan.
 
 _[TODO Sebastiaan: deze bijlage moet jouw eigen, eerlijke verhaal zijn. De tabel in A.2 is een feitelijke lijst van wat AI in de laatste sessie heeft opgesteld; vul de rest zelf in. Schrijf geen ervaringen op die je niet hebt gehad.]_
 
 ### A.1 Welke AI-tools en waarvoor
+
+**Tabel 21.** _Gebruikte AI-tools_
 
 | Tool                    | Waarvoor gebruikt                                                                                                                                                                        | Periode             |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
@@ -516,6 +604,8 @@ _[TODO Sebastiaan: deze bijlage moet jouw eigen, eerlijke verhaal zijn. De tabel
 | _[andere tools?]_       | _[invullen]_                                                                                                                                                                             | _[invullen]_        |
 
 ### A.2 Wat AI heeft opgesteld en wat ik ermee heb gedaan
+
+**Tabel 22.** _Bijdragen van AI per onderdeel en mijn controle_
 
 | Onderdeel                  | Wat AI deed                                                                                                                                                                                                   | Wat ik heb aangepast of gecontroleerd                                           |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
