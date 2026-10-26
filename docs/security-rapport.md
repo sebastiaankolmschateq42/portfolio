@@ -85,14 +85,14 @@ Bronnen: Tikochinski et al. (2025), Tafani-Dereeper et al. (2025) en Pham et al.
 
 **Tabel 4.** _Middleware-bypass van Next.js langs de vragen van de risicoanalyse_
 
-| Vraag                    | Antwoord                                                                                                                                                                                                                    |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Wat gebeurde er?         | Met één extra header (`x-middleware-subrequest`) kon een aanvaller de middleware van Next.js overslaan (CVE-2025-29927, CVSS 9.1). Sites die daar hun inlogcontrole deden, lieten beschermde pagina's zonder inloggen zien. |
-| Kwetsbaarheid            | Toegangscontrole op één plek aan de rand van de applicatie, die met een door de client gestuurde header uit te zetten was.                                                                                                  |
-| Asset en schade          | Beheerpagina's en gegevens achter een login.                                                                                                                                                                                |
-| CIA                      | Vertrouwelijkheid en integriteit.                                                                                                                                                                                           |
-| Relevant voor mijn site? | Het type fout wel, deze versie niet meer. Het laat zien waarom ik rechten niet alleen in middleware of in de pagina controleer.                                                                                             |
-| Maatregel voor mijn site | Mijn site heeft geen middleware. Elke API-route en de datalaag controleren zelf de sessie en de rol (SM8, 3.3). Valt één laag weg, dan staat de controle in de volgende laag nog steeds (defense in depth).                 |
+| Vraag                    | Antwoord                                                                                                                                                                                                                         |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Wat gebeurde er?         | Met één extra, speciaal gekozen header in het verzoek kon een aanvaller de middleware van Next.js overslaan (CVE-2025-29927, CVSS 9.1). Sites die daar hun inlogcontrole deden, lieten beschermde pagina's zonder inloggen zien. |
+| Kwetsbaarheid            | Toegangscontrole op één plek aan de rand van de applicatie, die met een door de client gestuurde header uit te zetten was.                                                                                                       |
+| Asset en schade          | Beheerpagina's en gegevens achter een login.                                                                                                                                                                                     |
+| CIA                      | Vertrouwelijkheid en integriteit.                                                                                                                                                                                                |
+| Relevant voor mijn site? | Het type fout wel, deze versie niet meer. Het laat zien waarom ik rechten niet alleen in middleware of in de pagina controleer.                                                                                                  |
+| Maatregel voor mijn site | Mijn site heeft geen middleware. Elke API-route en de datalaag controleren zelf de sessie en de rol (SM8, 3.3). Valt één laag weg, dan staat de controle in de volgende laag nog steeds (defense in depth).                      |
 
 Bronnen: Chaddha (2025) en Baguelin et al. (2025).
 
@@ -105,17 +105,17 @@ Op 14 oktober 2026 bracht Next.js een extra security-release uit; de advisories 
 | Advisory            | Ernst   | Wat                                                              | Raakt het mij?                                                                                                                               |
 | ------------------- | ------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | GHSA-2464-fhr4-w9xw | Kritiek | Code uitvoeren op de server via een SVG in de beeldoptimalisatie | Klein: ik optimaliseer alleen eigen JPG- en PNG-bestanden en sta geen SVG of externe afbeeldingen toe. Maar de functie draait wel, op Linux. |
-| GHSA-673q-mjm6-r5xr | Kritiek | Code uitvoeren via `use cache`-functies                          | Nee: ik gebruik `use cache` niet.                                                                                                            |
+| GHSA-673q-mjm6-r5xr | Kritiek | Code uitvoeren via de cachefunctie van Next.js                   | Nee: ik gebruik die cachefunctie niet.                                                                                                       |
 
-Ook als ik de fout niet direct kan misbruiken, update ik: de volgende variant is misschien wel bereikbaar, en een bekende kwetsbare versie is precies waar scanners op zoeken. Dit is hetzelfde patroon als in 4.3, waar `bun audit` een kritieke fout in de beeldoptimalisatie vond.
+Ook als ik de fout niet direct kan misbruiken, update ik: de volgende variant is misschien wel bereikbaar, en een bekende kwetsbare versie is precies waar scanners op zoeken. Dit is hetzelfde patroon als in 4.3, waar de dependency-audit een kritieke fout in de beeldoptimalisatie vond.
 
-**Actie (26-10-2026):** Next.js en eslint-config-next bijgewerkt naar 16.4.1 op de branch `chore/next-16.4.1`. In dezelfde ronde liet `bun audit` nog twee packages zien die in productie draaien en binnen hun versiebereik te repareren waren: Zod (onder 4.6.6, geheugen uitputten bij validatie; Zod controleert al mijn invoer) en Nodemailer (onder 10.1.4, fouten in het ontleden van e-mailadressen; het adres van de bezoeker gaat mee als reply-to). Die heb ik bijgewerkt naar 4.6.7 en 10.2.1.
+**Actie (26-10-2026):** Next.js en eslint-config-next bijgewerkt naar 16.4.1, op een aparte branch. In dezelfde ronde liet de dependency-audit nog twee packages zien die in productie draaien en binnen hun versiebereik te repareren waren: Zod (onder 4.6.6, geheugen uitputten bij validatie; Zod controleert al mijn invoer) en Nodemailer (onder 10.1.4, fouten in het ontleden van e-mailadressen; het adres van de bezoeker gaat mee als reply-to). Die heb ik bijgewerkt naar 4.6.7 en 10.2.1.
 
 **Tabel 6.** _Controles vóór en na de update naar Next.js 16.4.1_
 
 | Controle                | Vóór (16.3.8)                   | Na (16.4.1)                                 |
 | ----------------------- | ------------------------------- | ------------------------------------------- |
-| `bun audit --prod`      | 13 meldingen: 2 kritiek, 6 hoog | 7 meldingen: 0 kritiek, 5 hoog, 2 middel    |
+| Dependency-audit        | 13 meldingen: 2 kritiek, 6 hoog | 7 meldingen: 0 kritiek, 5 hoog, 2 middel    |
 | Lint, opmaak            | groen                           | groen (dezelfde 2 bestaande waarschuwingen) |
 | Back-endtests (Vitest)  | 65 geslaagd (CI)                | 65 geslaagd                                 |
 | Cypress e2e / component | groen in CI                     | 17 / 10 geslaagd                            |
@@ -127,17 +127,17 @@ Bronnen: GitHub (2026a, 2026b).
 
 #### 1.3.4 Google Dorks
 
-Met Google Dorks zoek je met operators als `site:`, `inurl:` en `filetype:` naar informatie die per ongeluk openbaar staat. Ik heb dit alleen gebruikt om te kijken wat er over mijn eigen site te vinden is; gevonden gegevens van anderen open of bewaar ik niet (zie hoofdstuk 8).
+Met Google Dorks zoek je met speciale zoekoperators, zoals site, inurl en filetype, naar informatie die per ongeluk openbaar staat. Ik heb dit alleen gebruikt om te kijken wat er over mijn eigen site te vinden is; gevonden gegevens van anderen open of bewaar ik niet (zie hoofdstuk 8).
 
 Op 26 oktober 2026 heb ik de zoekopdrachten uitgevoerd en daarnaast rechtstreeks gecontroleerd of de bestanden die een dork zou vinden, op mijn sites bereikbaar zijn. Een dork laat alleen zien wat al geïndexeerd is; de directe controle laat zien of er überhaupt iets te vinden valt. De resultaten staan in Tabel 7 en Figuur 1 tot en met 3.
 
 **Tabel 7.** _Google Dorks: zoekopdrachten en resultaten_
 
-| #   | Zoekopdracht                                        | Waarom                                                                | Resultaat                                                                                                                                                                                                  |
-| --- | --------------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| D1  | `site:up.railway.app inurl:portfolio`               | Welke van mijn omgevingen zijn geïndexeerd, ook staging?              | Geen van mijn omgevingen staat in de zoekresultaten.                                                                                                                                                       |
-| D2  | `site:up.railway.app ext:env OR ext:log OR ext:sql` | Staan er configuratie-, log-, database- of source-map-bestanden open? | Geen treffers. Direct gecontroleerd op staging en productie: `/.env`, `/.env.local`, `/.git/config`, `/package.json`, `/prisma/schema.prisma` en de `.map`-bestanden van de JavaScript geven allemaal 404. |
-| D3  | `site:github.com "Kolmschate" "DATABASE_URL"`       | Staan er geheimen of verbindingsgegevens van mij in openbare code?    | De repository is openbaar. Ik heb de hele git-geschiedenis doorzocht op de namen van mijn geheimen: alleen `.env.example` met voorbeeldwaarden is ooit gecommit, nooit een echte sleutel.                  |
+| #   | Zoekopdracht                                      | Waarom                                                                | Resultaat                                                                                                                                                                                                                 |
+| --- | ------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | site:up.railway.app inurl:portfolio               | Welke van mijn omgevingen zijn geïndexeerd, ook staging?              | Geen van mijn omgevingen staat in de zoekresultaten.                                                                                                                                                                      |
+| D2  | site:up.railway.app ext:env OR ext:log OR ext:sql | Staan er configuratie-, log-, database- of source-map-bestanden open? | Geen treffers. Ook rechtstreeks gecontroleerd op staging en productie: de bestanden met geheimen, de git-gegevens, de projectinstellingen, het databaseschema en de source maps van de JavaScript zijn niet op te vragen. |
+| D3  | site:github.com "Kolmschate" "DATABASE_URL"       | Staan er geheimen of verbindingsgegevens van mij in openbare code?    | De repository is openbaar. Ik heb de hele git-geschiedenis doorzocht op de namen van mijn geheimen: alleen een voorbeeldbestand met de namen van de instellingen is ooit gecommit, nooit een echte sleutel.               |
 
 **Figuur 1.** _Zoekopdracht D1: Google toont wel apps van anderen op up.railway.app, maar geen van mijn omgevingen_
 
@@ -151,13 +151,13 @@ Op 26 oktober 2026 heb ik de zoekopdrachten uitgevoerd en daarnaast rechtstreeks
 
 ![Figuur 3](img/sec-dork-3.png)
 
-**Hoe sterk is dit bewijs?** Dit bewijs is beperkt. Een dork laat alleen zien wat een zoekmachine al heeft opgepikt; "geen resultaten" betekent niet dat er niets openstaat. D1 laat wel zien dat de techniek werkt: Google vindt bestanden in apps van anderen op hetzelfde platform. Het echte bewijs voor mijn site is de directe controle (404 op `/.env`, `/.git/config` en de source maps) en de scan van de git-geschiedenis. De dorks laten zien dat er ook niets is uitgelekt naar de zoekmachine.
+**Hoe sterk is dit bewijs?** Dit bewijs is beperkt. Een dork laat alleen zien wat een zoekmachine al heeft opgepikt; "geen resultaten" betekent niet dat er niets openstaat. D1 laat wel zien dat de techniek werkt: Google vindt bestanden in apps van anderen op hetzelfde platform. Het echte bewijs voor mijn site is de directe controle (de bestanden met geheimen, de git-gegevens en de source maps zijn niet op te vragen) en de scan van de git-geschiedenis. De dorks laten zien dat er ook niets is uitgelekt naar de zoekmachine.
 
 **Wie is verantwoordelijk als zoiets openbaar staat?** De eigenaar van de site of de data. Een zoekmachine indexeert alleen wat publiek bereikbaar is; wie het zonder toegangscontrole online zet, heeft het openbaar gemaakt.
 
 **Nieuwe requirement (NFR):** gegevens die mijn site verwerkt, zijn niet te vinden via een zoekmachine. Mijn site dekt dat nu al grotendeels af.
 
-Contactgegevens worden niet opgeslagen en staan op geen enkele pagina (AS1). E-mailadressen van gebruikers verlaten de server nooit; de vragenlijst toont alleen een weergavenaam (SM10). Geheimen staan alleen in omgevingsvariabelen, en `.env`-bestanden staan niet in git (SM12). Wat ik nog niet heb gedaan, is een `robots.txt` die `/api/` uitsluit en `noindex` op de stagingomgeving, zodat staging niet in zoekresultaten komt. Dat staat als advies in hoofdstuk 7.
+Contactgegevens worden niet opgeslagen en staan op geen enkele pagina (AS1). E-mailadressen van gebruikers verlaten de server nooit; de vragenlijst toont alleen een weergavenaam (SM10). Geheimen staan alleen in omgevingsvariabelen, en de bestanden met die geheimen staan niet in git (SM12). Wat ik nog niet heb gedaan, is zoekmachines vragen om de API en de stagingomgeving over te slaan, zodat staging niet in zoekresultaten komt. Dat staat als advies in hoofdstuk 7.
 
 ## 2. Design: threat modeling
 
@@ -270,11 +270,11 @@ Op elke pagina stuurt de server de security headers uit tabel 11 mee (SM11).
 | Referrer-Policy           | strict-origin-when-cross-origin              | Geen volledige URL naar andere sites           |
 | Permissions-Policy        | camera, microfoon en locatie uit             | Minder rechten voor de pagina                  |
 
-De server stuurt geen `X-Powered-By`-header meer mee. Een paar headers van Next.js zelf (`x-nextjs-cache`, `vary: rsc`) verraden nog wel het framework; zie hoofdstuk 7.
+De server vertelt niet meer in een header welk framework hij gebruikt. Een paar andere headers die Next.js zelf meestuurt, verraden het framework nog wel; zie hoofdstuk 7.
 
 ### 3.8 Statische analyse
 
-De code wordt op drie manieren statisch gecontroleerd. TypeScript draait in strict mode, zodat typefouten de build breken. ESLint controleert de code met de regels van Next.js en TypeScript, lokaal en in CI bij elke push en pull request. Met `bun audit` heb ik de gebruikte packages gecontroleerd op bekende kwetsbaarheden; de bevindingen staan in 4.3.
+De code wordt op drie manieren statisch gecontroleerd. TypeScript draait in strict mode, zodat typefouten de build breken. ESLint controleert de code met de regels van Next.js en TypeScript, lokaal en in CI bij elke push en pull request. Met een dependency-audit heb ik de gebruikte packages gecontroleerd op bekende kwetsbaarheden; de bevindingen staan in 4.3.
 
 Na die audit heb ik ook Dependabot-meldingen en -beveiligingsupdates aangezet in GitHub. Wordt er een kwetsbaarheid bekend in een package dat ik gebruik, dan waarschuwt GitHub en opent het zelf een pull request met de fix. Die pull request gaat door dezelfde CI als elke andere wijziging.
 
@@ -282,7 +282,7 @@ Na die audit heb ik ook Dependabot-meldingen en -beveiligingsupdates aangezet in
 
 ### 4.1 Geautomatiseerde tests per maatregel
 
-De back-end heeft 65 tests (Vitest) tegen een echte testdatabase. De mail wordt nagebootst. De front-end heeft 17 end-to-end-tests en 10 componenttests (Cypress). Alles draait in CI bij elke push en pull request. Main is beschermd: wijzigingen kunnen er alleen via een pull request in. Sinds 26 oktober 2026 zijn de CI-jobs (`check` en `cypress`) op main en develop verplichte status checks: een pull request kan pas gemerged worden als alles groen is (bevinding B3, opgelost).
+De back-end heeft 65 tests (Vitest) tegen een echte testdatabase. De mail wordt nagebootst. De front-end heeft 17 end-to-end-tests en 10 componenttests (Cypress). Alles draait in CI bij elke push en pull request. Main is beschermd: wijzigingen kunnen er alleen via een pull request in. Sinds 26 oktober 2026 zijn de CI-controles (lint, opmaak, back-endtests en Cypress) op main en develop verplicht: een pull request kan pas gemerged worden als alles groen is (bevinding B3, opgelost).
 
 **Tabel 12.** _Wat de geautomatiseerde tests per maatregel aantonen_
 
@@ -316,13 +316,13 @@ Ik heb een ZAP baseline-scan (ZAP Dev Team, z.d.) gedraaid op de stagingomgeving
 
 **Bevinding: wachtwoord in de URL.** ZAP voert geen JavaScript uit en verstuurde de formulieren dus als gewoon HTML-formulier. Omdat er geen methode op stond, gebeurde dat met GET. E-mail en wachtwoord kwamen daardoor in de URL te staan. Dat kan bij een echte bezoeker ook gebeuren: als hij op de knop drukt voordat de pagina helemaal geladen is. Een URL komt in de browsergeschiedenis en in serverlogs terecht.
 
-**Oplossing:** alle formulieren versturen nu met POST. Met JavaScript verandert er niets, zonder JavaScript komt er geen invoer meer in de URL. Daarna heb ik de scan opnieuw gedraaid (zie 4.4). Zodat de fout niet terugkomt bij een nieuw formulier, controleert een test (`tests/forms.test.ts`, [PR #44](https://github.com/sebastiaankolmschateq42/portfolio/pull/44)) dat elk formulier in de app `method="post"` heeft. Ik heb gecontroleerd dat die test faalt als ik `method="post"` uit het inlogformulier haal.
+**Oplossing:** alle formulieren versturen nu met POST. Met JavaScript verandert er niets, zonder JavaScript komt er geen invoer meer in de URL. Daarna heb ik de scan opnieuw gedraaid (zie 4.4). Zodat de fout niet terugkomt bij een nieuw formulier, controleert een test (PR #44) dat elk formulier in de app met POST verstuurt. Ik heb gecontroleerd dat die test faalt als ik POST uit het inlogformulier haal.
 
 **Nieuwe waarschuwing na de fix: geen anti-CSRF-token.** Nu de formulieren POST gebruiken, meldt ZAP dat er geen CSRF-token in staat. Dat heb ik bewust zo gelaten. Alle acties gaan als JSON-verzoek naar de API van de eigen site, en de sessiecookie heeft SameSite=Strict. Een andere site kan die cookie dus niet laten meesturen. Een HTML-formulier zonder JavaScript komt bij de pagina zelf uit en doet niets.
 
 ### 4.3 Dependency-audit
 
-`bun audit` vond 34 bekende kwetsbaarheden in packages, waarvan 20 in packages die in productie meedraaien.
+De dependency-audit vond 34 bekende kwetsbaarheden in packages, waarvan 20 in packages die in productie meedraaien.
 
 **Bevinding: kritieke kwetsbaarheden in Next.js.** De gebruikte versie (16.2.11) had onder meer een kwetsbaarheid waarmee een aanvaller code op de server kan uitvoeren via de beeldoptimalisatie, en een SSRF in diezelfde functie. Die functie gebruik ik, voor de foto's op de profiel- en projectpagina's. Dit was dus echt bereikbaar.
 
@@ -344,24 +344,24 @@ Ik heb een ZAP baseline-scan (ZAP Dev Team, z.d.) gedraaid op de stagingomgeving
 
 ### 4.5 Versleutelde verbinding (V9)
 
-Op 26 oktober 2026 heb ik de verbinding met de stagingomgeving gecontroleerd met `openssl s_client` en `curl`:
+Op 26 oktober 2026 heb ik de verbinding met de stagingomgeving gecontroleerd met de commandoregeltools openssl en curl (Tabel 15).
 
 **Tabel 15.** _TLS- en HTTPS-controles op staging_
 
-| Controle            | Commando                                                                      | Uitkomst                                                                |
-| ------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| TLS 1.3             | `openssl s_client -connect portfolio-staging-9685.up.railway.app:443 -tls1_3` | Werkt, met TLS_AES_256_GCM_SHA384                                       |
-| TLS 1.2             | `... -tls1_2`                                                                 | Werkt, met ECDHE-ECDSA-AES256-GCM-SHA384 (forward secrecy)              |
-| TLS 1.1 (verouderd) | `... -tls1_1 -cipher 'DEFAULT:@SECLEVEL=0'`                                   | Geweigerd door de server (alert "protocol version")                     |
-| Certificaat         | `openssl x509 -noout -issuer -subject -dates`                                 | Let's Encrypt, `*.up.railway.app`, geldig tot 26-12-2026; ketting klopt |
-| HTTP                | `curl -I http://portfolio-staging-9685.up.railway.app/`                       | 301 naar de HTTPS-versie                                                |
-| Security headers    | `curl -I https://...` (staging en productie)                                  | CSP, HSTS, nosniff, Referrer-Policy en Permissions-Policy aanwezig      |
+| Controle            | Wat ik deed                                      | Uitkomst                                                                          |
+| ------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------- |
+| TLS 1.3             | Verbinding gemaakt en TLS 1.3 afgedwongen        | Werkt, met TLS_AES_256_GCM_SHA384                                                 |
+| TLS 1.2             | Verbinding gemaakt en TLS 1.2 afgedwongen        | Werkt, met ECDHE-ECDSA-AES256-GCM-SHA384 (forward secrecy)                        |
+| TLS 1.1 (verouderd) | Verbinding geprobeerd met het verouderde TLS 1.1 | Geweigerd door de server                                                          |
+| Certificaat         | Certificaat van de server uitgelezen             | Uitgegeven door Let's Encrypt voor de domeinen van Railway, geldig tot 26-12-2026 |
+| HTTP                | Site opgevraagd via gewoon HTTP                  | Doorgestuurd naar de HTTPS-versie                                                 |
+| Security headers    | Headers van staging en productie opgevraagd      | CSP, HSTS, nosniff, Referrer-Policy en Permissions-Policy aanwezig                |
 
 De TLS-instellingen beheert Railway, niet ik. Daarom heb ik ze zelf getest in plaats van erop te vertrouwen.
 
 Ik heb de controle zelf herhaald op productie (Figuur 4):
 
-**Figuur 4.** _openssl s_client op productie: TLS 1.3 met TLS_AES_256_GCM_SHA384_
+**Figuur 4.** _De TLS-test op productie: de verbinding gebruikt TLS 1.3_
 
 ![Figuur 4](img/sec-tls-productie.png)
 
@@ -369,15 +369,9 @@ Ik heb de controle zelf herhaald op productie (Figuur 4):
 
 SM4 zegt dat alle databasetoegang via Prisma met parameters loopt. Dat heb ik op twee manieren gecontroleerd.
 
-**1. Codereview: nergens ruwe SQL.** Ik heb de hele code doorzocht op de Prisma-functies die onveilige, zelf samengestelde SQL toelaten:
+**1. Codereview: nergens ruwe SQL.** Prisma heeft een paar functies waarmee je zelf SQL-tekst kunt samenstellen. Dat is de enige manier om met Prisma een onveilige query te schrijven. Ik heb de hele code daarop doorzocht en ze komen nergens in de applicatie voor. Alle lees- en schrijfacties gaan via de gewone functies van Prisma, waarbij invoer altijd als losse parameter meegaat en nooit als tekst in de query. Alleen de testopzet van Cypress bevat handgeschreven SQL, en ook die gebruikt parameters in plaats van samengevoegde tekst.
 
-```bash
-grep -rn "\$queryRaw\|\$executeRaw\|\$queryRawUnsafe\|\$executeRawUnsafe" app lib prisma
-```
-
-Resultaat: geen enkele treffer in de applicatiecode. Alle lees- en schrijfacties gaan via de getypte Prisma-methodes (`findUnique`, `create`, `updateMany`), waarbij invoer altijd als losse parameter meegaat en nooit als tekst in de query. De enige plek met handgeschreven SQL is de testopzet in `cypress.config.ts`, en ook die gebruikt genummerde parameters (`$1`, `$2`), geen samengevoegde strings.
-
-**2. Handmatige test.** Ik heb in de loginroute en bij het stellen van een vraag klassieke injectiepogingen als waarde ingevuld, bijvoorbeeld `' OR '1'='1` en `'; DROP TABLE users; --`. De server behandelt ze als gewone tekst: inloggen mislukt normaal (401), en een vraag met zo'n tekst wordt letterlijk opgeslagen en als tekst getoond. De tabellen blijven intact (Figuur 5 en 6).
+**2. Handmatige test.** Ik heb in de loginroute en bij het stellen van een vraag klassieke injectiepogingen als waarde ingevuld, bijvoorbeeld ' OR '1'='1 als wachtwoord en '; DROP TABLE users; -- als vraag. De server behandelt ze als gewone tekst: inloggen mislukt normaal (401), en een vraag met zo'n tekst wordt letterlijk opgeslagen en als tekst getoond. De tabellen blijven intact (Figuur 5 en 6).
 
 **Figuur 5.** _Inloggen met het wachtwoord ' OR '1'='1 geeft gewoon "Invalid email or password" (de API antwoordt 401)_
 
@@ -427,7 +421,7 @@ Voordat een versie van acceptatie naar productie gaat, wil ik weten of hij veili
 
 Ik heb de broncode op de branch develop bekeken (commit 3406237, Next.js 16.3.8), en daarnaast de live staging- en productieomgeving. Per ASVS-hoofdstuk (V1 tot en met V14) heb ik voor elke bewering in dit rapport in de code opgezocht waar het gebeurt. Daarna heb ik gekeken naar wat er níét is: eisen uit de ASVS die ik niet heb gebouwd.
 
-Als bronnen heb ik OWASP ASVS 4.0.3 gebruikt (OWASP Foundation, 2021), op niveau 1 en op niveau 2 waar het om accounts en sessies gaat. Daarnaast de ZAP-rapporten (bijlage G en H), `bun audit`, de GitHub Advisory Database, de live response-headers (`curl -I`) en de instellingen van de GitHub-repository.
+Als bronnen heb ik OWASP ASVS 4.0.3 gebruikt (OWASP Foundation, 2021), op niveau 1 en op niveau 2 waar het om accounts en sessies gaat. Daarnaast de ZAP-rapporten (bijlage G en H), de dependency-audit, de GitHub Advisory Database, de headers die de live sites terugsturen en de instellingen van de GitHub-repository.
 
 Elke bevinding heeft een ernst. Hoog betekent dat een aanvaller zonder veel moeite bij accounts, gegevens of de server kan. Middel betekent dat misbruik mogelijk maar beperkt is, of dat er een beschermlaag ontbreekt. Laag is een verbetering op een plek waar al een andere maatregel staat.
 
@@ -435,24 +429,24 @@ Elke bevinding heeft een ernst. Hoog betekent dat een aanvaller zonder veel moei
 
 **Tabel 18.** _Bevindingen van de securityreview_
 
-| #   | ASVS             | Bevinding                                                                                                                                                                                                       | Ernst  | Advies                                                                                                                                                    |
-| --- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| B1  | V14.2.1          | Next.js 16.3.8 valt onder twee kritieke advisories van oktober 2026 (1.3.3). Via mijn configuratie nauwelijks bereikbaar, maar wel een bekende kwetsbare versie.                                                | Hoog   | **In code opgelost 26-10-2026** (16.4.1, PR #42); live zodra de Railway-deploy lukt.                                                                      |
-| B2  | V2.2.1, V11.1.4  | Geen limiet op verzoeken. Wachtwoorden raden kan onbeperkt. Wie een wachtwoord kent, kan steeds een nieuwe code aanvragen, elk met 5 pogingen. Registreren kan gebruikt worden om iemand te bestoken met mails. | Middel | Teller per IP-adres en per account (bv. 5 pogingen per 15 minuten), daarna 429. Maximaal aantal codes per uur.                                            |
-| B3  | V14.1.1, V1.1.1  | Main is alleen via een pull request te wijzigen, maar een groene CI is geen verplichte voorwaarde. Develop, dat automatisch naar staging gaat, is niet beschermd.                                               | Middel | **Opgelost 26-10-2026:** `check` en `cypress` zijn verplichte status checks op main en develop; develop is ook beschermd tegen verwijderen en force-push. |
-| B4  | V7.1, V7.2       | Geen logging van security-gebeurtenissen: mislukte logins, geweigerde acties (403) en beheerdersacties worden niet vastgelegd. Een aanval valt daardoor niet op.                                                | Middel | Gestructureerd loggen (wie, wat, wanneer, uitkomst), zonder wachtwoorden, codes of contactgegevens.                                                       |
-| B5  | V6.4.1, V14.1.1  | Secret scanning en push protection staan uit, terwijl de repository openbaar is. Een per ongeluk gecommit geheim wordt niet tegengehouden.                                                                      | Middel | Secret scanning en push protection aanzetten in de GitHub-instellingen (gratis voor openbare repositories).                                               |
-| B6  | V3.3.1           | Uitloggen wist de cookie, maar het token zelf blijft tot 24 uur geldig. De rol staat in het token: een beheerder die zijn rechten verliest, houdt ze tot het token verloopt.                                    | Middel | Bij elke actie de gebruiker en rol in de database controleren, of een sessietabel die je kunt intrekken.                                                  |
-| B7  | V11.1.4, V12.1.1 | Er is geen maximum op de grootte van een verzoek. De lengtecontrole van Zod gebeurt pas nadat het hele bericht is ingelezen. RSK1 is daardoor maar deels afgedekt.                                              | Laag   | Content-Length controleren en verzoeken boven bijvoorbeeld 16 kB weigeren met 413.                                                                        |
-| B8  | V2.2.1           | De teller van foute codes wordt eerst gelezen en daarna verhoogd. Gelijktijdige verzoeken kunnen daardoor iets meer dan 5 pogingen krijgen.                                                                     | Laag   | De teller in één databasebewerking verhogen en controleren.                                                                                               |
-| B9  | V13.2.5, V4.2.2  | De server controleert niet of een verzoek echt JSON is of van de eigen site komt. De CSRF-bescherming leunt helemaal op SameSite=Strict.                                                                        | Laag   | `Content-Type: application/json` afdwingen en de `Origin`-header controleren bij acties die iets wijzigen.                                                |
-| B10 | V14.3.3          | Headers als `x-nextjs-cache` en `vary: rsc` laten zien dat de site Next.js gebruikt.                                                                                                                            | Laag   | Accepteren: het framework is ook aan de HTML te herkennen. Echte bescherming is up-to-date blijven (B1).                                                  |
-| B11 | V6.4.1           | Geheimen worden pas gecontroleerd als ze nodig zijn, niet bij het opstarten. Ontbreekt de sessiesleutel, dan lijkt iedereen uitgelogd. De sterkte van een sleutel wordt niet gecontroleerd.                     | Laag   | Bij het opstarten alle geheimen controleren op aanwezigheid en minimale lengte (32 tekens).                                                               |
-| B12 | V2.1.7           | Geen controle op gelekte wachtwoorden. bcrypt gebruikt alleen de eerste 72 bytes van een wachtwoord; het formulier staat er 128 toe.                                                                            | Laag   | Controle tegen de Pwned Passwords-lijst (Hunt, z.d.) met k-anonimiteit; maximum op 72 bytes zetten.                                                       |
-| B13 | V11.1            | De captcha is een eenvoudige som die een bot kan uitrekenen. Hij remt spam, maar houdt een gericht script niet tegen.                                                                                           | Laag   | Samen met B2: een limiet per IP-adres op het contactformulier.                                                                                            |
-| B14 | V2.1             | Opnieuw registreren met een nog niet bevestigd adres overschrijft naam en wachtwoord. De code in de mailbox van de echte eigenaar voorkomt overname.                                                            | Laag   | Een onbevestigd account na een tijd verwijderen in plaats van overschrijven.                                                                              |
-| B15 | V7.4.1           | Geen eigen foutpagina voor serverfouten. Next.js toont in productie een algemene pagina zonder details, dus er lekt niets.                                                                                      | Info   | Een eigen `error.tsx` voor een nette melding.                                                                                                             |
-| B16 | -                | De mail loopt ook in productie via de sandbox-API van Mailtrap. Berichten komen in een testinbox, niet bij echte ontvangers.                                                                                    | Info   | Voor deze opdracht bewust (school vraagt Mailtrap). Bij echte livegang een echte mailprovider.                                                            |
+| #   | ASVS             | Bevinding                                                                                                                                                                                                       | Ernst  | Advies                                                                                                                                |
+| --- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| B1  | V14.2.1          | Next.js 16.3.8 valt onder twee kritieke advisories van oktober 2026 (1.3.3). Via mijn configuratie nauwelijks bereikbaar, maar wel een bekende kwetsbare versie.                                                | Hoog   | **In code opgelost 26-10-2026** (16.4.1, PR #42); live zodra de Railway-deploy lukt.                                                  |
+| B2  | V2.2.1, V11.1.4  | Geen limiet op verzoeken. Wachtwoorden raden kan onbeperkt. Wie een wachtwoord kent, kan steeds een nieuwe code aanvragen, elk met 5 pogingen. Registreren kan gebruikt worden om iemand te bestoken met mails. | Middel | Teller per IP-adres en per account (bv. 5 pogingen per 15 minuten), daarna 429. Maximaal aantal codes per uur.                        |
+| B3  | V14.1.1, V1.1.1  | Main is alleen via een pull request te wijzigen, maar een groene CI is geen verplichte voorwaarde. Develop, dat automatisch naar staging gaat, is niet beschermd.                                               | Middel | **Opgelost 26-10-2026:** de CI-controles zijn verplicht op main en develop; develop is ook beschermd tegen verwijderen en force-push. |
+| B4  | V7.1, V7.2       | Geen logging van security-gebeurtenissen: mislukte logins, geweigerde acties (403) en beheerdersacties worden niet vastgelegd. Een aanval valt daardoor niet op.                                                | Middel | Gestructureerd loggen (wie, wat, wanneer, uitkomst), zonder wachtwoorden, codes of contactgegevens.                                   |
+| B5  | V6.4.1, V14.1.1  | Secret scanning en push protection staan uit, terwijl de repository openbaar is. Een per ongeluk gecommit geheim wordt niet tegengehouden.                                                                      | Middel | Secret scanning en push protection aanzetten in de GitHub-instellingen (gratis voor openbare repositories).                           |
+| B6  | V3.3.1           | Uitloggen wist de cookie, maar het token zelf blijft tot 24 uur geldig. De rol staat in het token: een beheerder die zijn rechten verliest, houdt ze tot het token verloopt.                                    | Middel | Bij elke actie de gebruiker en rol in de database controleren, of een sessietabel die je kunt intrekken.                              |
+| B7  | V11.1.4, V12.1.1 | Er is geen maximum op de grootte van een verzoek. De lengtecontrole van Zod gebeurt pas nadat het hele bericht is ingelezen. RSK1 is daardoor maar deels afgedekt.                                              | Laag   | Content-Length controleren en verzoeken boven bijvoorbeeld 16 kB weigeren met 413.                                                    |
+| B8  | V2.2.1           | De teller van foute codes wordt eerst gelezen en daarna verhoogd. Gelijktijdige verzoeken kunnen daardoor iets meer dan 5 pogingen krijgen.                                                                     | Laag   | De teller in één databasebewerking verhogen en controleren.                                                                           |
+| B9  | V13.2.5, V4.2.2  | De server controleert niet of een verzoek echt JSON is of van de eigen site komt. De CSRF-bescherming leunt helemaal op SameSite=Strict.                                                                        | Laag   | Alleen JSON-verzoeken accepteren en controleren of een verzoek van de eigen site komt, bij acties die iets wijzigen.                  |
+| B10 | V14.3.3          | Een paar headers die Next.js zelf meestuurt, laten zien dat de site Next.js gebruikt.                                                                                                                           | Laag   | Accepteren: het framework is ook aan de HTML te herkennen. Echte bescherming is up-to-date blijven (B1).                              |
+| B11 | V6.4.1           | Geheimen worden pas gecontroleerd als ze nodig zijn, niet bij het opstarten. Ontbreekt de sessiesleutel, dan lijkt iedereen uitgelogd. De sterkte van een sleutel wordt niet gecontroleerd.                     | Laag   | Bij het opstarten alle geheimen controleren op aanwezigheid en minimale lengte (32 tekens).                                           |
+| B12 | V2.1.7           | Geen controle op gelekte wachtwoorden. bcrypt gebruikt alleen de eerste 72 bytes van een wachtwoord; het formulier staat er 128 toe.                                                                            | Laag   | Controle tegen de Pwned Passwords-lijst (Hunt, z.d.) met k-anonimiteit; maximum op 72 bytes zetten.                                   |
+| B13 | V11.1            | De captcha is een eenvoudige som die een bot kan uitrekenen. Hij remt spam, maar houdt een gericht script niet tegen.                                                                                           | Laag   | Samen met B2: een limiet per IP-adres op het contactformulier.                                                                        |
+| B14 | V2.1             | Opnieuw registreren met een nog niet bevestigd adres overschrijft naam en wachtwoord. De code in de mailbox van de echte eigenaar voorkomt overname.                                                            | Laag   | Een onbevestigd account na een tijd verwijderen in plaats van overschrijven.                                                          |
+| B15 | V7.4.1           | Geen eigen foutpagina voor serverfouten. Next.js toont in productie een algemene pagina zonder details, dus er lekt niets.                                                                                      | Info   | Een eigen foutpagina met een nette melding.                                                                                           |
+| B16 | -                | De mail loopt ook in productie via de sandbox-API van Mailtrap. Berichten komen in een testinbox, niet bij echte ontvangers.                                                                                    | Info   | Voor deze opdracht bewust (school vraagt Mailtrap). Bij echte livegang een echte mailprovider.                                        |
 
 Wat goed is en ik niet als bevinding meetel, omdat het in de code klopt met dit rapport: tweestapsinloggen met gehashte, eenmalige codes; bcrypt met cost 12; dezelfde melding bij onbekend adres en fout wachtwoord; RBAC in de datalaag met 403 bij andermans vraag; de auteur uit de sessie; validatie met Zod op de server; geen ruwe SQL en geen HTML uit invoer; de live-verbinding zonder inhoud; geen e-mailadressen in antwoorden; de security headers live op staging en productie; geen CORS; geen bestandsuploads; geen externe afbeeldingen (geen SSRF); geen source maps in productie.
 
@@ -505,12 +499,12 @@ Voor elk restrisico (Tabel 17) heb ik gekeken wie de gevolgen draagt (Tabel 19):
 
 **Tabel 19.** _Wie de gevolgen draagt als ik iets nalaat_
 
-| Als ik dit nalaat                      | Wie draagt de gevolgen                                                              |
-| -------------------------------------- | ----------------------------------------------------------------------------------- |
-| Next.js niet bijwerken na een advisory | Alle bezoekers: een overgenomen server kan hun gegevens en sessies lekken           |
-| Wachtwoorden niet goed hashen          | Gebruikers, ook op andere sites, omdat mensen wachtwoorden hergebruiken             |
-| Geen limiet op verzoeken per IP-adres  | Ikzelf (kosten, beschikbaarheid) en gebruikers van wie een wachtwoord wordt geraden |
-| Staging zonder `noindex`               | Gebruikers van staging, als testgegevens in zoekresultaten komen                    |
+| Als ik dit nalaat                        | Wie draagt de gevolgen                                                              |
+| ---------------------------------------- | ----------------------------------------------------------------------------------- |
+| Next.js niet bijwerken na een advisory   | Alle bezoekers: een overgenomen server kan hun gegevens en sessies lekken           |
+| Wachtwoorden niet goed hashen            | Gebruikers, ook op andere sites, omdat mensen wachtwoorden hergebruiken             |
+| Geen limiet op verzoeken per IP-adres    | Ikzelf (kosten, beschikbaarheid) en gebruikers van wie een wachtwoord wordt geraden |
+| Staging vindbaar laten voor zoekmachines | Gebruikers van staging, als testgegevens in zoekresultaten komen                    |
 
 Een restrisico accepteer ik alleen als de schade klein is of vooral mijzelf raakt. Risico's voor de gegevens van anderen (AS1, AS2) heb ik altijd met een maatregel afgedekt.
 
@@ -560,16 +554,16 @@ In de ASVS-lijst (bijlage B) staat per eis wat ik heb gedaan en een status. Van 
 
 **Tabel 20.** _Overzicht van de bijlagen_
 
-| Bijlage | Document                                      | Bestand                          |
-| ------- | --------------------------------------------- | -------------------------------- |
-| A       | Verantwoording AI-gebruik (interne bijlage)   | In dit document, hieronder       |
-| B       | OWASP ASVS-lijst met genomen maatregelen      | `OWASP-ASVS-lijst-S1148925.xlsx` |
-| C       | Requirementsanalyse (assets, risico's, SM)    | `requirementsanalyse.pdf`        |
-| D       | Functioneel ontwerp (use cases, evil stories) | `functioneel-ontwerp.pdf`        |
-| E       | Technisch ontwerp (C4, STRIDE, tests)         | `technisch-ontwerp.pdf`          |
-| F       | Plan van aanpak                               | `plan-van-aanpak.pdf`            |
-| G       | ZAP-rapport vóór de fix                       | `zap-scan-voor.html`             |
-| H       | ZAP-rapport na de fix                         | `zap-scan-na.html`               |
+| Bijlage | Document                                      | Vorm                 |
+| ------- | --------------------------------------------- | -------------------- |
+| A       | Verantwoording AI-gebruik (interne bijlage)   | In dit document      |
+| B       | OWASP ASVS-lijst met genomen maatregelen      | Excel                |
+| C       | Requirementsanalyse (assets, risico's, SM)    | PDF                  |
+| D       | Functioneel ontwerp (use cases, evil stories) | PDF                  |
+| E       | Technisch ontwerp (C4, STRIDE, tests)         | PDF                  |
+| F       | Plan van aanpak                               | PDF                  |
+| G       | ZAP-rapport vóór de fix                       | HTML-rapport van ZAP |
+| H       | ZAP-rapport na de fix                         | HTML-rapport van ZAP |
 
 Broncode: https://github.com/sebastiaankolmschateq42/portfolio. Staging: https://portfolio-staging-9685.up.railway.app, productie: https://portfolio-production-36a4.up.railway.app.
 
@@ -592,27 +586,27 @@ _[TODO Sebastiaan: deze bijlage moet jouw eigen, eerlijke verhaal zijn. De tabel
 
 **Tabel 22.** _Bijdragen van AI per onderdeel en mijn controle_
 
-| Onderdeel                  | Wat AI deed                                                                                                                                                                                                   | Wat ik heb aangepast of gecontroleerd                                           |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| 1.3 Actualiteit            | Advisories en twee recente hacks opgezocht, conceptteksten en tabellen opgesteld, met bronnen                                                                                                                 | _[invullen]_                                                                    |
-| 1.3.4 Google Dorks         | Drie zoekopdrachten voorgesteld, twee uitgevoerd, de bestanden direct op de sites gecontroleerd en de git-geschiedenis doorzocht                                                                              | De drie zoekopdrachten zelf in Google uitgevoerd en de screenshots gemaakt      |
-| 7 Securityreview en advies | De code per ASVS-hoofdstuk nagelopen en een concept-oordeel en -advies opgesteld                                                                                                                              | _[invullen]_                                                                    |
-| 4.5 TLS-test               | De openssl- en curl-commando's uitgevoerd en de uitkomst in de tabel gezet                                                                                                                                    | De controle zelf herhaald op productie (screenshot)                             |
-| 4.6 SQL-injectie           | De code doorzocht op ruwe SQL (geen treffers) en de controle beschreven                                                                                                                                       | De twee injectiepogingen zelf uitgevoerd via de site (screenshots)              |
-| 1.3.3 Dependency-update    | Next.js, Zod en Nodemailer bijgewerkt, lint, tests, build en Cypress gedraaid, `bun audit` voor en na                                                                                                         | _[invullen: diff zelf nagekeken vóór de commit]_                                |
-| Correcties in H3 t/m H5    | Vijf beweringen in het rapport vergeleken met de code en aangepast waar ze niet klopten                                                                                                                       | _[invullen]_                                                                    |
-| CI en GitHub-instellingen  | De Cypress-stap in CI hersteld, op mijn verzoek CI verplicht gemaakt op main en develop en de pull request gemerged                                                                                           | Ik gaf per stap akkoord; de Railway-deploy heb ik zelf in het dashboard bekeken |
-| Opmaak en schrijfstijl     | APA-bronnenlijst en nummering van tabellen en figuren toegevoegd; op mijn verzoek de opsommingen in het hele rapport omgezet naar lopende tekst, zonder inhoud te veranderen                                  | _[invullen]_                                                                    |
-| 8 Ethiek                   | Concepttekst opgesteld op basis van de keuzes in mijn ontwerp                                                                                                                                                 | _[invullen]_                                                                    |
-| Bijlage B ASVS-lijst       | Kolom "Measures taken" ingevuld op basis van de code en dit rapport                                                                                                                                           | _[invullen]_                                                                    |
-| Hoofdstukken 1 t/m 6       | _[invullen: welke rol had AI hier, bv. feedback op tekst, review van de code?]_                                                                                                                               | _[invullen]_                                                                    |
-| Code van de applicatie     | Volgens mijn werkafspraak (AGENTS.md): uitleg, advies, debughulp, code review en commitberichten. 12 van de 43 commits op develop dragen een Co-Authored-By-regel van Claude. _[aanvullen waar AI meer deed]_ | _[invullen]_                                                                    |
+| Onderdeel                  | Wat AI deed                                                                                                                                                                                                                                                     | Wat ik heb aangepast of gecontroleerd                                           |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| 1.3 Actualiteit            | Advisories en twee recente hacks opgezocht, conceptteksten en tabellen opgesteld, met bronnen                                                                                                                                                                   | _[invullen]_                                                                    |
+| 1.3.4 Google Dorks         | Drie zoekopdrachten voorgesteld, twee uitgevoerd, de bestanden direct op de sites gecontroleerd en de git-geschiedenis doorzocht                                                                                                                                | De drie zoekopdrachten zelf in Google uitgevoerd en de screenshots gemaakt      |
+| 7 Securityreview en advies | De code per ASVS-hoofdstuk nagelopen en een concept-oordeel en -advies opgesteld                                                                                                                                                                                | _[invullen]_                                                                    |
+| 4.5 TLS-test               | De openssl- en curl-commando's uitgevoerd en de uitkomst in de tabel gezet                                                                                                                                                                                      | De controle zelf herhaald op productie (screenshot)                             |
+| 4.6 SQL-injectie           | De code doorzocht op ruwe SQL (geen treffers) en de controle beschreven                                                                                                                                                                                         | De twee injectiepogingen zelf uitgevoerd via de site (screenshots)              |
+| 1.3.3 Dependency-update    | Next.js, Zod en Nodemailer bijgewerkt, lint, tests, build en Cypress gedraaid, de dependency-audit voor en na                                                                                                                                                   | _[invullen: diff zelf nagekeken vóór de commit]_                                |
+| Correcties in H3 t/m H5    | Vijf beweringen in het rapport vergeleken met de code en aangepast waar ze niet klopten                                                                                                                                                                         | _[invullen]_                                                                    |
+| CI en GitHub-instellingen  | De Cypress-stap in CI hersteld, op mijn verzoek CI verplicht gemaakt op main en develop en de pull request gemerged                                                                                                                                             | Ik gaf per stap akkoord; de Railway-deploy heb ik zelf in het dashboard bekeken |
+| Opmaak en schrijfstijl     | APA-bronnenlijst en nummering van tabellen en figuren toegevoegd; op mijn verzoek de opsommingen in het hele rapport omgezet naar lopende tekst, zonder inhoud te veranderen; daarna bestandsnamen, paden, commando's en code-opmaak vervangen door gewone taal | _[invullen]_                                                                    |
+| 8 Ethiek                   | Concepttekst opgesteld op basis van de keuzes in mijn ontwerp                                                                                                                                                                                                   | _[invullen]_                                                                    |
+| Bijlage B ASVS-lijst       | Kolom "Measures taken" ingevuld op basis van de code en dit rapport                                                                                                                                                                                             | _[invullen]_                                                                    |
+| Hoofdstukken 1 t/m 6       | _[invullen: welke rol had AI hier, bv. feedback op tekst, review van de code?]_                                                                                                                                                                                 | _[invullen]_                                                                    |
+| Code van de applicatie     | Volgens mijn werkafspraak in de repository: uitleg, advies, debughulp, code review en commitberichten. 12 van de 43 commits op develop dragen een Co-Authored-By-regel van Claude. _[aanvullen waar AI meer deed]_                                              | _[invullen]_                                                                    |
 
 ### A.3 Hoe ik AI-voorstellen kritisch heb beoordeeld
 
 Feitelijke controlemomenten in de laatste sessie:
 
-1. Ik liet de dependency-update eerst op een aparte branch zetten en de volledige diff zien, vóór er iets gecommit werd. Pas daarna gaf ik akkoord, en alleen voor `package.json` en `bun.lock`.
+1. Ik liet de dependency-update eerst op een aparte branch zetten en de volledige diff zien, vóór er iets gecommit werd. Pas daarna gaf ik akkoord, en alleen voor de twee bestanden met de package-versies.
 2. Ik liet AI de beweringen in mijn eigen rapport tegen de code controleren. Vijf beweringen bleken te sterk (zoals "mergen kan pas als alles groen is") en zijn aangepast in plaats van opgepoetst.
 3. Toen de deploy naar staging bleef hangen, heb ik zelf in Railway gekeken en besloten de deploy te laten rusten in plaats van door te drukken naar productie.
 
